@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Signals that predict cognitive decline are already on your wrist. Charisma reads that passive data and tells you where your brain age sits. 30 open spots in the first cohort.">
+<meta name="theme-color" content="#FBF4EC">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Charisma">
+<meta property="og:description" content="Signals that predict cognitive decline are already on your wrist. Charisma reads that passive data and tells you where your brain age sits.">
+<style>body{margin:0}img{max-width:100%}</style>
+<title>Charisma</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+--paper:#FBF4EC;
+--paper-deep:#F3E7DA;
+--card:#FFFFFF;
+--ink:#241C18;
+--dim:#5A4B42;
+--muted:#7A6757;
+--rule:#E7D9CB;
+--rule-soft:#F0E5D9;
+--green:#0B7A5C;
+--green-deep:#095F48;
+--indigo:#5B4BE0;
+--display:"Instrument Serif","Iowan Old Style",Georgia,serif;
+--body:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+--mono:"IBM Plex Mono","SF Mono",Menlo,monospace;
+--measure:38rem;
+--wide:66rem;
+}
+*{box-sizing:border-box}
+body{
+background:var(--paper);
+color:var(--ink);
+font-family:var(--body);
+font-size:17px;
+line-height:1.55;
+-webkit-font-smoothing:antialiased;
+padding-block:0 92px;
+}
+a{color:inherit}
+img{max-width:100%}
+.wrap{max-width:var(--wide);margin-inline:auto;padding-inline:22px}
+.col{max-width:var(--measure)}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0}
+h1{font-size:clamp(42px,7.4vw,74px);line-height:1.02;letter-spacing:-.015em}
+h2{font-size:clamp(31px,4.6vw,46px);line-height:1.08;letter-spacing:-.01em}
+h3{font-size:clamp(25px,2.4vw,30px);line-height:1.15}
+p{margin:0}
+.kicker{
+font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+text-transform:uppercase;color:var(--green);
+}
+.lead{font-size:19px;color:var(--dim);margin-top:14px}
+section{padding-block:clamp(56px,8vw,100px);border-top:1px solid var(--rule-soft)}
+section:first-of-type{border-top:0}
+.strip{border-bottom:1px solid var(--rule-soft);font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--muted)}
+.strip .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-block:9px}
+.strip b{color:var(--ink);font-weight:400}
+.nav{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:1px solid transparent;transition:border-color .2s}
+.nav.stuck{border-color:var(--rule)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:13px}
+.mark{display:flex;align-items:center;gap:10px}
+.mark .name{font-family:var(--display);font-size:25px;letter-spacing:.1em;line-height:1;white-space:nowrap}
+.nav .btn{transition:opacity .2s,transform .2s}
+.nav.hide-cta .btn{opacity:0;pointer-events:none;transform:translateY(-4px)}
+.btn{
+display:inline-flex;align-items:center;gap:12px;
+background:var(--green);color:#FFFFFF;text-decoration:none;
+font-size:17px;font-weight:600;letter-spacing:-.005em;
+padding:14px 16px 14px 26px;border-radius:999px;border:0;cursor:pointer;
+font-family:var(--body);
+box-shadow:0 1px 0 rgba(36,28,24,.10),0 10px 24px -14px rgba(11,122,92,.85);
+transition:background .18s,transform .18s,box-shadow .18s;
+}
+.btn:hover{background:var(--green-deep);transform:translateY(-1px)}
+.btn:focus-visible{outline:2px solid var(--indigo);outline-offset:3px}
+.btn .badge{
+width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.18);
+display:grid;place-items:center;font-size:14px;flex:none;
+}
+.btn.small{font-size:15px;padding:10px 12px 10px 20px}
+.btn.small .badge{width:22px;height:22px;font-size:12px}
+.btn.big{font-size:19px;padding:17px 19px 17px 32px}
+.undercta{margin-top:14px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hero{padding-block:clamp(54px,9vw,102px) clamp(46px,7vw,84px)}
+.hero h1{margin-top:18px}
+.hero h1 .soft{color:var(--muted)}
+.hero .sub{font-size:20px;color:var(--dim);margin-top:22px;max-width:34rem}
+.hero .cta{margin-top:34px}
+.ecg{display:block;width:min(100%,320px);height:34px;margin-top:36px;overflow:visible}
+.ecg path{fill:none;stroke:var(--green);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+stroke-dasharray:520;stroke-dashoffset:520;animation:trace 4.2s ease-in-out infinite}
+@keyframes trace{0%{stroke-dashoffset:520}55%{stroke-dashoffset:0}100%{stroke-dashoffset:-520}}
+.seq-rail{position:relative;height:190vh}
+.seq-sticky{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+.seq-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(30px,6vw,80px);
+align-items:center;width:100%}
+.steps{display:flex;flex-direction:column;gap:26px}
+.seq-rail{margin-top:8px}
+.step{border-left:2px solid var(--rule);padding-left:20px;transition:border-color .35s,opacity .35s}
+.step:not(.on){opacity:.34}
+.step.on{border-left-color:var(--green)}
+.step .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+.step h3{margin-top:8px}
+.step p{font-size:19px;color:var(--dim);margin-top:12px;max-width:26rem}
+.step .fine{font-size:15px;color:var(--muted);margin-top:12px}
+.phone{
+height:min(76vh,700px);
+border-radius:44px;background:#2A211D;padding:10px;
+box-shadow:0 34px 70px -26px rgba(74,52,38,.45),0 0 0 1px rgba(42,33,29,.12);
+}
+.screen{position:relative;height:100%;width:auto;aspect-ratio:393/852;
+border-radius:36px;overflow:hidden;background:#FFFBF7}
+.pane{position:absolute;inset:0;opacity:0;transition:opacity .4s;pointer-events:none}
+.pane.on{opacity:1;pointer-events:auto}
+.pane img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.fit{position:absolute;top:0;left:0;width:393px;height:852px;transform-origin:top left}
+.pane .fit{pointer-events:none}
+.pane.on .fit{pointer-events:auto}
+.fit-inner{position:absolute;inset:0;display:flex;flex-direction:column;background:#FFFBF7}
+.pbar{display:flex;justify-content:space-between;padding:13px 24px 2px;
+font-family:var(--mono);font-size:12.5px;color:#5A4B42;flex:none}
+.ppane{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;
+padding:6px 16px 18px;overflow:hidden}
+.ppane .ccheck{flex:1;min-height:0}
+.ptabs{display:flex;border-top:1px solid #E7D9CB;background:#FFFBF7;flex:none;
+padding-block:8px 15px;pointer-events:none}
+.ptab{flex:1;background:none;border:0;color:#7A6757;display:flex;flex-direction:column;
+align-items:center;gap:5px;font-size:14px;font-weight:500;padding-block:4px;
+font-family:var(--body)}
+.ptab.on{color:#0B7A5C}
+.ptab .fab{width:24px;height:24px;border-radius:50%;background:#0B7A5C;display:grid;place-items:center}
+.ptab .fab .dot{width:8px;height:8px;border-radius:50%;background:#FFFFFF}
+@media (max-width:900px){
+.seq-sticky{height:100vh;padding-block:62px 88px;align-items:center}
+.seq-grid{grid-template-columns:minmax(0,1fr);justify-items:stretch;gap:14px}
+.phone{justify-self:center}
+.steps{width:100%}
+.step:not(.on){display:none}
+.step{border-left:0;padding-left:0}
+.step h3{font-size:27px}
+.phone{height:clamp(430px,64vh,555px)}
+}
+@media (max-width:470px){
+.nav .btn{display:none}
+.mark .name{font-size:22px}
+.strip .wrap{padding-block:8px}
+}
+@media (max-width:560px){
+.dock .say{display:none}
+.dock .wrap{padding-block:11px}
+.step h3{font-size:25px}
+}
+@media (max-width:900px) and (max-height:720px){
+.seq-sticky{padding-block:58px 94px}
+.seq-grid{gap:12px}
+.step h3{font-size:24px}
+.step p{display:none}
+.phone{height:clamp(390px,62vh,555px)}
+}
+.agewrap{position:absolute;inset:0;display:flex;flex-direction:column;background:#FFFBF7}
+.atop{display:flex;justify-content:space-between;align-items:baseline;padding:2px 2px 12px}
+.atop .t{font-size:23px;font-weight:700;letter-spacing:-.01em;color:#241C18}
+.atop .s{font-size:15px;color:#7A6757}
+.ahero{position:relative;border-radius:20px;overflow:hidden;padding:30px 20px 26px;text-align:center;
+background:linear-gradient(168deg,#3A3160 0%,#2F2750 55%,#463B63 100%)}
+.ahero .star{position:absolute;background:#FFF6E2;border-radius:50%;opacity:.85}
+.ahero .moon{position:absolute;top:24px;right:30px;width:54px;height:54px;border-radius:50%;
+background:#B9AEDC;overflow:hidden}
+.ahero .moon::after{content:"";position:absolute;top:-12px;right:-16px;width:54px;height:54px;
+border-radius:50%;background:#372E59}
+.ahero .cloud{position:absolute;border-radius:999px;background:rgba(255,255,255,.07)}
+.ahero .lead2{position:relative;font-size:16px;color:#E8E1F2}
+.ahero .num{position:relative;font-family:var(--display);font-size:78px;line-height:.95;color:#FFF6E2;margin-top:2px}
+.ahero .real{position:relative;font-size:16px;color:#E8E1F2;margin-top:4px}
+.ahero .pill{position:relative;display:inline-block;margin-top:16px;padding:10px 20px;border-radius:999px;
+background:rgba(255,255,255,.14);color:#8FE0C0;font-size:16px;font-weight:600}
+.arule{width:44px;height:3px;border-radius:2px;background:#0B7A5C;margin:22px 0 10px}
+.alab{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#0B7A5C}
+.aq{font-family:var(--display);font-size:27px;line-height:1.1;margin-top:4px;color:#241C18}
+.acard{margin-top:12px;border:1px solid #EEE3D6;border-radius:14px;padding:14px;background:#FFFFFF}
+.atag{display:inline-block;border:1px solid #BFE3D3;border-radius:999px;background:#EAF5F0;
+color:#0B7A5C;font-size:12px;font-weight:600;letter-spacing:.06em;padding:5px 12px}
+.acard .h{font-size:16px;font-weight:700;margin-top:10px;line-height:1.3;color:#241C18}
+.acard .big{font-family:var(--display);font-size:27px;color:#0B7A5C;margin-top:4px}
+.acard .p{font-size:14px;color:#5A4B42;margin-top:2px;line-height:1.45}
+.acard .f{font-size:13px;color:#7A6757;margin-top:8px}
+.abody{flex:1;min-height:0;padding:6px 16px 0;overflow:hidden}
+.signals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+gap:0 40px;margin-top:30px;border-top:1px solid var(--rule)}
+.sig{display:grid;grid-template-columns:30px minmax(0,1fr);gap:14px;
+align-items:start;padding-block:15px;border-bottom:1px solid var(--rule-soft)}
+.sig .glyph{width:28px;height:28px;color:var(--green);margin-top:1px}
+.sig .glyph svg{width:100%;height:100%;display:block}
+.sig h3{font-family:var(--body);font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+.sig .claim{font-size:15px;color:var(--dim);margin-top:2px;line-height:1.45}
+.sig .src{display:block;margin-top:3px;font-family:var(--mono);font-size:11px}
+.sig .src a{color:var(--muted);text-decoration:underline;text-underline-offset:2px;
+text-decoration-color:rgba(122,103,87,.35)}
+.sig .src a:hover{color:var(--green);text-decoration-color:var(--green)}
+@media (max-width:700px){
+.signals{grid-template-columns:minmax(0,1fr);gap:0}
+}
+.research{margin-top:30px;border:1px solid var(--rule);border-radius:10px;
+background:var(--card);overflow:hidden}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.stat{padding:20px 20px 18px;border-right:1px solid var(--rule-soft);
+border-top:3px solid var(--green);display:flex;flex-direction:column}
+.stat:last-child{border-right:0}
+.stat .fig{font-family:var(--mono);font-weight:500;font-size:36px;line-height:1;
+color:var(--ink);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stat .fig small{font-size:17px;letter-spacing:0;color:var(--green)}
+.stat .cap{display:block;margin-top:8px;font-family:var(--mono);font-size:10.5px;
+letter-spacing:.11em;text-transform:uppercase;color:var(--green);line-height:1.5}
+.stat .what{font-size:14.5px;line-height:1.5;margin-top:10px;color:var(--dim)}
+.stat .src{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:auto;padding-top:12px;line-height:1.5}
+.stat .src a{color:var(--muted);text-decoration:underline;text-underline-offset:2px;
+text-decoration-color:rgba(122,103,87,.4)}
+.stat .src a:hover{color:var(--green);text-decoration-color:var(--green)}
+.refs{border-top:1px solid var(--rule);padding:15px 20px 16px;background:var(--paper)}
+.refs .rhead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.refs .rlab{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--green)}
+.refs .rmore{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted)}
+.refs ol{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:0}
+.refs li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:baseline;
+font-size:13.5px;line-height:1.45;padding-block:4px}
+.refs li + li{border-top:1px solid var(--rule-soft)}
+.refs .yr{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.refs a{color:var(--ink);text-decoration:underline;text-underline-offset:2px;
+text-decoration-color:rgba(36,28,24,.25)}
+.refs a:hover{color:var(--green);text-decoration-color:var(--green)}
+.refs i{color:var(--muted);font-style:italic}
+@media (max-width:820px){
+.stats{grid-template-columns:minmax(0,1fr)}
+.stat{border-right:0;border-top-width:1px;border-top-color:var(--rule-soft)}
+.stat:first-child{border-top:3px solid var(--green)}
+}
+.close{background:var(--paper-deep);border-top:1px solid var(--rule)}
+.close h2{font-size:clamp(34px,6vw,60px)}
+.close p{font-size:19px;color:var(--dim);margin-top:18px}
+.close .btn{margin-top:32px}
+footer{padding-block:32px}
+footer .wrap{display:flex;gap:24px;justify-content:space-between;flex-wrap:wrap;
+font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--muted)}
+footer .disc{max-width:32rem}
+.scrim{
+position:fixed;inset:0;z-index:80;display:none;
+align-items:center;justify-content:center;padding:22px;
+background:rgba(23,18,16,.42);backdrop-filter:blur(3px);
+}
+.scrim.open{display:flex}
+.modal{
+width:100%;max-width:26rem;background:var(--card);
+border:1px solid var(--rule);border-radius:24px;
+padding:30px 28px 26px;
+box-shadow:0 30px 70px -30px rgba(36,28,24,.5);
+animation:rise .22s cubic-bezier(.2,.7,.3,1);
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.modal h2{font-size:32px;line-height:1.1}
+.modal .note{font-size:16px;color:var(--dim);margin-top:10px}
+.modal form{display:flex;flex-direction:column;gap:12px;margin-top:22px}
+.modal input{
+font-family:var(--body);font-size:17px;color:var(--ink);
+background:var(--paper);border:1px solid var(--rule);border-radius:14px;
+padding:15px 16px;width:100%;
+}
+.modal input::placeholder{color:var(--muted)}
+.modal input:focus{outline:2px solid var(--green);outline-offset:1px;border-color:transparent}
+.modal .btn{justify-content:center;width:100%;padding-inline:26px}
+.modal .fine{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+text-transform:uppercase;color:var(--muted);margin-top:16px;text-align:center}
+.modal .err{font-size:15px;color:#A8340F;margin-top:-4px}
+.modal .err a{color:inherit}
+.modal .x{
+position:absolute;top:14px;right:16px;background:none;border:0;cursor:pointer;
+font-size:22px;line-height:1;color:var(--muted);font-family:var(--body);padding:6px;
+}
+.modal .x:hover{color:var(--ink)}
+.modal-wrap{position:relative;width:100%;max-width:26rem}
+.done{text-align:center;padding-block:8px}
+.done .tick{
+width:52px;height:52px;border-radius:50%;background:rgba(11,122,92,.12);
+color:var(--green);display:grid;place-items:center;margin:0 auto 16px;font-size:24px;
+}
+.dock{
+position:fixed;left:0;right:0;bottom:0;z-index:50;
+background:rgba(23,18,16,.97);color:#F7EFE6;
+border-top:1px solid rgba(255,255,255,.08);
+transform:translateY(110%);transition:transform .32s cubic-bezier(.2,.7,.3,1);
+}
+.dock.up{transform:translateY(0)}
+.dock .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:13px;flex-wrap:wrap}
+.dock .say{font-size:16px;font-weight:600}
+@media (max-width:560px){
+.dock .btn{flex:1;justify-content:center;padding-inline:20px}
+.dock .say{font-size:15px;font-weight:500}
+}
+@media (max-width:900px) and (max-height:720px){
+.seq-sticky{padding-block:58px 94px}
+.seq-grid{gap:12px}
+.step h3{font-size:24px}
+.step p{display:none}
+.phone{height:clamp(390px,62vh,555px)}
+}
+@media (prefers-reduced-motion:reduce){
+*{animation:none!important;transition:none!important}
+}
+</style>
+
+<style>
+.ccheck{--cc-ink:#241C18;--cc-dim:#5A4B42;--cc-muted:#7A6757;--cc-line:#E7D9CB;
+--cc-surface:#FFFFFF;--cc-raised:#F6EDE4;--cc-green:#0B7A5C;--cc-indigo:#5B4BE0;--cc-amber:#A8650F;
+--cc-dawn:var(--dawn,linear-gradient(158deg,#FFF3E6 0%,#FDEDF2 52%,#EFEBFF 100%));
+font-family:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;color:var(--cc-ink);
+display:flex;flex-direction:column;min-height:0}
+.ccheck *{box-sizing:border-box}
+.cc-bar{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;flex:none}
+.cc-title{font-size:24px;font-weight:600;letter-spacing:-.01em}
+.cc-clock{font-size:15px;color:var(--cc-muted)}
+.cc-prog{display:flex;gap:4px;margin-bottom:13px;flex:none}
+.cc-prog i{flex:1;height:3px;background:var(--cc-line);border-radius:2px;transition:background .3s}
+.cc-prog i.done{background:var(--cc-green)}
+.cc-prog i.now{background:var(--cc-indigo)}
+.cc-stage{flex:1;display:grid;place-items:center;text-align:center;border:1px solid var(--cc-line);
+border-radius:24px;background:var(--cc-surface);padding:22px 20px;min-height:320px;position:relative;overflow:hidden}
+.cc-stage.intro{background:var(--cc-dawn)}
+.cc-stage h3{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-weight:400;
+font-size:34.5px;margin:0 0 8px;line-height:1.14}
+.cc-stage p{margin:0;color:var(--cc-dim);font-size:17px;line-height:1.55;max-width:23rem}
+.cc-games{display:flex;flex-direction:column;gap:9px;margin:20px auto 4px;width:100%;max-width:270px}
+.cc-game{display:block;background:rgba(255,255,255,.72);
+border:1px solid var(--cc-line);border-radius:14px;padding:12px 15px;text-align:left}
+.cc-game .n{width:26px;height:26px;border-radius:50%;background:var(--cc-green);color:#FFF;flex:none;
+display:grid;place-items:center;font-size:15px;font-weight:600}
+.cc-game .t{font-size:17px;font-weight:500}
+.cc-game .s{font-size:15px;color:var(--cc-muted)}
+.cc-btn{background:var(--cc-green);color:#FFFFFF;border:0;border-radius:999px;font-size:18.5px;font-weight:600;
+padding:14px 32px;cursor:pointer;margin-top:16px;font-family:inherit}
+.cc-btn.ghost{background:transparent;color:var(--cc-dim);border:1px solid var(--cc-line)}
+.cc-btn:focus-visible{outline:2px solid var(--cc-indigo);outline-offset:3px}
+.cc-streak{margin-top:14px;font-size:15px;color:var(--cc-muted)}
+.cc-puck{width:134px;height:134px;margin:0 auto;border-radius:50%;display:grid;place-items:center;background:var(--cc-raised);
+border:1px solid var(--cc-line);font-size:17px;font-weight:600;color:var(--cc-muted);cursor:pointer;
+user-select:none;transition:background .1s,border-color .1s,color .1s,transform .1s}
+.cc-puck.go{background:var(--cc-green);border-color:var(--cc-green);color:#FFF;transform:scale(1.05)}
+.cc-puck.early{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+.cc-pair{display:flex;gap:14px;justify-content:center}
+.cc-side{width:96px;height:112px;border-radius:18px;background:var(--cc-raised);border:1px solid var(--cc-line);
+display:grid;place-items:center;font-size:30px;color:var(--cc-muted);cursor:pointer;user-select:none}
+.cc-side.lit{background:var(--cc-green);border-color:var(--cc-green);color:#FFF}
+.cc-side.wrong{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+.cc-stage .cc-q{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-size:34.5px;
+line-height:1.14;margin:0 0 6px;color:var(--cc-ink);max-width:none}
+.cc-stage .cc-qsub{font-size:17px;color:var(--cc-muted);margin:0 0 18px;max-width:none}
+.cc-stage.tags{align-items:center;padding-block:20px}
+.cc-pairs{display:flex;flex-direction:column;gap:12px;margin:22px 0 4px;width:100%;max-width:290px}
+.cc-count{width:100%;max-width:290px;height:9px;border-radius:999px;background:var(--cc-line);
+overflow:hidden;margin:22px auto 0}
+.cc-count i{display:block;height:100%;width:100%;background:var(--cc-green);border-radius:999px}
+.cc-countt{font-size:15px;color:var(--cc-muted);margin:11px 0 0}
+.cc-pair-row{background:rgba(255,255,255,.72);border:1px solid var(--cc-line);border-radius:14px;
+padding:14px 16px;font-size:20px;font-weight:600;color:var(--cc-ink);text-align:center}
+.cc-pair-row b{color:var(--cc-green);font-weight:600}
+.cc-opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+.cc-opt{border:2px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);border-radius:999px;
+padding:12px 18px;font-size:19.5px;font-weight:500;cursor:pointer;font-family:inherit;line-height:1.1}
+.cc-opt.right{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF}
+.cc-opt.wrong{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+.cc-tags{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:2px 0 6px}
+.cc-tag{border:2px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);border-radius:999px;
+padding:12px 17px;font-size:19.5px;font-weight:500;cursor:pointer;font-family:inherit;line-height:1.1;
+transition:background .15s,border-color .15s,color .15s,transform .12s}
+.cc-tag.on{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF;transform:scale(1.03)}
+.cc-tag:focus-visible{outline:2px solid var(--cc-indigo);outline-offset:3px}
+.cc-stage .cc-priv{font-size:15.5px;color:var(--cc-muted);margin:34px 0 0;line-height:1.5;max-width:none}
+.cc-qbtns{display:flex;gap:12px;justify-content:center}
+.cc-qb{flex:1;max-width:120px;border-radius:16px;padding:16px 0;font-size:19.5px;font-weight:600;cursor:pointer;
+border:1px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);font-family:inherit}
+.cc-qb.yes{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF}
+.cc-big{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-size:69px;line-height:.9}
+.cc-big .u{font-size:15px;color:var(--cc-muted);vertical-align:super}
+.cc-rows{width:100%;margin-top:14px;border-top:1px solid var(--cc-line)}
+.cc-row{display:flex;justify-content:space-between;padding-block:11px;border-bottom:1px solid var(--cc-line);font-size:17px}
+.cc-row .k{color:var(--cc-ink)} .cc-row .v{color:var(--cc-dim)}
+.cc-row .v.up{color:var(--cc-green)}
+.cc-done{margin-top:14px;padding:13px 14px;border-radius:12px;background:rgba(11,122,92,.10);
+border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-height:1.5;text-align:left}
+.cc-done b{color:var(--cc-green);font-weight:600}
+@media (prefers-reduced-motion:reduce){.ccheck *{transition:none!important;animation:none!important}}
+</style>
+
+<div class="strip"><div class="wrap">
+  <span>Charisma <b>&middot; first cohort</b></span>
+  <span>30 open spots</span>
+</div></div>
+
+<div class="nav" id="nav"><div class="wrap">
+  <div class="mark">
+    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+      <rect width="26" height="26" rx="7" fill="#171210"></rect>
+      <path d="M6 16.5c2.2 0 2.2-7 4.4-7s2.2 7 4.4 7 2.2-7 4.4-7" fill="none" stroke="#57D3A9" stroke-width="1.7" stroke-linecap="round"></path>
+    </svg>
+    <span class="name">charisma</span>
+  </div>
+  <a class="btn small" href="#join">Join the waitlist <span class="badge" aria-hidden="true">&rarr;</span></a>
+</div></div>
+
+<div class="hero wrap" id="top">
+  <p class="kicker">Cognitive health, read passively</p>
+  <h1>Keep your mind <span class="soft">in tune.</span></h1>
+  <p class="sub">Signals that predict cognitive decline are already on your wrist. Charisma reads that passive data, and tells you where your brain age sits.</p>
+  <div class="cta">
+    <a class="btn big" href="#join">Join the waitlist <span class="badge" aria-hidden="true">&rarr;</span></a>
+    <p class="undercta">30 open spots &middot; your data stays private</p>
+  </div>
+  <svg class="ecg" viewBox="0 0 320 34" aria-hidden="true">
+    <path d="M0 17h58l7-11 8 22 7-11h34l6-6 7 12 6-6h48l7-13 9 26 8-13h37l6-8 7 16 6-8h49"></path>
+  </svg>
+</div>
+
+<section class="wrap" id="evidence">
+  <div class="col">
+    <h2>Designed around published research</h2>
+    <p class="lead">Click below to read the papers yourself.</p>
+  </div>
+
+  <div class="research">
+    <div class="stats">
+    <div class="stat">
+      <span class="fig">21</span><span class="cap">cognitive outcomes predicted</span>
+      <span class="what">Data from watches people already owned predicted 21 separate cognitive outcomes.</span>
+      <span class="src"><a href="https://www.nature.com/articles/s41746-026-02340-y" target="_blank" rel="noopener">npj Digital Medicine, 2026 &nearr;</a></span>
+    </div>
+
+    <div class="stat">
+      <span class="fig">85<small>%</small></span><span class="cap">accuracy on early cognitive change</span>
+      <span class="what">A daily check on a watch and phone identified early cognitive change across 23,004 adults.</span>
+      <span class="src"><a href="https://www.nature.com/articles/s41591-024-03475-9" target="_blank" rel="noopener">Nature Medicine, 2025 &nearr;</a></span>
+    </div>
+
+    <div class="stat">
+      <span class="fig">97<small>%</small></span><span class="cap">accuracy from walking speed alone</span>
+      <span class="what">Walking speed, measured passively at home, predicted early cognitive impairment with 97% accuracy.</span>
+      <span class="src"><a href="https://pubmed.ncbi.nlm.nih.gov/25438302/" target="_blank" rel="noopener">IEEE Transactions on Biomedical Engineering, 2015 &nearr;</a></span>
+    </div>
+
+    </div>
+
+  <div class="refs">
+    <div class="rhead">
+      <span class="rlab">Key references</span>
+      <span class="rmore">out of 82 papers reviewed</span>
+    </div>
+    <ol>
+      <li><span class="yr">2026</span><span><a href="https://pubmed.ncbi.nlm.nih.gov/42034769/" target="_blank" rel="noopener">Matias, passive sensing reviewed across 30 studies</a>. <i>npj Digital Medicine</i></span></li>
+      <li><span class="yr">2025</span><span><a href="https://www.neurology.org/doi/10.1212/WNL.0000000000213403" target="_blank" rel="noopener">Yaffe and Leng, five-year change in 24-hour activity and dementia risk</a>. <i>Neurology</i></span></li>
+      <li><span class="yr">2025</span><span><a href="https://academic.oup.com/ageing/article/54/10/afaf316/8305230" target="_blank" rel="noopener">Jafari, 54 studies pooled on speech</a>. <i>Age and Ageing</i></span></li>
+      <li><span class="yr">2024</span><span><a href="https://www.frontiersin.org/journals/aging-neuroscience/articles/10.3389/fnagi.2024.1304265/full" target="_blank" rel="noopener">Wang, turn velocity as a digital marker of cognitive impairment</a>. <i>Frontiers in Aging Neuroscience</i></span></li>
+      <li><span class="yr">2023</span><span><a href="https://academic.oup.com/sleep/article/46/3/zsac286/6855026" target="_blank" rel="noopener">Ye and Sun, 8,044 people, brain activity in sleep</a>. <i>SLEEP</i></span></li>
+    </ol>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="how">
+  <div class="col">
+    <h2>What you will see in the app</h2>
+  </div>
+
+  <div class="seq-rail" id="seq">
+    <div class="seq-sticky">
+      <div class="seq-grid">
+        <div class="steps">
+          <div class="step on" data-i="0">
+            <p class="eyebrow">Every month</p>
+            <h3>Your brain age</h3>
+            <p>Your cognitive health, read from how you sleep, move and recover.</p>
+          </div>
+          <div class="step" data-i="1">
+            <p class="eyebrow">Every day</p>
+            <h3>The daily check</h3>
+            <p>Three short games, ninety seconds. Playable right here, on this page.</p>
+          </div>
+        </div>
+
+        <div class="phone">
+          <div class="screen">
+            <div class="pane on" data-i="0">
+              <div class="fit"><div class="agewrap">
+                <div class="pbar" aria-hidden="true"><span>9:41</span><span>Charisma</span></div>
+                <div class="abody">
+                  <div class="atop"><span class="t">Your brain age</span><span class="s">and your habits</span></div>
+                  <div class="ahero">
+                    <i class="star" style="top:22px;left:34px;width:3px;height:3px"></i><i class="star" style="top:46px;left:78px;width:2px;height:2px"></i><i class="star" style="top:18px;left:128px;width:4px;height:4px"></i><i class="star" style="top:58px;left:166px;width:2px;height:2px"></i><i class="star" style="top:26px;left:208px;width:3px;height:3px"></i><i class="star" style="top:74px;left:246px;width:2px;height:2px"></i><i class="star" style="top:38px;left:288px;width:3px;height:3px"></i><i class="star" style="top:96px;left:52px;width:2px;height:2px"></i><i class="star" style="top:110px;left:152px;width:3px;height:3px"></i><i class="star" style="top:88px;left:300px;width:2px;height:2px"></i><i class="star" style="top:132px;left:96px;width:2px;height:2px"></i><i class="star" style="top:120px;left:264px;width:3px;height:3px"></i>
+                    <i class="moon"></i>
+                    <i class="cloud" style="bottom:18px;left:-20px;width:170px;height:44px"></i>
+                    <i class="cloud" style="bottom:52px;right:-30px;width:150px;height:38px"></i>
+                    <p class="lead2">Your brain measures</p>
+                    <p class="num">23</p>
+                    <p class="real">You are 26 years old.</p>
+                    <span class="pill">3 years younger than your age</span>
+                  </div>
+                  <div class="arule"></div>
+                  <p class="alab">Habits</p>
+                  <p class="aq">What moves your number.</p>
+                  <div class="acard">
+                    <span class="atag">&uarr; HELPS YOU</span>
+                    <p class="h">Your mornings are brighter without a drink.</p>
+                    <p class="big">9 points higher</p>
+                    <p class="p">On mornings after a drink-free night, compared with the others.</p>
+                    <p class="f">Based on 14 days you marked.</p>
+                  </div>
+                </div>
+                <nav class="ptabs" aria-hidden="true">
+                  <span class="ptab"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3 14a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path><path d="M10 14V7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>Today</span>
+                  <span class="ptab on"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"></circle><path d="M10 6v4l2.6 1.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>Age</span>
+                  <span class="ptab"><span class="fab"><span class="dot"></span></span>Check</span>
+                  <span class="ptab"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M2.5 10h3l2-4 3 8 2.5-4h4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Numbers</span>
+                </nav>
+              </div></div>
+            </div>
+            <div class="pane" data-i="1">
+              <div class="fit" id="fit"><div class="fit-inner">
+                <div class="pbar" aria-hidden="true"><span>9:41</span><span>Charisma</span></div>
+                <div class="ppane">
+<div class="ccheck" data-ccheck data-streak="You have finished 26 checks.">
+  <div class="cc-bar">
+    <span class="cc-title">Daily check</span>
+    <span class="cc-clock" data-clock>3 games &middot; 40 seconds</span>
+  </div>
+  <div class="cc-prog" data-prog></div>
+  <div class="cc-stage" data-stage></div>
+</div>
+                </div>
+                <nav class="ptabs" aria-hidden="true">
+                  <span class="ptab"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3 14a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path><path d="M10 14V7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>Today</span>
+                  <span class="ptab"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"></circle><path d="M10 6v4l2.6 1.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>Age</span>
+                  <span class="ptab on"><span class="fab"><span class="dot"></span></span>Check</span>
+                  <span class="ptab"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M2.5 10h3l2-4 3 8 2.5-4h4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Numbers</span>
+                </nav>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="reads">
+  <div class="col">
+    <h2>Established indicators of cognitive decline</h2>
+    <p class="lead">Each one already collected by the watch on your wrist.</p>
+  </div>
+
+  <div class="signals">
+    <div class="sig">
+      <span class="glyph" aria-hidden="true"><svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 24h7l3-7 5 15 4-11 3 3h10" class="flow"></path>
+        <path d="M22 37c-6-4.5-13-9.6-13-17a6.9 6.9 0 0 1 13-3.3A6.9 6.9 0 0 1 35 20" opacity=".28"></path>
+      </svg></span>
+      <div>
+        <h3>Resting heart rate</h3>
+        <p class="claim">How it changes over time tracks cognition.
+          <span class="src"><a href="https://pubmed.ncbi.nlm.nih.gov/42482642/" target="_blank" rel="noopener">Yonsei Medical Journal, 2026 &nearr;</a></span>
+        </p>
+      </div>
+    </div>
+
+    <div class="sig">
+      <span class="glyph" aria-hidden="true"><svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 34V26M16 34V19M24 34V29M32 34V13"></path>
+        <path d="M6 38h32" opacity=".28"></path>
+      </svg></span>
+      <div>
+        <h3>Movement</h3>
+        <p class="claim">Ten-minute shifts predicted incident Alzheimer's.
+          <span class="src"><a href="https://doi.org/10.3233/jad-230928" target="_blank" rel="noopener">Journal of Alzheimer's Disease, 2024 &nearr;</a></span>
+        </p>
+      </div>
+    </div>
+
+    <div class="sig">
+      <span class="glyph" aria-hidden="true"><svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 24.5A10.5 10.5 0 0 1 17 11a12.5 12.5 0 1 0 13 13.5Z"></path>
+        <path d="M9 33h26" opacity=".28"></path>
+      </svg></span>
+      <div>
+        <h3>Sleep timing</h3>
+        <p class="claim">When you sleep, not how long, predicted dementia.
+          <span class="src"><a href="https://alz-journals.onlinelibrary.wiley.com/doi/10.1002/alz.14452" target="_blank" rel="noopener">Alzheimer's &amp; Dementia, 2025 &nearr;</a></span>
+        </p>
+      </div>
+    </div>
+
+    <div class="sig">
+      <span class="glyph" aria-hidden="true"><svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="25" cy="9.5" r="3.5"></circle>
+        <path d="M25 16l-6 6 3 7-4 8"></path>
+        <path d="M22 29l7 3 2 7"></path>
+        <path d="M19 22l-7 3"></path>
+        <path d="M6 38h32" opacity=".28"></path>
+      </svg></span>
+      <div>
+        <h3>Walking speed</h3>
+        <p class="claim">Tracks the onset of mild cognitive impairment.
+          <span class="src"><a href="https://pubmed.ncbi.nlm.nih.gov/22843282/" target="_blank" rel="noopener">Neurology, 2012 &nearr;</a></span>
+        </p>
+      </div>
+    </div>
+
+    <div class="sig">
+      <span class="glyph" aria-hidden="true"><svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 22c4-9 7.5-9 11.5 0S25 31 29 22s7-9 9-4.5" class="flow"></path>
+        <path d="M6 33h32" opacity=".28"></path>
+      </svg></span>
+      <div>
+        <h3>Daily rhythm</h3>
+        <p class="claim">Rhythm regularity is linked to incident dementia.
+          <span class="src"><a href="https://www.neurology.org/doi/10.1212/WNL.0000000000214513" target="_blank" rel="noopener">Neurology, 2025 &nearr;</a></span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="close">
+  <div class="wrap"><div class="col">
+    <h2>Join the first thirty</h2>
+    <p>If you wear an Apple Watch and you want to know more about your cognitive health, sign up for the free check.</p>
+    <a class="btn big" href="#join">Join the waitlist <span class="badge" aria-hidden="true">&rarr;</span></a>
+  </div></div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>charisma &middot; San Francisco</span>
+    <span class="disc">Charisma reflects general wellness trends only. It is not intended to diagnose, treat, cure, or prevent any disease, and is not a substitute for medical advice.</span>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="joinTitle">
+  <div class="modal-wrap">
+    <div class="modal">
+      <button class="x" id="joinClose" type="button" aria-label="Close">&times;</button>
+      <div id="joinBody">
+        <h2 id="joinTitle">Join the waitlist</h2>
+        <p class="note">One of thirty free places in the first group. Your email, nothing else.</p>
+        <form id="joinForm" novalidate>
+          <input id="joinEmail" name="email" type="email" inputmode="email" autocomplete="email"
+                 placeholder="you@example.com" aria-label="Your email address" required>
+          <p class="err" id="joinErr" hidden></p>
+          <button class="btn" id="joinSubmit" type="submit">Join the waitlist <span class="badge" aria-hidden="true">&rarr;</span></button>
+        </form>
+        <p class="fine">Your data stays private</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dock" id="dock"><div class="wrap">
+  <span class="say">Free, and your data stays private.</span>
+  <a class="btn" href="#join">Join the waitlist <span class="badge" aria-hidden="true">&rarr;</span></a>
+</div></div>
+
+<script>
+(function(){
+  var SIMPLE = 4, CHOICE = 3;
+  var TAGS = ["A drink","Late coffee","A late night","Felt unwell"];
+  var THINGS = ["key","book","hat","cup","coin","glove","comb","apple"];
+  var PLACES = ["kitchen","garden","car","hallway","bathroom","office","attic","porch"];
+  var RECALL = 3;
+  var TOTAL = 1 + SIMPLE + CHOICE + RECALL + 1;
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-ccheck]"), function(root){
+    var stage = root.querySelector("[data-stage]"),
+        prog  = root.querySelector("[data-prog]"),
+        clock = root.querySelector("[data-clock]");
+    var simpleTimes = [], choiceTimes = [], answers = [], step = 0, timer = null, goAt = 0, armed = false;
+    var pairs = [], recallScore = 0, countTimer = null;
+    function drawProgress(){
+      prog.innerHTML = "";
+      for (var i=0;i<TOTAL;i++){
+        var b = document.createElement("i");
+        if (i<step) b.className = "done"; else if (i===step) b.className = "now";
+        prog.appendChild(b);
+      }
+    }
+    function intro(){
+      clearInterval(countTimer);
+      step = 0; simpleTimes = []; choiceTimes = []; answers = []; recallScore = 0; pairs = []; drawProgress();
+      clock.textContent = "3 games · 40 seconds";
+      stage.className = "cc-stage intro";
+      stage.innerHTML =
+        '<div><h3>Ready for today’s check?</h3>' +
+        '<p>Three short games. It takes about 40 seconds.</p>' +
+        '<div class="cc-games">' +
+          '<div class="cc-game"><span><span class="t">Tap fast</span><br><span class="s">Tap the moment it turns green</span></span></div>' +
+          '<div class="cc-game"><span><span class="t">Pick a side</span><br><span class="s">Left or right, whichever lights up</span></span></div>' +
+          '<div class="cc-game"><span><span class="t">Remember three</span><br><span class="s">Three things, asked at the end</span></span></div>' +
+        '</div>' +
+        '<button class="cc-btn" data-start type="button">Let’s go</button>' +
+        '<p class="cc-priv">Data is private, nothing is ever shared.</p></div>';
+      stage.querySelector("[data-start]").addEventListener("click", showPairs);
+    }
+    function shuffle(a){
+      a = a.slice();
+      for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+      return a;
+    }
+    function showPairs(){
+      pairs = [];
+      var th = shuffle(THINGS).slice(0,3), pl = shuffle(PLACES);
+      for (var i=0;i<3;i++) pairs.push({thing:th[i], place:pl[i]});
+      step = 0; drawProgress(); clock.textContent = "Remember these three";
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-q">Remember these three.</p>' +
+        '<p class="cc-qsub">We will ask you at the end.</p>' +
+        '<div class="cc-pairs">' +
+          pairs.map(function(p){ return '<div class="cc-pair-row">The <b>'+p.thing+'</b> in the <b>'+p.place+'</b></div>'; }).join("") +
+        '</div>' +
+        '<div class="cc-count"><i data-countbar></i></div>' +
+        '<p class="cc-countt"><span data-countnum>7</span> seconds</p>' +
+        '</div>';
+      var SECS = 7;
+      var bar = stage.querySelector("[data-countbar]"), num = stage.querySelector("[data-countnum]");
+      requestAnimationFrame(function(){
+        bar.style.transition = "width " + SECS + "s linear";
+        bar.style.width = "0%";
+      });
+      var left = SECS;
+      countTimer = setInterval(function(){
+        left--;
+        if (num) num.textContent = Math.max(0, left);
+        if (left <= 0) clearInterval(countTimer);
+      }, 1000);
+      setTimeout(function(){ clearInterval(countTimer); step = 1; simpleRound(); }, SECS*1000);
+    }
+
+    function recallRound(i){
+      if (i >= RECALL) return quizRound(0, null);
+      step = 1 + SIMPLE + CHOICE + i; drawProgress();
+      clock.textContent = "Remember three, " + (i+1) + " of " + RECALL;
+      stage.className = "cc-stage";
+      var p = pairs[i];
+      var wrong = PLACES.filter(function(x){
+        return !pairs.some(function(q){ return q.place === x; });
+      });
+      var opts = shuffle([p.place].concat(shuffle(wrong).slice(0,3)));
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-q">Where was the ' + p.thing + '?</p>' +
+        '<p class="cc-qsub">Best guess is fine.</p>' +
+        '<div class="cc-opts">' +
+          opts.map(function(o){ return '<button class="cc-opt" type="button" data-opt="'+o+'">'+o+'</button>'; }).join("") +
+        '</div></div>';
+      Array.prototype.forEach.call(stage.querySelectorAll("[data-opt]"), function(bn){
+        bn.addEventListener("click", function(){
+          var right = bn.dataset.opt === p.place;
+          if (right) recallScore++;
+          bn.classList.add(right ? "right" : "wrong");
+          if (!right){
+            var t = stage.querySelector('[data-opt="'+p.place+'"]');
+            if (t) t.classList.add("right");
+          }
+          Array.prototype.forEach.call(stage.querySelectorAll("[data-opt]"), function(x){ x.disabled = true; });
+          setTimeout(function(){ recallRound(i+1); }, 700);
+        });
+      });
+    }
+
+    function simpleRound(){
+      if (step - 1 >= SIMPLE) return choiceRound();
+      drawProgress(); clock.textContent = "Game 1, round " + (step) + " of " + SIMPLE;
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div><div class="cc-puck" data-puck role="button" tabindex="0">wait</div>' +
+        '<p style="margin-top:18px">Tap when it turns green.</p></div>';
+      var puck = stage.querySelector("[data-puck]"); armed = false;
+      timer = setTimeout(function(){
+        puck.classList.add("go"); puck.textContent = "TAP"; goAt = performance.now(); armed = true;
+      }, 900 + Math.random()*1800);
+      function hit(){
+        if (!armed){ clearTimeout(timer); puck.classList.add("early"); puck.textContent = "too early";
+          setTimeout(simpleRound, 850); return; }
+        var ms = Math.round(performance.now()-goAt);
+        simpleTimes.push(ms); step++;
+        puck.classList.remove("go"); puck.textContent = ms + " ms"; armed = false;
+        setTimeout(simpleRound, 600);
+      }
+      puck.addEventListener("pointerdown", hit);
+      puck.addEventListener("keydown", function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); hit(); } });
+    }
+    function choiceRound(){
+      var done = step - 1 - SIMPLE;
+      if (done >= CHOICE) return recallRound(0);
+      drawProgress(); clock.textContent = "Game 2, round " + (done+1) + " of " + CHOICE;
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div><p style="margin-bottom:18px">Tap the side that turns green.</p>' +
+        '<div class="cc-pair"><div class="cc-side" data-l>&larr;</div><div class="cc-side" data-r>&rarr;</div></div></div>';
+      var L = stage.querySelector("[data-l]"), R = stage.querySelector("[data-r]");
+      var target = Math.random()<0.5 ? L : R; armed = false;
+      timer = setTimeout(function(){ target.classList.add("lit"); goAt = performance.now(); armed = true; }, 800 + Math.random()*1600);
+      function pick(el){
+        if (!armed){ clearTimeout(timer); el.classList.add("wrong"); setTimeout(choiceRound, 800); return; }
+        if (el !== target){ el.classList.add("wrong"); armed = false; setTimeout(choiceRound, 800); return; }
+        choiceTimes.push(Math.round(performance.now()-goAt)); step++; armed = false;
+        setTimeout(choiceRound, 520);
+      }
+      L.addEventListener("pointerdown", function(){ pick(L); });
+      R.addEventListener("pointerdown", function(){ pick(R); });
+    }
+    function quizRound(i, memOk){
+      answers = [];
+      step = 1 + SIMPLE + CHOICE + RECALL; drawProgress();
+      clock.textContent = "Last part, yesterday";
+      stage.className = "cc-stage tags";
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-q">Anything yesterday?</p>' +
+        '<p class="cc-qsub">Tap any that apply, or skip.</p>' +
+        '<div class="cc-tags">' +
+          TAGS.map(function(t){ return '<button class="cc-tag" type="button" data-tag>'+t+'</button>'; }).join("") +
+        '</div>' +
+        '<button class="cc-btn" data-donetags type="button">Done</button>' +
+        '<p class="cc-priv">Data is private, nothing is ever shared.</p>' +
+        '</div>';
+      Array.prototype.forEach.call(stage.querySelectorAll("[data-tag]"), function(b){
+        b.addEventListener("click", function(){ b.classList.toggle("on"); });
+      });
+      stage.querySelector("[data-donetags]").addEventListener("click", function(){
+        answers = Array.prototype.map.call(stage.querySelectorAll("[data-tag]"), function(b){
+          return b.classList.contains("on") ? 1 : 0;
+        });
+        results(memOk);
+      });
+    }
+    function med(a){
+      if(!a.length) return 0;
+      var s = a.slice().sort(function(x,y){return x-y;}), h = Math.floor(s.length/2);
+      return s.length % 2 ? s[h] : Math.round((s[h-1]+s[h])/2);
+    }
+    /* trial-to-trial spread. This is the number with the dementia evidence behind it,
+       so it is computed and kept, not discarded once the median is taken. */
+    function sd(a){
+      if (a.length < 2) return 0;
+      var m = a.reduce(function(x,y){return x+y;},0) / a.length;
+      var v = a.reduce(function(x,y){ return x + (y-m)*(y-m); },0) / (a.length - 1);
+      return Math.round(Math.sqrt(v));
+    }
+    var USUAL_LO = 250, USUAL_HI = 290;
+    function band(ms){ return ms < USUAL_LO ? "quicker" : (ms > USUAL_HI ? "gentler" : "usual"); }
+    function bandWord(b){
+      return b==="quicker" ? "quicker than usual" : (b==="gentler" ? "a gentler morning than usual" : "right around your usual");
+    }
+    function results(memOk){
+      step = TOTAL; drawProgress(); clock.textContent = "All done";
+      stage.className = "cc-stage";
+      var mS = med(simpleTimes), mC = med(choiceTimes), sdS = sd(simpleTimes);
+      var b = band(mS), marked = answers.filter(Boolean).length;
+      memOk = recallScore;
+      var onDone = root.ccheckOnDone;
+      stage.innerHTML = '<div style="width:100%">' +
+        '<div class="cc-big">'+mS+'<span class="u">ms</span></div>' +
+        '<p style="margin-top:8px">How fast you tapped, on average.</p>' +
+        '<div class="cc-rows">' +
+          '<div class="cc-row"><span class="k">Choosing a side</span><span class="v">'+mC+' ms</span></div>' +
+          '<div class="cc-row"><span class="k">Compared with your usual</span><span class="v '+(b==="quicker"?"up":"")+'">'+
+            bandWord(b)+'</span></div>' +
+          '<div class="cc-row"><span class="k">How steady your tapping was</span><span class="v">'+sdS+' ms swing</span></div>' +
+          '<div class="cc-row"><span class="k">Things you remembered</span><span class="v '+(recallScore===3?"up":"")+'">'+
+            recallScore+' of 3</span></div>' +
+        '</div>' +
+        '<div class="cc-done">Nice work. You marked <b>'+marked+'</b> of '+TAGS.length+
+          ' things yesterday, and today is counted in your score.</div>' +
+        (onDone ? '<button class="cc-btn" data-see type="button">See it on Today</button> ' : '') +
+        '<button class="cc-btn ghost" data-again type="button">Do it again</button></div>';
+      stage.querySelector("[data-again]").addEventListener("click", intro);
+      var see = stage.querySelector("[data-see]");
+      if (onDone){
+        onDone({ simple:mS, choice:mC, sd:sdS, recall:recallScore, band:b, bandWord:bandWord(b), marked:marked });
+        if (see) see.addEventListener("click", function(){ if (root.ccheckSeeToday) root.ccheckSeeToday(); });
+      }
+    }
+
+    root.ccheckReset = intro;
+    intro();
+  });
+})();
+</script>
+
+<script>
+(function(){
+  var nav = document.getElementById("nav");
+  var dock = document.getElementById("dock");
+  var hero = document.getElementById("top");
+  function onScroll(){
+    nav.classList.toggle("stuck", window.scrollY > 8);
+    var past = hero.getBoundingClientRect().bottom < 60;
+    dock.classList.toggle("up", past);
+    nav.classList.toggle("hide-cta", past);
+  }
+  window.addEventListener("scroll", onScroll, {passive:true});
+  onScroll();
+
+  /* ---------- waitlist modal ---------- */
+  var scrim = document.getElementById("scrim");
+  var body  = document.getElementById("joinBody");
+  var form  = document.getElementById("joinForm");
+  var email = document.getElementById("joinEmail");
+  var err   = document.getElementById("joinErr");
+  var submit= document.getElementById("joinSubmit");
+  var lastFocus = null;
+  var store = null, storeAsked = false;
+
+  function openJoin(e){
+    if (e) e.preventDefault();
+    lastFocus = document.activeElement;
+    scrim.classList.add("open");
+    setTimeout(function(){ if (email) email.focus(); }, 40);
+  }
+  function closeJoin(){
+    scrim.classList.remove("open");
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('a[href="#join"]'), function(a){
+    a.addEventListener("click", openJoin);
+  });
+  document.getElementById("joinClose").addEventListener("click", closeJoin);
+  scrim.addEventListener("mousedown", function(e){ if (e.target === scrim) closeJoin(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && scrim.classList.contains("open")) closeJoin(); });
+
+  function fail(msg){
+    err.hidden = false;
+    err.innerHTML = msg;
+    submit.disabled = false;
+    submit.innerHTML = 'Join the waitlist <span class="badge" aria-hidden="true">&rarr;</span>';
+  }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var value = (email.value || "").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) return fail("That does not look like an email address.");
+    err.hidden = true;
+    submit.disabled = true;
+    submit.textContent = "Saving\u2026";
+
+    fetch("/api/waitlist", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ email: value, joinedAt: new Date().toISOString() })
+    }).then(function(r){
+      if (!r.ok) throw new Error("bad response");
+      return r.json();
+    }).then(function(){
+      body.innerHTML =
+        '<div class="done"><div class="tick" aria-hidden="true">&#10003;</div>' +
+        '<h2>You are on the list.</h2>' +
+        '<p class="note">We will write to you before the first group starts.</p></div>';
+      setTimeout(closeJoin, 2200);
+    }).catch(function(){
+      fail("Could not save that just now. Please try again in a moment.");
+    });
+  });
+
+  var fits = document.querySelectorAll(".fit");
+  function scaleFit(){
+    Array.prototype.forEach.call(fits, function(f){
+      f.style.transform = "scale(" + (f.parentNode.clientWidth / 393) + ")";
+    });
+  }
+  window.addEventListener("resize", scaleFit);
+  scaleFit();
+  setTimeout(scaleFit, 300);
+
+  var rail = document.getElementById("seq");
+  var steps = Array.prototype.slice.call(rail.querySelectorAll(".step"));
+  var panes = Array.prototype.slice.call(rail.querySelectorAll(".pane"));
+  var current = -1;
+  function onSeq(){
+    var r = rail.getBoundingClientRect();
+    var span = r.height - window.innerHeight;
+    var p = span > 0 ? (-r.top) / span : 0;
+    var i = p < 0.5 ? 0 : 1;
+    if (i !== current){ current = i; paint(i); }
+  }
+  function paint(i){
+    steps.forEach(function(el){ el.classList.toggle("on", +el.dataset.i === i); });
+    panes.forEach(function(el){ el.classList.toggle("on", +el.dataset.i === i); });
+  }
+  window.addEventListener("scroll", onSeq, {passive:true});
+  window.addEventListener("resize", onSeq);
+  onSeq();
+})();
+</script>
+
+</body>
+</html>

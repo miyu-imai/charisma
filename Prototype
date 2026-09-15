@@ -1,0 +1,1909 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FBF4EC">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Charisma is a daily readiness score and a slow brain-health trajectory, built from passive Apple Watch data plus a 40 second check.">
+<meta property="og:title" content="Charisma">
+<meta property="og:description" content="Oura for cognitive health. Tap through the prototype.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230B7A5C'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23FBF4EC'/%3E%3C/svg%3E">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  html,body{margin:0;padding:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>Charisma Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Schibsted+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root{
+    --stage:#FBF4EC; --stage-2:#F1E4D8;
+    --bg:#FFFBF7; --surface:#FFFFFF; --raised:#F6EDE4; --line:#E7D9CB;
+    --ink:#241C18; --dim:#5A4B42; --muted:#7A6757;
+    --teal:#0B7A5C; --teal-dim:rgba(11,122,92,.10);
+    --blue:#5B4BE0; --blue-dim:rgba(91,75,224,.09);
+    --amber:#A8650F; --amber-dim:rgba(168,101,15,.12);
+    --rose:#C6412F; --rose-dim:rgba(198,65,47,.09);
+    --dawn:linear-gradient(158deg,#FFF3E6 0%,#FDEDF2 52%,#EFEBFF 100%);
+    --display:"Instrument Serif","Iowan Old Style",Georgia,serif;
+    --body:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+    --mono:"IBM Plex Mono","SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{background:radial-gradient(120% 80% at 50% 0%,#FFF6EA 0%,var(--stage) 44%,var(--stage-2) 100%);
+    color:var(--ink);font-family:var(--body);min-height:100vh;margin:0;padding-inline:20px;padding-block:0;
+    display:flex;flex-direction:column;align-items:center}
+  .stage-head{text-align:center;padding-block:20px 12px;max-width:38rem}
+  .stage-head .tag{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin:0 0 10px}
+  .stage-head h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,5vw,40px);margin:0 0 8px;line-height:1.1}
+  .stage-head p{margin:0;color:var(--muted);font-size:16px;line-height:1.6}
+
+  /* big-score card */
+  .scorecard{border:1px solid var(--line);border-radius:22px;background:var(--dawn);
+    padding:24px 18px 26px;text-align:center;flex:none;box-shadow:0 1px 2px rgba(74,52,38,.05)}
+  .greet{font-family:var(--display);font-size:35.5px;line-height:1.1;color:var(--ink);margin-bottom:8px}
+  .scoreword{font-size:18.5px;font-weight:500;color:var(--dim);margin-bottom:8px;line-height:1.4;padding-inline:4px}
+  .scorenum{font-family:var(--display);font-size:101px;line-height:.92;font-variant-numeric:tabular-nums}
+  .scoreof{font-size:17px;color:var(--dim);margin-bottom:20px}
+  .scale{position:relative;height:14px;border-radius:999px;background:rgba(255,255,255,.75);border:1px solid var(--line)}
+  .scale-band{position:absolute;top:-1px;bottom:-1px;left:61%;width:21%;
+    background:rgba(11,122,92,.16);border-left:2px solid rgba(11,122,92,.5);border-right:2px solid rgba(11,122,92,.5)}
+  .scale-mark{position:absolute;top:50%;left:0;width:24px;height:24px;border-radius:50%;background:var(--teal);
+    border:3px solid #FFFFFF;transform:translate(-50%,-50%);box-shadow:0 0 0 3px rgba(11,122,92,.22);
+    transition:left 1.2s cubic-bezier(.22,1,.28,1)}
+  .scale-labels{display:flex;justify-content:space-between;align-items:center;margin-top:11px;font-size:15px;color:var(--muted)}
+  .scale-labels .mid{color:var(--teal);font-weight:500}
+  .plainline{text-align:center;font-size:18.5px;color:var(--ink);line-height:1.5;margin:16px 0 2px;flex:none}
+
+  /* insight cards */
+  .badge{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;
+    font-size:14.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .badge.good{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(11,122,92,.35)}
+  .badge.bad{background:var(--rose-dim);color:var(--rose);border:1px solid rgba(198,65,47,.35)}
+  .badge.wait{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(168,101,15,.35)}
+  .badge .ar{font-size:16px;line-height:1}
+  .disc .title{font-size:19.5px;font-weight:600;color:var(--ink);line-height:1.35;margin:11px 0 6px}
+  .disc .metric{font-family:var(--display);font-size:34.5px;line-height:1.05;margin-bottom:4px}
+  .metric.good{color:var(--teal)} .metric.bad{color:var(--rose)} .metric.wait{color:var(--amber)}
+
+  /* scenery */
+  .scorecard,.agehero{position:relative;overflow:hidden}
+  .scenery{position:absolute;left:0;right:0;bottom:0;width:100%;height:auto;pointer-events:none;opacity:.6}
+  .scorecard > *:not(.scenery),.agehero > *:not(.scenery){position:relative;z-index:1}
+
+  /* week diagram */
+  .week{display:flex;gap:7px;align-items:flex-end;justify-content:space-between;height:118px;
+    padding:12px 4px 0;border-bottom:1px solid var(--line)}
+  .wday{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}
+  .wbar{width:100%;max-width:26px;border-radius:7px 7px 3px 3px;background:var(--teal);
+    transition:height .7s cubic-bezier(.22,1,.28,1)}
+  .wbar.low{background:var(--amber)}
+  .wlab{font-size:15px;color:var(--muted)}
+  .wval{font-size:14.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .weekfoot{display:flex;justify-content:space-between;align-items:center;margin-top:11px}
+  .weekfoot .lo{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--dim)}
+
+  /* accordion (age) */
+  .fold{border-bottom:1px solid var(--line)}
+  .fold:first-of-type{border-top:1px solid var(--line)}
+  .foldhead{width:100%;background:none;border:0;color:inherit;font:inherit;cursor:pointer;display:flex;
+    justify-content:space-between;align-items:center;gap:10px;padding-block:17px;text-align:left}
+  .foldhead:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:4px}
+  .foldhead .fk{font-size:19px;font-weight:600;color:var(--ink)}
+  .foldhead .fv{display:flex;align-items:center;gap:10px;font-size:17px;color:var(--blue)}
+  .foldhead .chev{color:var(--muted);font-size:12.5px;transition:transform .3s cubic-bezier(.22,1,.28,1)}
+  .fold.open .chev{transform:rotate(90deg)}
+  .foldbody{max-height:0;overflow:hidden;opacity:0;transition:max-height .45s cubic-bezier(.22,1,.28,1),opacity .3s}
+  .fold.open .foldbody{max-height:520px;opacity:1}
+  .fold.tall.open .foldbody{max-height:2200px}
+  .foldbody .inner2{padding-bottom:16px}
+  .foldbody p{margin:0 0 10px;font-size:17px;color:var(--dim);line-height:1.55}
+  .tinynote{font-size:14.5px;color:var(--muted);line-height:1.6;margin:14px 0 2px;flex:none}
+
+  /* tag quiz inside the check */
+  .quizcard{width:100%;text-align:center}
+  .quizq{font-family:var(--display);font-size:34.5px;line-height:1.15;margin:0 0 6px}
+  .quizsub{font-size:16px;color:var(--muted);margin:0 0 22px}
+  .quizbtns{display:flex;gap:12px;justify-content:center}
+  .qb{flex:1;max-width:120px;border-radius:16px;padding:16px 0;font-size:19.5px;font-weight:600;cursor:pointer;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink);transition:background .15s,border-color .15s}
+  .qb.yes{background:var(--teal);border-color:var(--teal);color:#FFFFFF}
+  .qb:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+  /* signs of strain */
+  .strain{border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:16px;
+    margin-top:16px;flex:none;width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;
+    transition:border-color .25s,background .25s}
+  .strain.alert{border-color:rgba(168,101,15,.45);background:var(--amber-dim)}
+  .strain .sh{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .strain .sh .lamp{width:14px;height:14px;border-radius:50%;background:var(--teal);flex:none;
+    box-shadow:0 0 0 4px var(--teal-dim)}
+  .strain.alert .sh .lamp{background:var(--amber);box-shadow:0 0 0 4px rgba(168,101,15,.18)}
+  .strain .sh .st{font-size:20.5px;font-weight:600}
+  .strain .sub2{font-size:16.5px;color:var(--dim);line-height:1.5;margin:0 0 12px}
+  .strain .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;
+    padding:7px 12px;font-size:15.5px;color:var(--dim);background:var(--bg)}
+  .chip .dotz{width:9px;height:9px}
+  .strain .tapme{font-size:15px;color:var(--muted);margin:11px 0 0}
+
+  /* brain age */
+  .agehero{border:1px solid var(--line);border-radius:22px;background:var(--dawn);padding:24px 18px 20px;
+    text-align:center;flex:none;box-shadow:0 1px 2px rgba(74,52,38,.05)}
+  .agehero .lbl{font-size:18.5px;color:var(--dim);margin-bottom:2px}
+  .agehero .num{font-family:var(--display);font-size:106px;line-height:.92;font-variant-numeric:tabular-nums}
+  .agehero .real{font-size:18.5px;color:var(--dim);margin-top:4px}
+  .agehero .win{display:inline-block;margin-top:16px;padding:9px 16px;border-radius:999px;
+    background:rgba(11,122,92,.12);color:var(--teal);font-size:18.5px;font-weight:600}
+  .pacebox{border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:18px 16px;flex:none}
+  .pacebox .ph2{font-size:18.5px;font-weight:600;margin-bottom:3px}
+  .pacebox .pnum{font-family:var(--display);font-size:50.5px;line-height:1;color:var(--blue);margin:6px 0 2px}
+  .pacebox .punit{font-size:17px;color:var(--dim);margin-bottom:16px}
+  .pacetrack{position:relative;height:13px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(11,122,92,.28) 0%,rgba(231,217,203,.9) 50%,rgba(198,65,47,.25) 100%);
+    border:1px solid var(--line)}
+  .pacetrack .mid2{position:absolute;left:50%;top:-5px;bottom:-5px;width:2px;background:var(--line)}
+  .pacetrack .pin{position:absolute;top:50%;left:30%;width:22px;height:22px;border-radius:50%;
+    background:var(--blue);border:3px solid #FFFFFF;transform:translate(-50%,-50%);
+    box-shadow:0 0 0 3px rgba(91,75,224,.22)}
+  .pacelabels{display:flex;justify-content:space-between;margin-top:11px;font-size:15.5px;color:var(--muted)}
+  .caution{border:1px solid rgba(91,75,224,.3);background:var(--blue-dim);border-radius:14px;
+    padding:14px 15px;font-size:16px;color:var(--dim);line-height:1.55;flex:none;margin-top:4px}
+  .caution b{color:var(--ink);font-weight:600}
+
+  .trendbox{border:1px solid var(--line);border-radius:16px;background:var(--blue-dim);padding:16px;margin-bottom:12px;flex:none}
+  .trendbox .big2{font-family:var(--display);font-size:34.5px;line-height:1.1;color:var(--blue);margin-bottom:3px}
+  .trendbox p{margin:0;font-size:16px;color:var(--dim);line-height:1.5}
+
+  .device{width:413px;max-width:100%;border-radius:54px;background:#2A211D;padding:10px;
+    box-shadow:0 34px 70px -26px rgba(74,52,38,.45),0 0 0 1px rgba(42,33,29,.12);flex:none}
+  /* iPhone 16 is 393x852 points. Tying the height to the width by ratio instead of
+     pinning it at 852px keeps the frame from stretching tall when the window is narrow. */
+  .viewport{position:relative;border-radius:45px;overflow:hidden;background:var(--bg);
+    aspect-ratio:393/852;height:auto;display:flex;flex-direction:column}
+  .statusbar{display:flex;justify-content:space-between;padding:13px 24px 2px;font-family:var(--mono);font-size:12.5px;color:var(--dim);flex:none}
+  .panes{position:relative;flex:1;overflow:hidden}
+  .pane{position:absolute;inset:0;padding:6px 20px 18px;overflow-y:auto;display:flex;flex-direction:column;
+    transition:transform .4s cubic-bezier(.22,1,.28,1),opacity .26s ease}
+  .pane[hidden]{display:none!important}
+  .pane.off-left{transform:translateX(-14%);opacity:0}
+  .pane.off-right{transform:translateX(14%);opacity:0}
+  .pane-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;flex:none}
+  .pane-top .ttl{font-size:24px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+  .pane-top .sub{font-size:15px;color:var(--muted)}
+
+  /* one big thing */
+  .bigthing{
+    border:1px solid var(--line);border-radius:16px;background:var(--surface);
+    padding:15px 16px;margin-bottom:16px;flex:none;display:flex;gap:13px;align-items:flex-start;
+  }
+  .bigthing .pip{width:8px;height:8px;border-radius:50%;background:var(--teal);margin-top:6px;flex:none;
+    box-shadow:0 0 0 5px var(--teal-dim)}
+  .bigthing .t{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .bigthing p{margin:0;font-size:16px;line-height:1.5;color:var(--ink)}
+
+  /* ring */
+  .dial{position:relative;display:grid;place-items:center;flex:none}
+  .dial .center{position:absolute;text-align:center;top:53%;transform:translateY(-50%)}
+  .score{font-family:var(--display);font-size:80.5px;line-height:.88;font-variant-numeric:tabular-nums}
+  .score .of{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.1em;vertical-align:super}
+  .zonechip{
+    display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:3px 10px;border-radius:999px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    background:var(--teal-dim);color:var(--teal);border:1px solid rgba(23,195,172,.3);
+  }
+  .usual{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .verdict{text-align:center;color:var(--ink);font-size:18px;margin:8px 0 6px;line-height:1.45;flex:none}
+  .confidence{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;flex:none;
+    font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .confidence .bar{width:50px;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+  .confidence .bar i{display:block;height:100%;width:67%;background:var(--blue)}
+
+  .sechd{font-size:18.5px;font-weight:600;color:var(--ink);margin:24px 0 10px;flex:none}
+  .rows{border-top:1px solid var(--line);flex:none}
+  .rowitem.group > .rowhead .k{font-weight:600}
+  .rows.sub{border-top:0;margin:2px 0 6px 22px}
+  .rows.sub .rowitem{border-bottom:1px solid var(--line)}
+  .rows.sub .rowitem:last-child{border-bottom:0}
+  .rows.sub .rowhead{padding-block:12px}
+  .rows.sub .rowhead .k{font-size:17px;font-weight:400;color:var(--dim);gap:9px}
+  .rows.sub .dotz{width:9px;height:9px}
+  .rowitem{border-bottom:1px solid var(--line)}
+  .rowhead{width:100%;background:none;border:0;color:inherit;font:inherit;cursor:pointer;display:flex;
+    justify-content:space-between;align-items:center;gap:10px;padding-block:15px;text-align:left}
+  .rowhead:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:4px}
+  .rowhead .k{font-size:18.5px;color:var(--ink);display:flex;align-items:center;gap:11px}
+  .dotz{width:11px;height:11px;border-radius:50%;flex:none}
+  .z-good{background:var(--teal)} .z-mid{background:var(--amber)} .z-low{background:var(--rose)}
+  .z-neutral{background:#C9AE92}
+  .rowhead .v{font-size:17px;display:flex;align-items:center;gap:9px}
+  .chev{color:var(--muted);transition:transform .3s cubic-bezier(.22,1,.28,1);font-size:12px}
+  .rowitem.open > .rowhead .chev{transform:rotate(90deg)}
+  .up{color:var(--teal)} .flat{color:var(--muted)} .warn{color:var(--amber)}
+  .rowbody{max-height:0;overflow:hidden;opacity:0;transition:max-height .4s cubic-bezier(.22,1,.28,1),opacity .28s}
+  .rowitem.open > .rowbody{max-height:260px;opacity:1}
+  .rowitem.group.open > .rowbody{max-height:1800px}
+  .rowbody .inner{padding-bottom:13px}
+  .rowbody p{margin:0 0 10px;font-size:17px;color:var(--dim);line-height:1.55}
+  .spark{width:100%;height:36px;display:block;margin-bottom:8px}
+  .cite{display:flex;gap:8px;padding:9px 11px;border-radius:9px;background:var(--blue-dim);border:1px solid rgba(86,134,245,.22)}
+  .cite .mark{font-family:var(--mono);font-size:12px;color:var(--blue);letter-spacing:.12em;padding-top:2px;flex:none}
+  .cite .txt{font-size:12.5px;color:var(--dim);line-height:1.5}
+
+  /* tagging timeline */
+  .tags{display:flex;flex-wrap:wrap;gap:7px;flex:none}
+  .tags .tag{
+    border:1px solid var(--line);background:var(--raised);color:var(--ink);border-radius:999px;
+    padding:11px 16px;font-size:17px;cursor:pointer;transition:background .15s,border-color .15s,color .15s;
+  }
+  .tags .tag.on{background:var(--teal-dim);border-color:rgba(11,122,92,.45);color:var(--teal);font-weight:500}
+  .tags .tag:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+  .taghint{font-size:16px;color:var(--muted);margin:11px 0 0;line-height:1.6}
+
+  .digest{margin-top:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:17px 16px;flex:none}
+  .digest .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+  .digest .hd span{font-size:18.5px;font-weight:600;color:var(--ink)}
+  .digest .hd em{font-size:15px;color:var(--muted);font-style:normal}
+  .digest p{margin:0 0 9px;font-size:17px;color:var(--dim);line-height:1.6}
+  .digest p:last-of-type{margin-bottom:0}
+  .linkbtn{background:none;border:0;padding:0;cursor:pointer;color:var(--teal);
+    font-size:17px;font-weight:500;margin-top:12px}
+  .policy{margin-top:18px;font-size:15.5px;color:var(--muted);line-height:1.8;flex:none;padding-bottom:2px}
+
+  /* vitals */
+  .seg{display:flex;gap:4px;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:14px;flex:none}
+  .seg button{
+    flex:1;background:none;border:0;color:var(--muted);font-size:16px;font-weight:500;
+    padding:10px 0;border-radius:7px;cursor:pointer;transition:background .2s,color .2s;
+  }
+  .seg button.on{background:var(--surface);color:var(--ink)}
+  .vital{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 15px;margin-bottom:11px;flex:none}
+  .vital .vh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+  .vital .vh .n{font-size:18.5px;color:var(--ink);font-weight:500}
+  .vital .vh .val{font-size:19.5px;font-weight:600;font-variant-numeric:tabular-nums}
+  .vital .meta{font-size:16px;color:var(--dim);margin-bottom:10px;display:flex;align-items:center}
+  .vital svg{width:100%;height:auto;display:block}
+  .vitalnote{font-size:15.5px;color:var(--muted);line-height:1.7;margin:8px 0 2px}
+
+  /* insights */
+  .disc{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:15px;margin-bottom:11px;flex:none}
+  .disc .dh{display:flex;gap:9px;align-items:center;margin-bottom:7px}
+  .disc .dh .n{font-size:16px;color:var(--muted)}
+  .disc .big{font-family:var(--display);font-size:31px;line-height:1.1;margin-bottom:5px}
+  .disc p{margin:0;font-size:16.5px;color:var(--dim);line-height:1.5}
+  .disc .n-count{margin-top:9px;font-size:15px;color:var(--muted)}
+
+  .weights{border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:17px 16px;margin-bottom:14px;flex:none}
+  .weights h4{font-size:18.5px;font-weight:600;margin:0 0 3px}
+  .weights .sub{font-size:15.5px;color:var(--muted);margin:0 0 15px}
+  .wrow{margin-bottom:10px}
+  .wrow .lab{display:flex;justify-content:space-between;font-size:17px;color:var(--ink);margin-bottom:6px}
+  .wrow .lab span:last-child{font-size:16px;color:var(--dim)}
+  .track{height:9px;border-radius:5px;background:var(--line);overflow:hidden}
+  .track i{display:block;height:100%;background:var(--teal);width:0;border-radius:5px;transition:width .85s cubic-bezier(.22,1,.28,1)}
+  .track.lit i{background:var(--blue)}
+  .weights .foot{margin:13px 0 0;font-size:15.5px;color:var(--muted);line-height:1.55}
+
+  .bandchart svg{width:100%;height:auto;display:block;touch-action:none;cursor:crosshair}
+  .scrub{display:flex;justify-content:space-between;font-size:16px;color:var(--muted);margin-bottom:12px}
+  .scrub b{color:var(--ink);font-weight:400}
+  .statline{display:flex;justify-content:space-between;padding-block:10px;border-bottom:1px solid var(--line)}
+  .statline:first-of-type{border-top:1px solid var(--line)}
+  .statline .k{font-size:17px;color:var(--ink)}
+  .statline .v{font-size:17px;color:var(--dim)}
+
+  .bigbtn{width:100%;margin-top:12px;background:var(--raised);border:1px solid var(--line);color:var(--ink);
+    border-radius:13px;padding:14px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--body);font-size:18.5px}
+  .bigbtn span:last-child{font-size:17px;color:var(--teal)}
+  .bigbtn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+  .note{font-size:15.5px;color:var(--muted);margin:16px 0 4px;line-height:1.7}
+
+  /* ask */
+  .askwrap{display:flex;flex-direction:column;gap:9px;flex:none}
+  .bubble{border-radius:14px;padding:13px 15px;font-size:17px;line-height:1.55;max-width:92%}
+  .bubble.me{align-self:flex-end;background:var(--raised);border:1px solid var(--line);color:var(--ink)}
+  .bubble.ai{align-self:flex-start;background:var(--blue-dim);border:1px solid rgba(91,75,224,.25);color:var(--dim)}
+  .bubble.ai b{color:var(--ink);font-weight:500}
+  .asks{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+  .askbtn{background:none;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:12px 16px;
+    font-size:17px;cursor:pointer;text-align:left;transition:border-color .2s,color .2s}
+  .askbtn:hover{border-color:var(--teal);color:var(--teal)}
+
+  /* check */
+  .checkwrap{flex:1;display:flex;flex-direction:column;min-height:0}
+  .pane .ccheck{flex:1;min-height:0}
+  .progress{display:flex;gap:4px;margin-bottom:13px;flex:none}
+  .progress i{flex:1;height:2px;background:var(--line);border-radius:2px;transition:background .3s}
+  .progress i.done{background:var(--teal)} .progress i.now{background:var(--blue)}
+  .stagearea{flex:1;display:grid;place-items:center;text-align:center;border:1px solid var(--line);border-radius:24px;
+    background:var(--surface);padding:20px;min-height:250px;position:relative;overflow:hidden}
+  .puck{width:126px;height:126px;border-radius:50%;display:grid;place-items:center;background:var(--raised);
+    border:1px solid var(--line);font-family:var(--mono);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);cursor:pointer;user-select:none;transition:background .1s,border-color .1s,color .1s,transform .1s}
+  .puck.go{background:var(--teal);border-color:var(--teal);color:#FFFFFF;transform:scale(1.04)}
+  .puck.early{background:#FCEBE6;border-color:var(--amber);color:var(--amber)}
+  .pair{display:flex;gap:14px;justify-content:center}
+  .side{width:90px;height:106px;border-radius:18px;background:var(--raised);border:1px solid var(--line);
+    display:grid;place-items:center;font-family:var(--mono);font-size:26.5px;color:var(--muted);cursor:pointer;user-select:none}
+  .side.lit{background:var(--teal);border-color:var(--teal);color:#FFFFFF}
+  .side.wrong{background:#FCEBE6;border-color:var(--amber);color:var(--amber)}
+  .stagearea h3{font-family:var(--display);font-weight:400;font-size:27.5px;margin:0 0 8px;line-height:1.15}
+  .stagearea p{margin:0;color:var(--dim);font-size:17px;line-height:1.55;max-width:23rem}
+  .bignum{font-family:var(--display);font-size:64.5px;line-height:.9;font-variant-numeric:tabular-nums}
+  .bignum .u{font-family:var(--mono);font-size:14px;color:var(--muted);vertical-align:super}
+  .digits{display:flex;gap:9px;justify-content:center;margin-bottom:6px}
+  .digit{width:33px;height:45px;border-radius:9px;background:var(--raised);border:1px solid var(--line);
+    display:grid;place-items:center;font-family:var(--mono);font-size:20.5px}
+  .digit.filled{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;width:100%;max-width:204px}
+  .key{background:var(--raised);border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:17px;
+    padding:10px 0;border-radius:10px;cursor:pointer}
+  .key:active{background:var(--teal);color:#FFFFFF}
+  .key.wide{grid-column:span 3;font-size:14.5px}
+  .btn{background:var(--teal);color:#FFFFFF;border:0;border-radius:999px;font-family:var(--body);font-size:16.5px;
+    font-weight:600;padding:12px 25px;cursor:pointer;margin-top:13px}
+  .btn.ghost{background:transparent;color:var(--dim);border:1px solid var(--line)}
+  .resultrows{width:100%;margin-top:13px;border-top:1px solid var(--line)}
+  .resultrow{display:flex;justify-content:space-between;padding-block:11px;border-bottom:1px solid var(--line);font-size:17px}
+  .resultrow .k{color:var(--ink)} .resultrow .v{font-size:17px;color:var(--dim)}
+  .learned{margin-top:13px;padding:13px 14px;border-radius:10px;background:var(--teal-dim);
+    border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--dim);line-height:1.5;text-align:left}
+  .learned b{color:var(--teal);font-weight:500}
+
+  /* sheets */
+  .sheet{position:absolute;inset:0;z-index:40;background:var(--bg);transform:translateY(100%);
+    transition:transform .4s cubic-bezier(.22,1,.28,1);display:flex;flex-direction:column;padding:16px 20px 18px;overflow-y:auto}
+  .sheet.up{transform:translateY(0)}
+  .sheet-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex:none}
+  .sheet-top .t{font-size:16px;color:var(--muted)}
+  .closebtn{background:none;border:0;color:var(--ink);font-size:17px;font-weight:500;cursor:pointer;padding:6px 4px}
+  .sheet h3{font-family:var(--display);font-weight:400;font-size:31px;margin:0 0 10px;line-height:1.15}
+  .sheet p{font-size:17px;color:var(--dim);line-height:1.6;margin:0 0 14px}
+  .calbar{height:6px;border-radius:4px;background:var(--line);overflow:hidden;margin-block:6px 8px}
+  .calbar i{display:block;height:100%;width:43%;background:var(--teal)}
+  .calmeta{display:flex;justify-content:space-between;font-size:16px;color:var(--dim);margin-bottom:20px}
+  .paper{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 15px;margin-top:4px}
+  .paper .ph{font-size:15.5px;color:var(--muted);margin-bottom:12px}
+  .paper h5{font-family:var(--display);font-weight:400;font-size:20.5px;margin:0 0 9px}
+  .paper .prow{display:flex;justify-content:space-between;padding-block:9px;border-bottom:1px solid var(--line);font-size:16.5px}
+  .paper .prow .k{color:var(--ink)} .paper .prow .v{font-size:16px;color:var(--dim)}
+  .paper .disc2{margin:13px 0 0;font-size:15px;color:var(--muted);line-height:1.55}
+
+  .tabs{display:flex;border-top:1px solid var(--line);background:var(--bg);
+    flex:none;padding-block:8px 15px}
+  .tab{flex:1;background:none;border:0;cursor:pointer;color:var(--muted);display:flex;flex-direction:column;
+    align-items:center;gap:5px;font-size:14px;font-weight:500;
+    padding-block:4px;transition:color .2s}
+  .tab.on{color:var(--teal)}
+  .tab:focus-visible{outline:2px solid var(--teal);outline-offset:-3px}
+
+  .stage-foot{padding-block:16px 30px;text-align:center;max-width:36rem;font-family:var(--mono);font-size:12px;
+    color:var(--muted);line-height:1.8}
+
+  /* today: the check card */
+  .checkcard{border:1px solid rgba(11,122,92,.35);border-radius:18px;background:var(--dawn);
+    padding:17px 16px;margin-bottom:16px;flex:none}
+  .checkcard .ct{font-size:16px;color:var(--teal);font-weight:600;margin-bottom:6px}
+  .checkcard p{margin:0 0 13px;font-size:18px;line-height:1.5;color:var(--ink)}
+  .checkcard .go{width:100%;background:var(--teal);color:#FFFFFF;border:0;border-radius:13px;padding:14px;
+    font-family:var(--body);font-size:18.5px;font-weight:600;cursor:pointer}
+  .checkcard .go:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+  .checkcard .res{display:flex;align-items:baseline;gap:9px;margin-bottom:8px;flex-wrap:wrap}
+  .checkcard .res .n{font-family:var(--display);font-size:48.5px;line-height:1;font-variant-numeric:tabular-nums}
+  .checkcard .res .u{font-size:16px;color:var(--dim)}
+  .checkcard .res .pz{font-size:17px;font-weight:600;color:var(--teal)}
+  .checkcard .hist{font-size:15.5px;color:var(--muted);margin:0}
+  .checkcard .again{background:none;border:0;padding:0;margin-top:11px;cursor:pointer;color:var(--teal);
+    font-size:17px;font-weight:500;font-family:var(--body)}
+
+  body.nightstage .scorecard,body.nightstage .agehero{border-color:rgba(255,255,255,.16)}
+  body.nightstage .scorecard .greet,body.nightstage .scorecard .scorenum,
+  body.nightstage .agehero .num,body.nightstage .agehero .lbl,body.nightstage .agehero .real{color:#F7EFE4}
+  body.nightstage .scoreword{color:#D9CBE6}
+  body.nightstage .scoreof{color:#C7B8D6}
+  body.nightstage .scale{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22)}
+  body.nightstage .scale-labels{color:#BEB0CE}
+  body.nightstage .scale-labels .mid{color:#8FDCC0}
+  body.nightstage .scale-band{background:rgba(143,220,192,.22);border-color:rgba(143,220,192,.55)}
+  body.nightstage .scale-mark{background:#8FDCC0;border-color:#2A2140;box-shadow:0 0 0 3px rgba(143,220,192,.25)}
+  body.nightstage .agehero .win{background:rgba(143,220,192,.16);color:#8FDCC0}
+  body.nightstage .checkcard{border-color:rgba(255,255,255,.18)}
+  body.nightstage .checkcard .ct{color:#8FDCC0}
+  body.nightstage .checkcard p{color:#F3EAF0}
+  body.nightstage .checkcard .hist{color:#BCAEC9}
+  body.nightstage .checkcard .res .n{color:#F7EFE4}
+  body.nightstage .checkcard .res .u{color:#C7B8D6}
+  body.nightstage .cc-stage.intro h3{color:#F7EFE4}
+  body.nightstage .cc-stage.intro p{color:#D8CADF}
+  body.nightstage .cc-stage.intro .cc-game{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.18)}
+  body.nightstage .cc-stage.intro .cc-game .t{color:#F7EFE4}
+  body.nightstage .cc-stage.intro .cc-game .s{color:#CFC1D8}
+  body.nightstage .cc-stage.intro .cc-streak{color:#BEB0CE}
+  body.nightstage .stage-head h1{color:#FBEEDF}
+  body.nightstage .stage-head p,body.nightstage .stage-foot{color:#D3B9A2}
+  body.nightstage .skypick .skyrow button{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.24);color:#E8D3BE}
+  body.nightstage .skypick .skyrow button.on{background:#FBEEDF;border-color:#FBEEDF;color:#33231C}
+  body.nightstage .skypick .lbl{color:#D3B9A2}
+  body.nightstage .skynow{color:#FBEEDF}
+  body.nightstage .skyticks button{color:#B49C88}
+  body.nightstage .skyticks button.on{color:#FBEEDF}
+  body.nightstage #skyrange{border-color:rgba(255,255,255,.24)}
+  body.nightstage #skyrange::-webkit-slider-thumb{background:#FBEEDF;border-color:#FBEEDF}
+  body.nightstage #skyrange::-moz-range-thumb{background:#FBEEDF;border-color:#FBEEDF}
+
+  /* time-of-day preview, outside the phone */
+  /* the sky control is a slider, so the palette crossfades as you drag rather than
+     jumping between six fixed settings */
+  .skypick{width:100%;max-width:440px;margin:14px auto 30px}
+  .skyrow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .skynow{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink);margin-left:auto}
+  .skytrack{position:relative}
+  #skyrange{-webkit-appearance:none;appearance:none;width:100%;height:14px;border-radius:999px;
+    background:linear-gradient(90deg,#FBDFE4 0%,#FCEFEC 20%,#FBF1F3 40%,#FBDCD9 60%,#EED5E2 80%,#2E2547 100%);
+    border:1px solid var(--line);outline:none;cursor:pointer;display:block;margin:0}
+  #skyrange::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;
+    border-radius:50%;background:#FFFFFF;border:2px solid var(--ink);cursor:grab;
+    box-shadow:0 2px 6px rgba(74,52,38,.3)}
+  #skyrange::-webkit-slider-thumb:active{cursor:grabbing}
+  #skyrange::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#FFFFFF;
+    border:2px solid var(--ink);cursor:grab;box-shadow:0 2px 6px rgba(74,52,38,.3)}
+  #skyrange:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+  .skyticks{display:flex;justify-content:space-between;margin-top:7px}
+  .skyticks button{background:none;border:0;padding:2px 0;cursor:pointer;
+    font-family:var(--body);font-size:12.5px;color:var(--muted);transition:color .2s}
+  .skyticks button.on{color:var(--ink);font-weight:600}
+  .skyticks button:first-child{text-align:left} .skyticks button:last-child{text-align:right}
+  .skypick .skyrow button{border:1px solid var(--line);background:rgba(255,255,255,.6);color:var(--dim);
+    border-radius:999px;padding:6px 13px;font-size:14.5px;cursor:pointer;font-family:var(--body)}
+  .skypick .skyrow button.on{background:var(--ink);border-color:var(--ink);color:#FFFFFF}
+  .skypick .lbl{font-size:14.5px;color:var(--muted)}
+
+  /* raised centre check button */
+  .tabs{position:relative;z-index:20}
+  .tab.centre{position:relative}
+  .tab.centre .fab{width:24px;height:24px;border-radius:50%;background:var(--teal);
+    display:grid;place-items:center;transition:transform .15s}
+  .tab.centre:active .fab{transform:scale(.92)}
+  .tab.centre.on .fab{background:var(--teal)}
+  .tab.centre:not(.on) .fab{background:var(--teal);opacity:.75}
+  .tab.centre .fab .dot{width:8px;height:8px;border-radius:50%;background:#FFFFFF}
+
+  /* a headline section inside a tab */
+  .bigsec{margin:28px 0 2px;flex:none}
+  .bigsec .rule{height:3px;width:44px;border-radius:2px;background:var(--teal);margin-bottom:13px}
+  .bigsec .kicker{font-size:14.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--teal);
+    font-weight:600;margin-bottom:5px}
+  .bigsec h3{font-family:var(--display);font-weight:400;font-size:35.5px;line-height:1.08;margin:0 0 7px;color:var(--ink)}
+  .bigsec p{margin:0 0 15px;font-size:17px;color:var(--dim);line-height:1.5}
+
+  .modchip{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;
+    color:var(--amber);background:var(--amber-dim);border:1px solid rgba(168,101,15,.3);
+    border-radius:999px;padding:3px 9px;margin-left:8px;vertical-align:2px}
+  .modchip.part{color:var(--blue);background:var(--blue-dim);border-color:rgba(91,75,224,.28)}
+  .datanote{font-size:14px;color:var(--muted);line-height:1.6;margin:14px 0 2px;flex:none}
+  .datanote b{color:var(--ink);font-weight:600}
+  .vital .sci{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);
+    margin-top:9px;padding-top:8px;border-top:1px dashed var(--line)}
+  .vital.soon{background:transparent;border-style:dashed}
+  .vital.soon .vh .n{color:var(--dim)}
+  .soonchip{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--blue);background:var(--blue-dim);border:1px solid rgba(91,75,224,.28);border-radius:999px;padding:4px 10px}
+  .vital.soon p{margin:9px 0 0;font-size:16px;color:var(--muted);line-height:1.5}
+
+  /* numbers tab groups */
+  .numgroup{margin:20px 0 10px;font-size:18.5px;font-weight:600;color:var(--ink);flex:none}
+  .numgroup:first-of-type{margin-top:6px}
+  .numcount{font-size:15.5px;color:var(--muted);font-weight:400;margin-left:7px}
+
+  @media (max-width:480px){
+    /* On a real phone the prototype stops pretending to be a phone inside a page:
+       it takes the whole screen, so the tab bar sits where a thumb expects it and
+       nothing is pushed below the fold. The page chrome moves underneath. */
+    body{display:flex;flex-direction:column;padding-inline:0;padding-block:0}
+    .device{order:1;width:100%;border-radius:0;padding:0;box-shadow:none;background:none}
+    .viewport{order:1;border-radius:0;aspect-ratio:auto;height:100svh;min-height:520px}
+    .skypick{order:2;border-top:1px solid var(--line);margin:0;padding:18px 16px 0;max-width:none}
+    .skypick .lbl{font-size:13px}
+    .skypick .skyrow button{padding:6px 11px;font-size:13px}
+    .skyticks button{font-size:11.5px}
+    .stage-head{order:3;padding:18px 20px 0}
+    .stage-head h1{font-size:26px}
+    .stage-head p{font-size:15px;line-height:1.5}
+    .stage-foot{order:4;font-size:11px;line-height:1.7;padding:16px 20px 34px}
+    .statusbar{padding-top:calc(13px + env(safe-area-inset-top,0px))}
+    .tabs{padding-block:8px calc(15px + env(safe-area-inset-bottom,0px))}
+    .pane{padding:6px 16px 18px}
+    .cc-stage{padding:18px 16px;min-height:0}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="stage-head">
+  <p class="tag">Charisma &middot; interactive prototype</p>
+  <h1>Tap through it.</h1>
+  <p>Running on Miyu&rsquo;s own Apple Health data.</p>
+</div>
+
+<div class="skypick" id="skypick">
+  <div class="skyrow">
+    <span class="lbl">Drag through the day:</span>
+    <span class="skynow" data-skyword>dawn</span>
+    <button type="button" data-sky="now">Now</button>
+  </div>
+  <div class="skytrack">
+    <input type="range" id="skyrange" min="0" max="500" step="1" value="0"
+           aria-label="Time of day" aria-valuetext="dawn">
+  </div>
+  <div class="skyticks">
+    <button type="button" data-stop="0">Dawn</button>
+    <button type="button" data-stop="1">Morning</button>
+    <button type="button" data-stop="2">Midday</button>
+    <button type="button" data-stop="3">Evening</button>
+    <button type="button" data-stop="4">Dusk</button>
+    <button type="button" data-stop="5">Night</button>
+  </div>
+</div>
+
+<div class="device">
+  <div class="viewport">
+    <div class="statusbar"><span>9:41</span><span>Charisma</span></div>
+
+    <div class="panes">
+
+      <!-- ================= TODAY ================= -->
+      <section class="pane" id="pane-today">
+        <div class="pane-top"><span class="ttl">Today</span><span class="sub" id="todaySub">Monday, 14 September</span></div>
+
+        <div class="checkcard" id="checkCard"></div>
+
+        <div class="scorecard">
+          <svg class="scenery" viewBox="0 0 300 200" aria-hidden="true" data-scenery>
+            <g data-stars opacity="0" fill="#FFF6E2">
+              <circle cx="26" cy="30" r="1.7"></circle><circle cx="58" cy="62" r="1.2"></circle>
+              <circle cx="92" cy="22" r="2"></circle><circle cx="118" cy="52" r="1.3"></circle>
+              <circle cx="146" cy="30" r="1.6"></circle><circle cx="176" cy="66" r="1.2"></circle>
+              <circle cx="204" cy="26" r="1.9"></circle><circle cx="232" cy="58" r="1.3"></circle>
+              <circle cx="262" cy="34" r="1.6"></circle><circle cx="286" cy="70" r="1.2"></circle>
+              <circle cx="44" cy="92" r="1.3"></circle><circle cx="128" cy="96" r="1.1"></circle>
+              <circle cx="212" cy="98" r="1.4"></circle><circle cx="72" cy="44" r="1"></circle>
+            </g>
+            <circle data-sun cx="150" cy="40" r="60" fill="#FFD9A0" opacity=".34"></circle>
+            <g data-moon opacity="0">
+              <circle cx="228" cy="48" r="24" fill="#F3ECFF" opacity=".85"></circle>
+              <circle cx="238" cy="40" r="22" fill="#2E2544" opacity=".9" data-moonbite></circle>
+            </g>
+            <g data-clouds opacity=".5" fill="#FFFFFF">
+              <g data-cloudA>
+                <ellipse cx="62" cy="86" rx="30" ry="13"></ellipse>
+                <ellipse cx="44" cy="90" rx="20" ry="10"></ellipse>
+                <ellipse cx="82" cy="91" rx="22" ry="10"></ellipse>
+              </g>
+              <g data-cloudB>
+                <ellipse cx="226" cy="112" rx="34" ry="14"></ellipse>
+                <ellipse cx="204" cy="117" rx="22" ry="10"></ellipse>
+                <ellipse cx="250" cy="118" rx="24" ry="11"></ellipse>
+              </g>
+            </g>
+            <g data-birds opacity=".4" fill="none" stroke="#8A6A52" stroke-width="2.2" stroke-linecap="round">
+              <path d="M150 64 q7 -7 14 0"></path>
+              <path d="M168 54 q6 -6 12 0"></path>
+              <path d="M134 50 q5 -5 10 0"></path>
+            </g>
+            <path data-hill1 d="M0 200 C40 162 72 176 106 168 C144 158 166 182 202 175 C238 168 268 186 300 175 L300 200 Z" fill="#EDCCA4" opacity=".6"></path>
+            <path data-hill2 d="M0 200 C48 182 82 191 124 184 C168 177 202 192 248 186 C274 182 289 188 300 187 L300 200 Z" fill="#DCB68C" opacity=".55"></path>
+          </svg>
+          <div class="greet" id="greet">Good morning!</div>
+          <div class="scoreword" id="scoreWord">Steady and sharp.</div>
+          <div class="scorenum"><span id="scoreNum">0</span></div>
+          <div class="scoreof">out of 100</div>
+          <div class="scale">
+            <div class="scale-band"></div>
+            <div class="scale-mark" id="scaleMark"></div>
+          </div>
+          <div class="scale-labels"><span>0</span><span class="mid" id="usualLabel">your usual</span><span>100</span></div>
+        </div>
+
+        <p class="plainline" id="plainLine">A little better than most Fridays.</p>
+
+        <div class="strain" id="strain" role="button" tabindex="0">
+          <div class="sh"><span class="lamp"></span><span class="st" id="strainTitle">Nothing looks off</span></div>
+          <p class="sub2" id="strainSub">Your body is working the way it normally does this week.</p>
+          <div class="chips" id="strainChips"></div>
+          <p class="tapme">Tap to see what this looks like on an off day.</p>
+        </div>
+
+        <div class="sechd" id="whyHead">Today's score</div>
+        <div class="rows" id="rows"></div>
+
+        <div class="sechd">Your week</div>
+        <div class="digest">
+          <div class="week" id="week"></div>
+          <div class="weekfoot">
+            <span class="lo"><span class="dotz z-mid"></span>Thursday, late night</span>
+            <button class="linkbtn" id="calBtn" type="button" style="margin:0">First 28 days &rarr;</button>
+          </div>
+        </div>
+
+        <p class="policy">Your data stays private. We never sell your data.</p>
+      </section>
+
+      <!-- ================= CHECK ================= -->
+      <section class="pane" id="pane-check" hidden>
+<!-- BEGIN SHARED DAILY CHECK  (identical block in the prototype and the landing page) -->
+<div class="ccheck" data-ccheck data-streak="You have finished 26 checks.">
+  <div class="cc-bar">
+    <span class="cc-title">Daily check</span>
+    <span class="cc-clock" data-clock>3 games &middot; 40 seconds</span>
+  </div>
+  <div class="cc-prog" data-prog></div>
+  <div class="cc-stage" data-stage></div>
+</div>
+
+<style>
+  .ccheck{--cc-ink:#241C18;--cc-dim:#5A4B42;--cc-muted:#7A6757;--cc-line:#E7D9CB;
+    --cc-surface:#FFFFFF;--cc-raised:#F6EDE4;--cc-green:#0B7A5C;--cc-indigo:#5B4BE0;--cc-amber:#A8650F;
+    --cc-dawn:var(--dawn,linear-gradient(158deg,#FFF3E6 0%,#FDEDF2 52%,#EFEBFF 100%));
+    font-family:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;color:var(--cc-ink);
+    display:flex;flex-direction:column;min-height:0}
+  .ccheck *{box-sizing:border-box}
+  .cc-bar{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;flex:none}
+  .cc-title{font-size:24px;font-weight:600;letter-spacing:-.01em}
+  .cc-clock{font-size:15px;color:var(--cc-muted)}
+  .cc-prog{display:flex;gap:4px;margin-bottom:13px;flex:none}
+  .cc-prog i{flex:1;height:3px;background:var(--cc-line);border-radius:2px;transition:background .3s}
+  .cc-prog i.done{background:var(--cc-green)}
+  .cc-prog i.now{background:var(--cc-indigo)}
+  .cc-stage{flex:1;display:grid;place-items:center;text-align:center;border:1px solid var(--cc-line);
+    border-radius:24px;background:var(--cc-surface);padding:22px 20px;min-height:320px;position:relative;overflow:hidden}
+  .cc-stage.intro{background:var(--cc-dawn)}
+  .cc-stage h3{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-weight:400;
+    font-size:34.5px;margin:0 0 8px;line-height:1.14}
+  .cc-stage p{margin:0;color:var(--cc-dim);font-size:17px;line-height:1.55;max-width:23rem}
+  .cc-games{display:flex;flex-direction:column;gap:9px;margin:20px auto 4px;width:100%;max-width:270px}
+  .cc-game{display:block;background:rgba(255,255,255,.72);
+    border:1px solid var(--cc-line);border-radius:14px;padding:12px 15px;text-align:left}
+  .cc-game .n{width:26px;height:26px;border-radius:50%;background:var(--cc-green);color:#FFF;flex:none;
+    display:grid;place-items:center;font-size:15px;font-weight:600}
+  .cc-game .t{font-size:17px;font-weight:500}
+  .cc-game .s{font-size:15px;color:var(--cc-muted)}
+  .cc-btn{background:var(--cc-green);color:#FFFFFF;border:0;border-radius:999px;font-size:18.5px;font-weight:600;
+    padding:14px 32px;cursor:pointer;margin-top:16px;font-family:inherit}
+  .cc-btn.ghost{background:transparent;color:var(--cc-dim);border:1px solid var(--cc-line)}
+  .cc-btn:focus-visible{outline:2px solid var(--cc-indigo);outline-offset:3px}
+  .cc-streak{margin-top:14px;font-size:15px;color:var(--cc-muted)}
+  .cc-puck{width:134px;height:134px;margin:0 auto;border-radius:50%;display:grid;place-items:center;background:var(--cc-raised);
+    border:1px solid var(--cc-line);font-size:17px;font-weight:600;color:var(--cc-muted);cursor:pointer;
+    user-select:none;transition:background .1s,border-color .1s,color .1s,transform .1s}
+  .cc-puck.go{background:var(--cc-green);border-color:var(--cc-green);color:#FFF;transform:scale(1.05)}
+  .cc-puck.early{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+  .cc-pair{display:flex;gap:14px;justify-content:center}
+  .cc-side{width:96px;height:112px;border-radius:18px;background:var(--cc-raised);border:1px solid var(--cc-line);
+    display:grid;place-items:center;font-size:30px;color:var(--cc-muted);cursor:pointer;user-select:none}
+  .cc-side.lit{background:var(--cc-green);border-color:var(--cc-green);color:#FFF}
+  .cc-side.wrong{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+  .cc-stage .cc-q{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-size:34.5px;
+    line-height:1.14;margin:0 0 6px;color:var(--cc-ink);max-width:none}
+  .cc-stage .cc-qsub{font-size:17px;color:var(--cc-muted);margin:0 0 18px;max-width:none}
+  .cc-stage.tags{align-items:center;padding-block:20px}
+  .cc-pairs{display:flex;flex-direction:column;gap:12px;margin:22px 0 4px;width:100%;max-width:290px}
+  .cc-count{width:100%;max-width:290px;height:9px;border-radius:999px;background:var(--cc-line);
+    overflow:hidden;margin:22px auto 0}
+  .cc-count i{display:block;height:100%;width:100%;background:var(--cc-green);border-radius:999px}
+  .cc-countt{font-size:15px;color:var(--cc-muted);margin:11px 0 0}
+  .cc-pair-row{background:rgba(255,255,255,.72);border:1px solid var(--cc-line);border-radius:14px;
+    padding:14px 16px;font-size:20px;font-weight:600;color:var(--cc-ink);text-align:center}
+  .cc-pair-row b{color:var(--cc-green);font-weight:600}
+  .cc-opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .cc-opt{border:2px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);border-radius:999px;
+    padding:12px 18px;font-size:19.5px;font-weight:500;cursor:pointer;font-family:inherit;line-height:1.1}
+  .cc-opt.right{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF}
+  .cc-opt.wrong{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+  .cc-tags{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:2px 0 6px}
+  .cc-tag{border:2px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);border-radius:999px;
+    padding:12px 17px;font-size:19.5px;font-weight:500;cursor:pointer;font-family:inherit;line-height:1.1;
+    transition:background .15s,border-color .15s,color .15s,transform .12s}
+  .cc-tag.on{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF;transform:scale(1.03)}
+  .cc-tag:focus-visible{outline:2px solid var(--cc-indigo);outline-offset:3px}
+  .cc-stage .cc-priv{font-size:15.5px;color:var(--cc-muted);margin:34px 0 0;line-height:1.5;max-width:none}
+  .cc-qbtns{display:flex;gap:12px;justify-content:center}
+  .cc-qb{flex:1;max-width:120px;border-radius:16px;padding:16px 0;font-size:19.5px;font-weight:600;cursor:pointer;
+    border:1px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);font-family:inherit}
+  .cc-qb.yes{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF}
+  .cc-big{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-size:69px;line-height:.9}
+  .cc-big .u{font-size:15px;color:var(--cc-muted);vertical-align:super}
+  .cc-rows{width:100%;margin-top:14px;border-top:1px solid var(--cc-line)}
+  .cc-row{display:flex;justify-content:space-between;padding-block:11px;border-bottom:1px solid var(--cc-line);font-size:17px}
+  .cc-row .k{color:var(--cc-ink)} .cc-row .v{color:var(--cc-dim)}
+  .cc-row .v.up{color:var(--cc-green)}
+  .cc-done{margin-top:14px;padding:13px 14px;border-radius:12px;background:rgba(11,122,92,.10);
+    border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-height:1.5;text-align:left}
+  .cc-done b{color:var(--cc-green);font-weight:600}
+  @media (prefers-reduced-motion:reduce){.ccheck *{transition:none!important;animation:none!important}}
+</style>
+
+<script>
+(function(){
+  var SIMPLE = 4, CHOICE = 3;
+  var TAGS = ["A drink","Late coffee","A late night","Felt unwell"];
+  var THINGS = ["key","book","hat","cup","coin","glove","comb","apple"];
+  var PLACES = ["kitchen","garden","car","hallway","bathroom","office","attic","porch"];
+  var RECALL = 3;
+  var TOTAL = 1 + SIMPLE + CHOICE + RECALL + 1;
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-ccheck]"), function(root){
+    var stage = root.querySelector("[data-stage]"),
+        prog  = root.querySelector("[data-prog]"),
+        clock = root.querySelector("[data-clock]");
+    var simpleTimes = [], choiceTimes = [], answers = [], step = 0, timer = null, goAt = 0, armed = false;
+    var pairs = [], recallScore = 0, countTimer = null;
+    function drawProgress(){
+      prog.innerHTML = "";
+      for (var i=0;i<TOTAL;i++){
+        var b = document.createElement("i");
+        if (i<step) b.className = "done"; else if (i===step) b.className = "now";
+        prog.appendChild(b);
+      }
+    }
+    function intro(){
+      clearInterval(countTimer);
+      step = 0; simpleTimes = []; choiceTimes = []; answers = []; recallScore = 0; pairs = []; drawProgress();
+      clock.textContent = "3 games · 40 seconds";
+      stage.className = "cc-stage intro";
+      stage.innerHTML =
+        '<div><h3>Ready for today’s check?</h3>' +
+        '<p>Three short games. It takes about 40 seconds.</p>' +
+        '<div class="cc-games">' +
+          '<div class="cc-game"><span><span class="t">Tap fast</span><br><span class="s">Tap the moment it turns green</span></span></div>' +
+          '<div class="cc-game"><span><span class="t">Pick a side</span><br><span class="s">Left or right, whichever lights up</span></span></div>' +
+          '<div class="cc-game"><span><span class="t">Remember three</span><br><span class="s">Three things, asked at the end</span></span></div>' +
+        '</div>' +
+        '<button class="cc-btn" data-start type="button">Let’s go</button>' +
+        '<p class="cc-priv">Data is private, nothing is ever shared.</p></div>';
+      stage.querySelector("[data-start]").addEventListener("click", showPairs);
+    }
+    function shuffle(a){
+      a = a.slice();
+      for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+      return a;
+    }
+    function showPairs(){
+      pairs = [];
+      var th = shuffle(THINGS).slice(0,3), pl = shuffle(PLACES);
+      for (var i=0;i<3;i++) pairs.push({thing:th[i], place:pl[i]});
+      step = 0; drawProgress(); clock.textContent = "Remember these three";
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-q">Remember these three.</p>' +
+        '<p class="cc-qsub">We will ask you at the end.</p>' +
+        '<div class="cc-pairs">' +
+          pairs.map(function(p){ return '<div class="cc-pair-row">The <b>'+p.thing+'</b> in the <b>'+p.place+'</b></div>'; }).join("") +
+        '</div>' +
+        '<div class="cc-count"><i data-countbar></i></div>' +
+        '<p class="cc-countt"><span data-countnum>7</span> seconds</p>' +
+        '</div>';
+      var SECS = 7;
+      var bar = stage.querySelector("[data-countbar]"), num = stage.querySelector("[data-countnum]");
+      requestAnimationFrame(function(){
+        bar.style.transition = "width " + SECS + "s linear";
+        bar.style.width = "0%";
+      });
+      var left = SECS;
+      countTimer = setInterval(function(){
+        left--;
+        if (num) num.textContent = Math.max(0, left);
+        if (left <= 0) clearInterval(countTimer);
+      }, 1000);
+      setTimeout(function(){ clearInterval(countTimer); step = 1; simpleRound(); }, SECS*1000);
+    }
+
+    function recallRound(i){
+      if (i >= RECALL) return quizRound(0, null);
+      step = 1 + SIMPLE + CHOICE + i; drawProgress();
+      clock.textContent = "Remember three, " + (i+1) + " of " + RECALL;
+      stage.className = "cc-stage";
+      var p = pairs[i];
+      var wrong = PLACES.filter(function(x){
+        return !pairs.some(function(q){ return q.place === x; });
+      });
+      var opts = shuffle([p.place].concat(shuffle(wrong).slice(0,3)));
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-q">Where was the ' + p.thing + '?</p>' +
+        '<p class="cc-qsub">Best guess is fine.</p>' +
+        '<div class="cc-opts">' +
+          opts.map(function(o){ return '<button class="cc-opt" type="button" data-opt="'+o+'">'+o+'</button>'; }).join("") +
+        '</div></div>';
+      Array.prototype.forEach.call(stage.querySelectorAll("[data-opt]"), function(bn){
+        bn.addEventListener("click", function(){
+          var right = bn.dataset.opt === p.place;
+          if (right) recallScore++;
+          bn.classList.add(right ? "right" : "wrong");
+          if (!right){
+            var t = stage.querySelector('[data-opt="'+p.place+'"]');
+            if (t) t.classList.add("right");
+          }
+          Array.prototype.forEach.call(stage.querySelectorAll("[data-opt]"), function(x){ x.disabled = true; });
+          setTimeout(function(){ recallRound(i+1); }, 700);
+        });
+      });
+    }
+
+    function simpleRound(){
+      if (step - 1 >= SIMPLE) return choiceRound();
+      drawProgress(); clock.textContent = "Game 1, round " + (step) + " of " + SIMPLE;
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div><div class="cc-puck" data-puck role="button" tabindex="0">wait</div>' +
+        '<p style="margin-top:18px">Tap when it turns green.</p></div>';
+      var puck = stage.querySelector("[data-puck]"); armed = false;
+      timer = setTimeout(function(){
+        puck.classList.add("go"); puck.textContent = "TAP"; goAt = performance.now(); armed = true;
+      }, 900 + Math.random()*1800);
+      function hit(){
+        if (!armed){ clearTimeout(timer); puck.classList.add("early"); puck.textContent = "too early";
+          setTimeout(simpleRound, 850); return; }
+        var ms = Math.round(performance.now()-goAt);
+        simpleTimes.push(ms); step++;
+        puck.classList.remove("go"); puck.textContent = ms + " ms"; armed = false;
+        setTimeout(simpleRound, 600);
+      }
+      puck.addEventListener("pointerdown", hit);
+      puck.addEventListener("keydown", function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); hit(); } });
+    }
+    function choiceRound(){
+      var done = step - 1 - SIMPLE;
+      if (done >= CHOICE) return recallRound(0);
+      drawProgress(); clock.textContent = "Game 2, round " + (done+1) + " of " + CHOICE;
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div><p style="margin-bottom:18px">Tap the side that turns green.</p>' +
+        '<div class="cc-pair"><div class="cc-side" data-l>&larr;</div><div class="cc-side" data-r>&rarr;</div></div></div>';
+      var L = stage.querySelector("[data-l]"), R = stage.querySelector("[data-r]");
+      var target = Math.random()<0.5 ? L : R; armed = false;
+      timer = setTimeout(function(){ target.classList.add("lit"); goAt = performance.now(); armed = true; }, 800 + Math.random()*1600);
+      function pick(el){
+        if (!armed){ clearTimeout(timer); el.classList.add("wrong"); setTimeout(choiceRound, 800); return; }
+        if (el !== target){ el.classList.add("wrong"); armed = false; setTimeout(choiceRound, 800); return; }
+        choiceTimes.push(Math.round(performance.now()-goAt)); step++; armed = false;
+        setTimeout(choiceRound, 520);
+      }
+      L.addEventListener("pointerdown", function(){ pick(L); });
+      R.addEventListener("pointerdown", function(){ pick(R); });
+    }
+    function quizRound(i, memOk){
+      answers = [];
+      step = 1 + SIMPLE + CHOICE + RECALL; drawProgress();
+      clock.textContent = "Last part, yesterday";
+      stage.className = "cc-stage tags";
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-q">Anything yesterday?</p>' +
+        '<p class="cc-qsub">Tap any that apply, or skip.</p>' +
+        '<div class="cc-tags">' +
+          TAGS.map(function(t){ return '<button class="cc-tag" type="button" data-tag>'+t+'</button>'; }).join("") +
+        '</div>' +
+        '<button class="cc-btn" data-donetags type="button">Done</button>' +
+        '<p class="cc-priv">Data is private, nothing is ever shared.</p>' +
+        '</div>';
+      Array.prototype.forEach.call(stage.querySelectorAll("[data-tag]"), function(b){
+        b.addEventListener("click", function(){ b.classList.toggle("on"); });
+      });
+      stage.querySelector("[data-donetags]").addEventListener("click", function(){
+        answers = Array.prototype.map.call(stage.querySelectorAll("[data-tag]"), function(b){
+          return b.classList.contains("on") ? 1 : 0;
+        });
+        results(memOk);
+      });
+    }
+    function med(a){
+      if(!a.length) return 0;
+      var s = a.slice().sort(function(x,y){return x-y;}), h = Math.floor(s.length/2);
+      return s.length % 2 ? s[h] : Math.round((s[h-1]+s[h])/2);
+    }
+    /* trial-to-trial spread. This is the number with the dementia evidence behind it,
+       so it is computed and kept, not discarded once the median is taken. */
+    function sd(a){
+      if (a.length < 2) return 0;
+      var m = a.reduce(function(x,y){return x+y;},0) / a.length;
+      var v = a.reduce(function(x,y){ return x + (y-m)*(y-m); },0) / (a.length - 1);
+      return Math.round(Math.sqrt(v));
+    }
+    var USUAL_LO = 250, USUAL_HI = 290;
+    function band(ms){ return ms < USUAL_LO ? "quicker" : (ms > USUAL_HI ? "gentler" : "usual"); }
+    function bandWord(b){
+      return b==="quicker" ? "quicker than usual" : (b==="gentler" ? "a gentler morning than usual" : "right around your usual");
+    }
+    function results(memOk){
+      step = TOTAL; drawProgress(); clock.textContent = "All done";
+      stage.className = "cc-stage";
+      var mS = med(simpleTimes), mC = med(choiceTimes), sdS = sd(simpleTimes);
+      var b = band(mS), marked = answers.filter(Boolean).length;
+      memOk = recallScore;
+      var onDone = root.ccheckOnDone;
+      stage.innerHTML = '<div style="width:100%">' +
+        '<div class="cc-big">'+mS+'<span class="u">ms</span></div>' +
+        '<p style="margin-top:8px">How fast you tapped, on average.</p>' +
+        '<div class="cc-rows">' +
+          '<div class="cc-row"><span class="k">Choosing a side</span><span class="v">'+mC+' ms</span></div>' +
+          '<div class="cc-row"><span class="k">Compared with your usual</span><span class="v '+(b==="quicker"?"up":"")+'">'+
+            bandWord(b)+'</span></div>' +
+          '<div class="cc-row"><span class="k">How steady your tapping was</span><span class="v">'+sdS+' ms swing</span></div>' +
+          '<div class="cc-row"><span class="k">Things you remembered</span><span class="v '+(recallScore===3?"up":"")+'">'+
+            recallScore+' of 3</span></div>' +
+        '</div>' +
+        '<div class="cc-done">Nice work. You marked <b>'+marked+'</b> of '+TAGS.length+
+          ' things yesterday, and today is counted in your score.</div>' +
+        (onDone ? '<button class="cc-btn" data-see type="button">See it on Today</button> ' : '') +
+        '<button class="cc-btn ghost" data-again type="button">Do it again</button></div>';
+      stage.querySelector("[data-again]").addEventListener("click", intro);
+      var see = stage.querySelector("[data-see]");
+      if (onDone){
+        onDone({ simple:mS, choice:mC, sd:sdS, recall:recallScore, band:b, bandWord:bandWord(b), marked:marked });
+        if (see) see.addEventListener("click", function(){ if (root.ccheckSeeToday) root.ccheckSeeToday(); });
+      }
+    }
+
+    root.ccheckReset = intro;
+    intro();
+  });
+})();
+</script>
+<!-- END SHARED DAILY CHECK -->
+      </section>
+
+      <!-- ================= AGE ================= -->
+      <section class="pane" id="pane-age" hidden>
+        <div class="pane-top"><span class="ttl">Your brain age</span><span class="sub">and your habits</span></div>
+
+        <div class="agehero">
+          <svg class="scenery" viewBox="0 0 300 200" aria-hidden="true" data-scenery>
+            <g data-stars opacity="0" fill="#FFF6E2">
+              <circle cx="26" cy="30" r="1.7"></circle><circle cx="58" cy="62" r="1.2"></circle>
+              <circle cx="92" cy="22" r="2"></circle><circle cx="118" cy="52" r="1.3"></circle>
+              <circle cx="146" cy="30" r="1.6"></circle><circle cx="176" cy="66" r="1.2"></circle>
+              <circle cx="204" cy="26" r="1.9"></circle><circle cx="232" cy="58" r="1.3"></circle>
+              <circle cx="262" cy="34" r="1.6"></circle><circle cx="286" cy="70" r="1.2"></circle>
+              <circle cx="44" cy="92" r="1.3"></circle><circle cx="128" cy="96" r="1.1"></circle>
+              <circle cx="212" cy="98" r="1.4"></circle><circle cx="72" cy="44" r="1"></circle>
+            </g>
+            <circle data-sun cx="150" cy="40" r="60" fill="#FFD9A0" opacity=".34"></circle>
+            <g data-moon opacity="0">
+              <circle cx="228" cy="48" r="24" fill="#F3ECFF" opacity=".85"></circle>
+              <circle cx="238" cy="40" r="22" fill="#2E2544" opacity=".9" data-moonbite></circle>
+            </g>
+            <g data-clouds opacity=".5" fill="#FFFFFF">
+              <g data-cloudA>
+                <ellipse cx="62" cy="86" rx="30" ry="13"></ellipse>
+                <ellipse cx="44" cy="90" rx="20" ry="10"></ellipse>
+                <ellipse cx="82" cy="91" rx="22" ry="10"></ellipse>
+              </g>
+              <g data-cloudB>
+                <ellipse cx="226" cy="112" rx="34" ry="14"></ellipse>
+                <ellipse cx="204" cy="117" rx="22" ry="10"></ellipse>
+                <ellipse cx="250" cy="118" rx="24" ry="11"></ellipse>
+              </g>
+            </g>
+            <g data-birds opacity=".4" fill="none" stroke="#8A6A52" stroke-width="2.2" stroke-linecap="round">
+              <path d="M150 64 q7 -7 14 0"></path>
+              <path d="M168 54 q6 -6 12 0"></path>
+              <path d="M134 50 q5 -5 10 0"></path>
+            </g>
+            <path data-hill1 d="M0 200 C40 162 72 176 106 168 C144 158 166 182 202 175 C238 168 268 186 300 175 L300 200 Z" fill="#EDCCA4" opacity=".6"></path>
+            <path data-hill2 d="M0 200 C48 182 82 191 124 184 C168 177 202 192 248 186 C274 182 289 188 300 187 L300 200 Z" fill="#DCB68C" opacity=".55"></path>
+          </svg>
+          <div class="lbl">Your brain measures</div>
+          <div class="num"><span id="ageNum">0</span></div>
+          <div class="real">You are 26 years old.</div>
+          <div class="win">3 years younger than your age</div>
+        </div>
+
+        <div class="bigsec">
+          <div class="rule"></div>
+          <div class="kicker">Habits</div>
+          <h3>What moves your number.</h3>
+        </div>
+
+        <div class="disc">
+          <span class="badge good"><span class="ar">&uarr;</span>Helps you</span>
+          <div class="title">Your mornings are brighter without a drink.</div>
+          <div class="metric good">9 points higher</div>
+          <p>On mornings after a drink-free night, compared with the others.</p>
+          <div class="n-count">Based on 14 days you marked.</div>
+        </div>
+
+        <div class="disc">
+          <span class="badge good"><span class="ar">&uarr;</span>Helps you</span>
+          <div class="title">Going to bed before 11:30pm helps you.</div>
+          <div class="metric good">6 points higher</div>
+          <p>You are also a little quicker on those mornings.</p>
+          <div class="n-count">Based on 31 days you marked. This is your strongest one.</div>
+        </div>
+
+        <div class="disc">
+          <span class="badge wait"><span class="ar">&middot;</span>Too soon to say</span>
+          <div class="title">Coffee late in the day.</div>
+          <div class="metric wait">4 of 12 days</div>
+          <p>Twelve days and we can tell you what it does to you. Eight to go.</p>
+          <div class="n-count">Mark the days you have late coffee.</div>
+        </div>
+
+
+        <div class="fold tall">
+          <button class="foldhead" type="button" aria-expanded="false">
+            <span class="fk">Which habits matter most</span>
+            <span class="fv">6 things <span class="chev">&rsaquo;</span></span>
+          </button>
+          <div class="foldbody"><div class="inner2">
+
+        <div class="weights">
+          <h4>Sleep time matters most</h4>
+          <p class="sub">Learned from 71 of your own daily checks</p>
+          <div id="weightRows"></div>
+          <p class="foot">This is about you only, not an average of other people. On mornings you skip the check, the rest of the list carries your score.</p>
+        </div>
+          </div></div>
+        </div>
+
+        <div class="fold tall">
+          <button class="foldhead" type="button" aria-expanded="false">
+            <span class="fk">Ask about your habits</span>
+            <span class="fv">3 to try <span class="chev">&rsaquo;</span></span>
+          </button>
+          <div class="foldbody"><div class="inner2">
+
+        <div class="askwrap" id="askwrap">
+          <div class="bubble ai">Ask about your own days. We say so when we do not have enough to answer.</div>
+        </div>
+        <div class="asks" id="asks">
+          <button class="askbtn" type="button" data-q="0">Why was Thursday my worst day?</button>
+          <button class="askbtn" type="button" data-q="1">Does drinking really affect me?</button>
+          <button class="askbtn" type="button" data-q="2">Am I getting better or worse?</button>
+        </div>
+          </div></div>
+        </div>
+
+
+        <div class="bigsec">
+          <div class="rule"></div>
+          <div class="kicker">Your age</div>
+          <h3>Look closer.</h3>
+        </div>
+
+        <div class="fold" id="fold1">
+          <button class="foldhead" type="button" aria-expanded="false">
+            <span class="fk">How fast you are changing</span>
+            <span class="fv">0.9 a year <span class="chev">&rsaquo;</span></span>
+          </button>
+          <div class="foldbody"><div class="inner2">
+            <p>For every year that passes, your brain measures 0.9 years older. Slower is better.</p>
+            <div class="pacetrack"><span class="mid2"></span><span class="pin" id="pacePin"></span></div>
+            <div class="pacelabels"><span>slower</span><span>same as the clock</span><span>faster</span></div>
+          </div></div>
+        </div>
+
+        <div class="fold" id="fold2">
+          <button class="foldhead" type="button" aria-expanded="false">
+            <span class="fk">The last 12 months</span>
+            <span class="fv">steady <span class="chev">&rsaquo;</span></span>
+          </button>
+          <div class="foldbody"><div class="inner2">
+            <div class="bandchart">
+              <svg viewBox="0 0 280 140" aria-label="Your brain age stays below your real age over twelve months">
+                <line x1="10" y1="120" x2="270" y2="120" stroke="#E7D9CB" stroke-width="1"></line>
+                <path d="M10 48 L270 34" fill="none" stroke="#9C8877" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"></path>
+                <path d="M10 62 C60 66 100 60 140 68 C180 76 220 74 270 78" fill="none" stroke="#5B4BE0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="270" cy="78" r="5" fill="#5B4BE0"></circle>
+                <text x="14" y="28" font-size="11" fill="#7A6757">your real age</text>
+                <text x="14" y="100" font-size="11" fill="#5B4BE0">your brain age</text>
+              </svg>
+            </div>
+            <p style="margin-top:10px">Your real age climbs one year every year. Yours has climbed more slowly.</p>
+          </div></div>
+        </div>
+
+        <div class="fold" id="fold3">
+          <button class="foldhead" type="button" aria-expanded="false">
+            <span class="fk">What moved it</span>
+            <span class="fv">3 things <span class="chev">&rsaquo;</span></span>
+          </button>
+          <div class="foldbody"><div class="inner2">
+            <div class="statline"><span class="k">Steadier bedtimes</span><span class="v up">helped</span></div>
+            <div class="statline"><span class="k">Same daily routine</span><span class="v up">helped</span></div>
+            <div class="statline"><span class="k">Walking speed</span><span class="v flat">no change</span></div>
+          </div></div>
+        </div>
+
+
+<div class="bigsec">
+          <div class="rule"></div>
+          <div class="kicker">Reports</div>
+          <h3>Take it with you.</h3>
+        </div>
+
+        <button class="bigbtn" id="reportBtn" type="button"><span>Your August</span><span>open &rarr;</span></button>
+        <button class="bigbtn" id="exportBtn" type="button"><span>Page for your doctor</span><span>open &rarr;</span></button>
+
+        <p class="tinynote" style="margin-top:20px">Not a medical test. Talk to your doctor about anything that worries you.</p>
+      </section>
+
+      <!-- ================= VITALS ================= -->
+      <section class="pane" id="pane-vitals" hidden>
+        <div class="pane-top"><span class="ttl">Your numbers</span><span class="sub" id="numCount">every one of them</span></div>
+        <div class="seg" id="seg">
+          <button data-tf="w" class="on" type="button">Week</button>
+          <button data-tf="m" type="button">Month</button>
+          <button data-tf="s" type="button">6 months</button>
+        </div>
+        <div id="vitals"></div>
+      </section>
+
+
+    </div>
+
+    <!-- sheets -->
+    <div class="sheet" id="sheetCal" aria-hidden="true">
+      <div class="sheet-top"><span class="t">Calibration</span><button class="closebtn" data-close type="button">Close</button></div>
+      <h3>Learning your baseline.</h3>
+      <div class="calbar"><i></i></div>
+      <div class="calmeta"><span>Day 12 of 28</span><span>16 days to your first score</span></div>
+      <p>Your first four weeks are spent learning what a normal day looks like for you. Your score is always compared to you, so we build that picture first.</p>
+      <p>Every check you do in these four weeks makes it sharper, and we show you how far along we are.</p>
+      <p>We are learning five things from your watch: when you sleep, your resting heart rate, how much you move, how you walk, and the shape of your day.</p>
+    </div>
+
+    <div class="sheet" id="sheetReport" aria-hidden="true">
+      <div class="sheet-top"><span class="t">Monthly</span><button class="closebtn" data-close type="button">Close</button></div>
+      <h3>Your August.</h3>
+      <p>Your days averaged 71 out of 100 across 31 days, against 72 in July.</p>
+      <p>Bedtime was the story. Yours moved by about 54 minutes across August, against 57 in July, and your better days followed the steadier nights.</p>
+      <p>You took a median 6,370 steps a day and walked at 1.24 metres a second, unchanged across the whole 90 days.</p>
+      <p>You were inside your usual range on 25 of 31 days.</p>
+      <div class="paper">
+        <div class="ph">August at a glance</div>
+        <div class="prow"><span class="k">Your average day</span><span class="v">71 out of 100 (July 72)</span></div>
+        <div class="prow"><span class="k">Days in your usual range</span><span class="v">25 of 31</span></div>
+        <div class="prow"><span class="k">Steps, median</span><span class="v">6,370 a day</span></div>
+        <div class="prow"><span class="k">Bedtime changes</span><span class="v">54 minutes (July 57)</span></div>
+        <div class="prow"><span class="k">Resting heart rate</span><span class="v">80 beats a minute</span></div>
+      </div>
+    </div>
+
+    <div class="sheet" id="sheetExport" aria-hidden="true">
+      <div class="sheet-top"><span class="t">Export</span><button class="closebtn" data-close type="button">Close</button></div>
+      <h3>A page for your doctor.</h3>
+      <p>One page of your own numbers over a stretch of time you choose, to take to a real conversation. We do not diagnose anything or draw any conclusion.</p>
+      <div class="paper">
+        <div class="ph">Charisma &middot; 17 June to 13 September 2026</div>
+        <h5>The last 90 days</h5>
+        <div class="prow"><span class="k">Your usual day</span><span class="v">72 out of 100 (56 to 84)</span></div>
+        <div class="prow"><span class="k">Resting heart rate</span><span class="v">80 beats a minute, stable</span></div>
+        <div class="prow"><span class="k">Bedtime changes</span><span class="v">41.9 minutes</span></div>
+        <div class="prow"><span class="k">How alike your nights are</span><span class="v">77.2 out of 100</span></div>
+        <div class="prow"><span class="k">Walking speed</span><span class="v">1.24 m/s, no lasting change</span></div>
+        <div class="prow"><span class="k">Steps, median</span><span class="v">10,964 a day</span></div>
+        <div class="prow"><span class="k">Daily routine</span><span class="v">0.89, no lasting change</span></div>
+        <p class="disc2">Charisma reflects general wellness trends only. It is not intended to diagnose, treat, cure, or prevent any disease, and is not a substitute for medical advice. Baselines are within-person; no population comparison is made.</p>
+      </div>
+    </div>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab on" data-pane="today" type="button">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 14a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path><path d="M10 14V7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        Today
+      </button>
+      <button class="tab" data-pane="age" type="button">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"></circle><path d="M10 6v4l2.6 1.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        Age
+      </button>
+      <button class="tab centre" data-pane="check" type="button" aria-label="Start today's check">
+        <span class="fab"><span class="dot"></span></span>
+        Check
+      </button>
+      <button class="tab" data-pane="vitals" type="button">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2.5 10h3l2-4 3 8 2.5-4h4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        Numbers
+      </button>
+    </nav>
+  </div>
+</div>
+
+<p class="stage-foot">
+  Charisma reflects general wellness trends only. It is not intended to diagnose, treat, cure, or prevent any disease.
+</p>
+
+<script>
+var DATA = {"window":["2026-06-17","2026-09-14"],"sri":77.2,"usual":[64,79],"today":{"date":"2026-09-13","score":72},"week":[{"d":"2026-09-07","v":75},{"d":"2026-09-08","v":71},{"d":"2026-09-09","v":69},{"d":"2026-09-10","v":74},{"d":"2026-09-11","v":74},{"d":"2026-09-12","v":65},{"d":"2026-09-13","v":72}],"series":{"asleepMin":[325,337,393,351,441,364,529,462,419,374,240,301,429,240,240,288,350,428,256,345,324,405,369,306,380,369,485,374,240,439,387,455,389,240,478,242,413,479,347,403,538,342,379,389,240,465,240,317,333,538,240,453,546,500,442,282,471,400,437,271,285,354,456,520,463,340,240,327,248,287,431,377,240,284,240,325,342,437,423,519,423,480,352,424,364,352,471,335,413],"inBedMin":[334,339,413,372,446,389,545,477,421,395,242,310,431,248,242,294,358,441,258,373,339,407,378,320,407,383,510,376,242,441,395,478,391,267,480,251,424,481,349,409,540,360,390,391,242,468,266,326,340,549,253,465,560,525,444,308,475,426,447,273,301,361,463,532,465,364,242,340,250,289,455,381,246,309,242,336,381,450,433,526,436,482,364,437,376,387,496,343,435],"onsetMin":[1292,1301,1298,1326,1374,1283,1311,1274,1277,1306,1385,1352,1203,1471,1275,1291,1310,1264,1326,1284,1275,1327,1267,1285,1358,1303,1262,1299,1296,1257,1484,1310,1318,1277,1259,1289,1300,1301,1261,1388,1196,1229,1294,1460,1328,1311,1374,1208,1277,1303,1306,1281,1353,1348,1277,1282,1291,1257,1304,1300,1331,1292,1244,1286,1270,1504,1366,1345,1307,1286,1294,1259,1205,1318,1347,1318,1293,1292,1291,1298,1325,1304,1285,1244,1262,1320,1263,1468,1307],"wakeMin":[186,200,271,258,380,232,416,311,258,261,187,222,194,279,77,145,228,265,144,217,174,294,205,165,325,246,332,235,98,258,439,348,269,104,299,100,284,342,170,357,296,149,244,411,130,339,200,94,177,412,119,306,473,433,281,150,326,243,311,133,192,213,267,378,295,428,168,245,117,135,309,200,11,187,149,214,234,302,284,384,321,346,209,241,198,267,319,371,302],"latencyMin":[2,2,9,7,5,2,2,2,2,9,2,2,2,2,2,6,8,2,2,2,4,2,2,2,10,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,2,5,2,2,2,3,4,2,7,5,2,2,4,2,2,2,4,5,2,2,5,2,2,2,2,2,2,2,2,2,2,4,6,2,2,3,2,9,2,2,5,2,2,2,2,2,2,2,2],"awakenings":[1,0,1,2,0,2,2,2,0,2,0,1,0,1,0,0,0,2,0,2,1,0,1,1,2,2,2,0,0,0,1,2,0,2,0,1,2,0,0,1,0,2,1,0,0,0,3,1,0,1,1,1,1,2,0,2,0,2,1,0,1,1,1,1,0,2,0,2,0,0,2,0,0,2,0,1,3,1,1,1,1,0,1,1,1,3,2,1,2],"deepMin":[61,47,66,66,58,49,72,88,60,49,33,51,78,37,38,43,60,82,41,64,53,78,74,59,65,68,99,69,42,71,73,88,74,47,96,37,84,78,69,66,71,51,53,72,32,88,46,56,55,87,32,62,100,66,86,57,71,69,64,48,41,51,64,68,71,50,39,68,52,47,75,73,42,47,36,63,63,66,79,96,58,84,68,56,71,64,98,65,54],"remMin":[67,62,84,91,87,74,123,122,107,74,60,81,114,56,48,55,94,91,58,69,87,84,74,82,85,91,109,74,47,87,89,110,73,47,117,58,76,97,81,108,144,64,86,101,60,114,58,73,77,125,59,82,113,132,102,53,107,98,110,67,70,72,84,95,118,67,47,64,54,57,96,99,63,53,57,69,73,99,95,118,87,129,64,110,79,64,115,78,78],"onsetSD":[4.5,4.5,3.7,13.0,30.2,30.5,28.3,30.7,32.7,32.6,42.5,38.7,54.4,80.9,80.8,79.8,79.6,78.2,76.7,65.7,20.2,23.0,25.2,24.4,31.4,30.0,32.5,31.3,29.3,30.9,72.6,71.2,71.0,69.5,72.6,72.9,69.6,18.7,20.3,40.5,53.8,56.8,57.0,85.1,85.4,83.3,81.6,79.3,73.4,73.0,46.9,45.9,50.3,45.4,30.0,29.3,29.9,34.3,33.6,26.4,21.6,20.8,27.2,27.2,25.4,79.8,81.0,81.2,80.4,75.0,74.3,75.8,49.5,41.9,42.3,43.2,43.1,43.1,41.2,19.2,19.9,12.5,12.2,22.7,24.9,27.5,29.0,70.2,70.2],"fragPct":[2.1,0.0,2.7,3.8,0.0,5.9,2.6,2.7,0.0,3.1,0.0,2.3,0.0,2.4,0.0,0.0,0.0,2.5,0.0,7.0,3.3,0.0,1.9,3.8,4.3,3.1,4.5,0.0,0.0,0.0,1.5,3.8,0.0,9.4,0.0,2.8,2.1,0.0,0.0,1.0,0.0,3.7,2.3,0.0,0.0,0.0,8.4,2.2,0.0,1.1,4.4,2.2,1.8,4.4,0.0,7.8,0.0,5.0,1.8,0.0,3.7,1.4,1.1,1.9,0.0,6.1,0.0,3.3,0.0,0.0,4.9,0.0,0.0,7.5,0.0,2.4,9.8,0.9,1.9,1.0,1.9,0.0,2.8,2.5,2.7,8.6,4.7,1.8,4.6],"restingHR":[85,87,76,75,78,83,83,80,84,82,74,78.0,87.0,82,66.0,68.0,84.0,80.0,77.0,79,71.0,90.0,85.0,76.0,77,76,69,75,87.0,85,81,82,79,81,78,75,71,77,85.0,59.0,59,74.0,77,71.0,78,76,84,88,49.0,50,61,76,91.0,76,79,86.0,74.0,73,77,83,89,88,89,89,92,94,102.0,93,90,86,89,86,82,82,80,68,77,65,85.0,74.0,76.0,73,89.0,80.0,87.0,78.0,77.0,80.0,84],"lowHR":[81,84,71,72,74,79,80,76,81,78,71,75,83,77,63,65,79,74,72,75,65,87,79,72,74,73,65,70,84,80,76,78,75,78,75,72,66,73,81,54,55,70,72,66,75,71,80,82,44,46,55,73,87,71,76,82,71,68,72,78,83,84,84,84,87,90,97,87,86,81,86,81,77,76,75,65,73,60,82,70,73,70,86,75,84,75,73,74,81],"hrv":[37.1,30.6,19.3,15.9,17.2,17.0,22.9,29.2,29.0,31.2,31.8,42.11,34.26,34.3,33.5,33.81,33.83,21.6,25.97,35.66,33.87,23.14,22.35,23.96,28.28,33.6,31.1,25.7,31.4,32.4,31.1,21.7,17.3,30.2,32.4,28.6,28.2,31.4,32.65,35.22,35.5,32.08,16.77,43.76,30.5,29.4,21.3,23.1,26.81,28.6,48.54,42.9,20.2,23.96,24.5,22.69,32.38,28.1,34.7,38.0,37.9,32.8,30.2,36.7,35.9,33.4,17.54,24.0,25.4,23.6,23.4,28.4,40.0,38.3,27.3,27.6,23.6,18.7,34.75,43.91,44.36,37.6,37.48,22.6,21.91,27.89,28.54,17.5,16.1],"respRate":[18.3,16.8,16.0,18.2,18.4,19.9,19.3,18.7,21,21,16.4,17.7,18.4,19.4,19.3,21,21,20.8,21,21.0,19.7,17.0,16.6,16.8,19.3,16.2,17.4,19.4,15.0,15.8,18.9,19.1,19.4,18.8,19.0,18.7,18.0,17.6,17.8,15.4,18.0,16.5,18.3,18.8,15.9,16.8,17.9,17.4,19.7,20.2,21,21,18.4,20.5,19.9,19.9,18.0,15.2,15.2,17.0,20.1,19.0,17.2,20.7,19.0,21,20.8,20.0,17.6,19.9,17.0,18.1,17.8,17.1,19.5,20.2,20.8,21,19.4,18.3,19.6,17.6,17.8,15.5,15.3,15.3,18.7,17.9,19.0],"spo2":[94.3,94.8,95.5,96.7,97.1,96.1,97.1,97.5,96.7,94.9,94.0,93.5,93.8,95.1,95.8,96.3,97.4,97.7,98.1,96.5,95.6,95.1,95.0,94.8,94.7,92.0,92,92,93.4,94.6,95.3,95.1,96.7,95.8,95.6,96.7,96.1,94.7,96.0,93.4,95.2,96.1,97.4,97.4,97.3,97.1,95.6,95.3,95.5,96.8,96.9,95.4,97.2,96.5,97.6,98.0,97.9,95.2,94.3,95.0,96.1,95.4,94.8,95.0,95.6,94.0,94.5,95.6,95.7,95.4,94.8,94.3,94.7,94.8,94.5,93.1,93.6,95.7,93.1,95.2,96.6,96.0,93.3,93.5,95.8,96.2,96.3,95.9,96.9],"skinTemp":[0.1,0.11,-0.1,0.11,0.5,0.07,0.27,0.04,0.39,0.24,-0.18,-0.04,-0.22,-0.12,0.16,-0.3,-0.06,0.15,-0.43,-0.43,-0.17,0.07,0.23,0.22,-0.1,-0.06,-0.34,-0.01,0.46,-0.05,0.06,-0.08,0.17,0.26,0.07,0.15,0.13,0.34,-0.01,-0.41,0.35,0.36,-0.14,0.01,-0.06,0.17,-0.05,-0.09,0.24,-0.32,-0.11,-0.34,-0.04,0.49,-0.08,0.47,-0.01,-0.02,0.19,-0.17,0.12,0.27,0.06,-0.16,-0.23,-0.09,0.54,0.27,0.27,-0.14,-0.21,0.36,0.28,-0.39,0.18,-0.2,0.09,-0.52,-0.02,0.01,-0.28,0.25,-0.06,-0.18,0.03,-0.14,-0.06,-0.24,-0.15],"wristTemp":[0.2,0.08,-0.21,0.21,0.46,0.12,0.33,-0.0,0.24,0.37,-0.21,-0.08,-0.23,-0.18,0.27,-0.31,-0.06,0.14,-0.36,-0.47,0.01,0.15,0.27,0.31,-0.01,0.02,-0.5,-0.07,0.43,0.11,0.04,-0.0,0.2,0.24,0.09,0.17,0.08,0.32,-0.05,-0.47,0.35,0.36,-0.16,-0.02,-0.05,0.16,-0.13,-0.01,0.2,-0.37,-0.07,-0.4,-0.15,0.38,-0.17,0.47,0.02,-0.02,0.13,-0.21,0.13,0.12,0.05,-0.17,-0.32,-0.06,0.48,0.19,0.17,-0.16,-0.37,0.38,0.3,-0.33,0.21,-0.24,0.08,-0.42,-0.03,0.08,-0.3,0.11,-0.22,-0.17,-0.02,-0.0,-0.06,-0.18,-0.08],"steps":[5099,14645,11689,7080,7665,9949,11432,13224,11314,2827,9398,18171,15818,13199,17967,16139,22417,25688,11820,13752,17959,25946,22685,22219,6466,12981,14115,12952,10964,9030,12608,5596,69,152,115,179,10296,10224,15989,8444,345,10972,13497,11613,8935,6370,8825,12398,32778,114,14730,5549,14872,16057,353,17044,13603,7518,5317,2117,3604,5603,4831,3518,4140,1874,19564,11362,2799,4714,5953,11763,7731,10970,15383,4895,6922,8309,9482,14398,16580,9756,16735,12931,8597,7390,11302,15882,7683],"standMin":[0,0,0,0,0,0,0,0,0,0,0,68,87,0,73,113,152,179,98,67,94,147,145,174,14,0,0,0,20,0,0,0,0,0,0,0,0,0,88,29,0,63,67,74,10,0,0,33,203,0,102,0,83,87,0,105,87,0,0,0,0,0,0,0,0,0,135,37,0,0,0,0,0,0,55,0,0,0,60,95,92,0,66,108,79,58,66,146,13],"exerciseMin":[0,0,0,0,0,0,0,0,0,0,0,46,61,0,39,46,75,83,37,27,26,88,68,56,2,0,0,0,10,0,0,0,0,0,0,0,0,0,27,9,0,24,39,6,0,0,0,27,83,0,10,0,38,19,0,54,27,0,0,0,0,0,0,0,0,0,59,10,0,0,0,0,0,0,58,0,0,0,41,41,33,0,25,37,28,30,33,35,7],"sitMin":[73,73,98,96,139,166,115,164,169,166,106,92,93,90,90,132,160,154,118,135,150,78,136,161,148,145,118,88,149,103,150,167,110,110,165,142,87,83,85,160,151,85,153,168,136,105,125,83,71,167,135,123,163,113,157,153,91,95,99,94,129,96,112,83,161,105,116,128,160,112,162,120,123,122,72,114,88,70,150,87,117,143,126,103,122,126,148,81,126],"walkSpeed":[1.341,1.229,1.131,1.22,1.158,1.135,1.229,1.243,1.261,1.261,1.319,1.31,1.301,1.292,1.229,1.332,1.252,1.252,1.185,1.252,1.131,1.256,1.359,1.211,1.238,1.22,1.359,1.256,1.238,1.368,1.439,1.386,1.386,1.386,1.386,1.386,1.292,1.27,1.171,1.091,1.229,1.14,1.341,1.189,1.14,1.189,1.18,1.386,1.337,1.337,1.256,1.252,1.35,1.238,1.238,1.265,1.194,1.216,1.234,1.39,1.14,1.158,1.211,1.185,1.109,1.1,1.109,1.158,1.22,1.261,1.261,1.279,1.22,1.35,1.185,1.292,1.1,1.238,1.252,1.261,1.234,1.122,1.189,1.346,1.252,1.27,1.158,1.127,1.167],"steadiness":[98.5,96.4,98.1,95.0,96.7,96.4,95.5,93.9,96.1,97.9,91.0,95.4,96.3,97.8,95.6,96.7,98.9,95.0,96.3,95.4,96.4,96.7,96.2,95.6,99.0,99.0,98.4,98.5,97.0,98.2,99.6,100.0,98.1,96.7,97.6,97.8,100,98.0,97.0,97.1,99.3,99.7,100,100,99.8,96.0,97.4,96.3,96.4,97.2,97.7,95.9,97.0,100,100,99.2,99.6,100,96.7,92.0,94.0,97.5,96.9,97.1,97.1,100,97.0,95.2,95.6,96.7,96.9,96.7,98.9,94.0,95.3,96.1,95.9,98.5,98.2,98.5,92.0,95.7,94.2,96.1,94.3,95.0,93.4,93.7,93.8],"asymmetry":[0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,4.0,0.0],"doubleSupport":[26.0,26.0,28.0,27.0,27.0,27.0,27.0,26.0,27.0,27.0,25.0,26.0,27.0,26.0,26.0,26.0,26.0,27.0,27.0,27.0,27.0,27.0,26.0,27.0,26.0,27.0,26.0,27.0,26.0,24.0,23.0,23.0,23.0,23.0,23.0,23.0,26.0,26.0,28.0,25.0,27.0,27.0,26.0,26.0,27.0,27.0,27.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,27.0,26.0,26.0,25.0,27.0,27.0,27.0,27.0,27.0,30.0,28.0,27.0,27.0,26.0,26.0,27.0,27.0,24.0,24.0,26.0,28.0,27.0,27.0,27.0,25.0,26.0,26.0,25.0,26.0,27.0,28.0,27.0,27.0],"routine":[0.619,0.704,0.739,0.739,0.74,0.739,0.74,0.771,0.773,0.76,0.761,0.779,0.794,0.798,0.799,0.807,0.832,0.851,0.843,0.851,0.863,0.869,0.872,0.863,0.833,0.827,0.819,0.805,0.801,0.81,0.83,0.869,0.859,0.823,0.819,0.771,0.772,0.77,0.774,0.81,0.828,0.851,0.916,0.914,0.903,0.899,0.883,0.912,0.923,0.891,0.89,0.899,0.904,0.923,0.895,0.891,0.925,0.926,0.924,0.901,0.891,0.922,0.918,0.904,0.901,0.894,0.911,0.918,0.899,0.892,0.902,0.907,0.901,0.907,0.905,0.922,0.931,0.933,0.932,0.951,0.953,0.956,0.963,0.966,0.966,0.965,0.966,0.966,0.964],"ra":[0.619,0.789,0.809,0.737,0.747,0.735,0.747,0.836,0.802,0.713,0.749,0.871,0.837,0.778,0.841,0.858,0.893,0.882,0.813,0.892,0.861,0.882,0.884,0.828,0.668,0.771,0.84,0.762,0.853,0.947,0.967,0.942,0.702,0.589,0.736,0.511,0.954,0.958,0.968,0.956,0.715,0.897,0.963,0.942,0.878,0.939,0.847,0.916,0.979,0.733,0.941,0.941,0.974,0.975,0.721,0.954,0.967,0.949,0.927,0.811,0.905,0.939,0.931,0.869,0.928,0.877,0.928,0.952,0.806,0.886,0.937,0.965,0.835,0.965,0.942,0.927,0.943,0.957,0.958,0.964,0.978,0.963,0.977,0.968,0.956,0.951,0.968,0.976,0.952],"daySteady":[0.99,0.992,0.995,0.985,0.962,0.964,0.966,0.962,0.958,0.956,0.942,0.947,0.928,0.89,0.89,0.894,0.893,0.905,0.911,0.931,0.966,0.965,0.959,0.959,0.953,0.958,0.953,0.958,0.965,0.962,0.921,0.933,0.929,0.933,0.924,0.922,0.931,0.975,0.969,0.952,0.933,0.926,0.927,0.889,0.882,0.888,0.891,0.894,0.906,0.905,0.942,0.945,0.935,0.941,0.958,0.959,0.959,0.951,0.953,0.966,0.97,0.974,0.965,0.963,0.966,0.919,0.903,0.9,0.899,0.909,0.911,0.908,0.935,0.947,0.946,0.944,0.945,0.945,0.952,0.975,0.973,0.983,0.985,0.973,0.966,0.962,0.954,0.92,0.919],"busyHour":[0,18,23,21,19,6,0,1,3,7,17,23,4,7,23,0,21,23,3,2,16,7,6,2,16,4,5,19,16,13,14,11,11,13,13,20,17,20,10,13,22,14,13,6,18,10,20,18,11,23,19,12,17,15,17,13,15,17,11,19,12,20,19,10,13,13,18,12,17,18,12,16,19,15,11,12,14,12,13,20,12,16,10,16,19,15,13,17,19],"quietHour":[10,9,9,9,9,9,9,9,9,10,9,9,9,10,9,10,10,9,9,9,9,9,9,9,10,9,9,9,14,12,10,13,9,14,10,9,11,13,15,9,10,9,9,9,14,21,10,9,21,9,9,13,9,10,10,11,9,11,9,9,9,9,9,9,9,9,9,10,11,13,11,9,22,9,9,16,9,11,9,22,10,9,11,9,9,9,9,9,9],"daylight":[55,70,56,53,63,41,45,78,84,66,59,71,40,59,56,50,10,72,38,21,80,17,90,206,2,9,22,32,20,41,14,3,20,24,54,63,5,25,87,38,21,39,45,9,9,25,47,85,101,73,27,28,70,86,74,59,183,137,84,135,86,88,95,85,80,53,89,55,103,114,90,87,104,104,55,56,122,91,59,29,34,92,69,17,20,48,14,25,52],"score":[67,70,73,68,62,67,68,72,69,67,65,73,63,60,78,79,75,73,71,75,77,70,72,75,64,74,75,73,71,70,65,72,65,65,66,68,79,77,73,74,65,71,77,69,72,75,63,63,84,74,84,76,67,74,66,73,79,74,76,70,68,72,66,69,68,56,63,67,66,69,71,71,64,75,72,77,75,80,74,81,79,79,75,71,69,74,74,65,72]},"modelled":["asleepMin","awakenings","daySteady","deepMin","fragPct","inBedMin","latencyMin","lowHR","onsetMin","onsetSD","ra","remMin","respRate","routine","sitMin","skinTemp","spo2","sri","wakeMin","wristTemp"],"partial":["daylight","hrv","restingHR","steadiness"],"now":{"asleep":"6h 53m","inbed":"7h 15m","onset":"9:47pm","wake":"5:02am","latency":2,"awakenings":2,"deep":"0h 54m","rem":"1h 18m","onsetSD":70.2,"frag":4.6,"restingHR":84,"lowHR":81,"hrv":16.1,"respRate":19.0,"spo2":96.9,"skinTemp":"-0.15\u00b0","wristTemp":"-0.08\u00b0","steps":"7,683","stand":"0h 13m","exercise":7,"sit":"2h 06m","walkSpeed":1.167,"steadiness":93.8,"asymmetry":0.0,"doubleSupport":27.0,"routine":0.964,"ra":0.952,"daySteady":0.919,"busyHour":"7pm","quietHour":"9am","daylight":52},"month":{"mean":71,"prevMean":72,"inRange":25,"days":31,"onsetSD":54,"prevOnsetSD":57,"steps":6370},"ninety":{"scoreMed":72,"scoreLo":56,"scoreHi":84,"restingHR":80,"onsetSD":41.9,"walkSpeed":1.24,"routine":0.89,"steps":10964}};
+(function(){
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function seeded(s){ return function(){ s=(s*1103515245+12345)%2147483648; return s/2147483648; }; }
+  function ns(n){ return document.createElementNS("http://www.w3.org/2000/svg", n); }
+
+  var todayReady = false;
+
+  /* ---------- the sky, which follows the clock ---------- */
+  var SKY = {
+    dawn:{word:"dawn",
+      sky:"linear-gradient(158deg,#FFEADB 0%,#FBDFE4 50%,#EDE2F7 100%)",
+      stage:"radial-gradient(120% 80% at 50% 0%,#FCE6D9 0%,#F3E4E4 44%,#E4DAEE 100%)",
+      bg:"#FFFBF8", sun:[36,132,46,"#F5A874",.42], hills:["#E7C6AE","#D2AE9E"],
+      clouds:["#FFE6DE",.55], birds:.35, stars:0, moon:0},
+    morning:{word:"morning",
+      sky:"linear-gradient(158deg,#FFF6EC 0%,#FCEFEC 50%,#F0EAF9 100%)",
+      stage:"radial-gradient(120% 80% at 50% 0%,#FEF3E9 0%,#F7EDEC 44%,#E9E1F2 100%)",
+      bg:"#FFFBF8", sun:[104,72,54,"#FBC98C",.34], hills:["#E8CBAE","#D6B49C"],
+      clouds:["#FFFFFF",.62], birds:.42, stars:0, moon:0},
+    midday:{word:"midday",
+      sky:"linear-gradient(158deg,#FFFAF3 0%,#FBF1F3 50%,#EDE8FA 100%)",
+      stage:"radial-gradient(120% 80% at 50% 0%,#FFF8F0 0%,#F7EFF1 44%,#E6E0F3 100%)",
+      bg:"#FFFCF9", sun:[172,30,68,"#FFDCB0",.3], hills:["#E5CBB4","#D3B3A2"],
+      clouds:["#FFFFFF",.7], birds:.45, stars:0, moon:0},
+    evening:{word:"evening",
+      sky:"linear-gradient(158deg,#FFEFDD 0%,#FBDCD9 50%,#EBDEF6 100%)",
+      stage:"radial-gradient(120% 80% at 50% 0%,#FCEBDA 0%,#F4E0DE 44%,#E2D7EF 100%)",
+      bg:"#FFFBF8", sun:[206,84,54,"#F4A06A",.4], hills:["#E8C3A8","#D2A898"],
+      clouds:["#FFE2D6",.6], birds:.4, stars:0, moon:0},
+    dusk:{word:"dusk",
+      sky:"linear-gradient(158deg,#FBDFD6 0%,#EED5E2 50%,#DFD5F4 100%)",
+      stage:"radial-gradient(120% 80% at 50% 0%,#F0D9D2 0%,#E2D2DF 44%,#CEC4E6 100%)",
+      bg:"#FFFAF8", sun:[268,140,46,"#DE7C68",.4], hills:["#D9B6AC","#C29CA4"],
+      clouds:["#F2D8E2",.55], birds:.3, stars:.25, moon:.45},
+    night:{word:"night",
+      sky:"linear-gradient(158deg,#3E3260 0%,#2E2547 52%,#221B36 100%)",
+      stage:"radial-gradient(120% 80% at 50% 0%,#2A2140 0%,#1C1730 44%,#120E20 100%)",
+      bg:"#FDFAFB", sun:[150,40,60,"#FFD9A0",0], hills:["#4A3C63","#372C4B"],
+      clouds:["#5A4A76",.4], birds:0, stars:1, moon:1}
+  };
+  function stageForHour(h){
+    if (h >= 5 && h < 7) return "dawn";
+    if (h >= 7 && h < 11) return "morning";
+    if (h >= 11 && h < 16) return "midday";
+    if (h >= 16 && h < 19) return "evening";
+    if (h >= 19 && h < 21) return "dusk";
+    return "night";
+  }
+  /* ---------- the day as a continuous dial ----------
+     The six named stages are keyframes. Everything between them is mixed, so dragging
+     the slider crossfades the sky, the ground, the sun and the stars instead of
+     snapping through six fixed settings. */
+  var ORDER = ["dawn","morning","midday","evening","dusk","night"];
+  function mixNum(a,b,t){ return a + (b - a) * t; }
+  function mixHex(a,b,t){
+    var pa = parseInt(a.slice(1),16), pb = parseInt(b.slice(1),16), o = "#";
+    for (var sh = 16; sh >= 0; sh -= 8){
+      var v = Math.round(mixNum((pa>>sh)&255, (pb>>sh)&255, t)).toString(16);
+      o += v.length < 2 ? "0"+v : v;
+    }
+    return o;
+  }
+  /* both gradients are written the same way, so the colours can be swapped in place
+     and the geometry of the first one kept */
+  function mixGrad(ga,gb,t){
+    var ca = ga.match(/#[0-9A-Fa-f]{6}/g), cb = gb.match(/#[0-9A-Fa-f]{6}/g), i = 0;
+    if (!ca || !cb || ca.length !== cb.length) return t < .5 ? ga : gb;
+    return ga.replace(/#[0-9A-Fa-f]{6}/g, function(){ var c = mixHex(ca[i], cb[i], t); i++; return c; });
+  }
+  function skyAt(f){
+    var last = ORDER.length - 1;
+    f = Math.max(0, Math.min(last, f));
+    var i = Math.min(last - 1, Math.floor(f)), t = f - i;
+    var A = SKY[ORDER[i]], B = SKY[ORDER[i+1]];
+    if (t <= 0) return A;
+    if (t >= 1) return B;
+    var sun = [];
+    for (var j = 0; j < 5; j++){
+      sun.push(j === 3 ? mixHex(A.sun[3], B.sun[3], t) : mixNum(A.sun[j], B.sun[j], t));
+    }
+    return {
+      word: t < .5 ? A.word : B.word,
+      sky: mixGrad(A.sky, B.sky, t),
+      stage: mixGrad(A.stage, B.stage, t),
+      bg: mixHex(A.bg, B.bg, t),
+      sun: sun,
+      hills: [mixHex(A.hills[0],B.hills[0],t), mixHex(A.hills[1],B.hills[1],t)],
+      clouds: [mixHex(A.clouds[0],B.clouds[0],t), mixNum(A.clouds[1],B.clouds[1],t)],
+      birds: mixNum(A.birds,B.birds,t),
+      stars: mixNum(A.stars,B.stars,t),
+      moon:  mixNum(A.moon,B.moon,t)
+    };
+  }
+
+  var skyF = ORDER.indexOf(stageForHour(new Date().getHours()));
+  var skyStage = ORDER[skyF];
+  var lastStage = null;
+  function paintSky(name){ paintSkyF(ORDER.indexOf(name)); }
+  function paintSkyF(f){
+    f = Math.max(0, Math.min(ORDER.length - 1, f));
+    skyF = f;
+    var name = ORDER[Math.round(f)];
+    skyStage = name;
+    var isNight = f > 4.5, isDusky = f > 3.5;
+    var k = skyAt(f), root = document.documentElement;
+    root.style.setProperty("--dawn", k.sky);
+    root.style.setProperty("--bg", k.bg);
+    document.body.style.background = k.stage;
+    document.body.classList.toggle("nightstage", isNight);
+    Array.prototype.forEach.call(document.querySelectorAll("[data-scenery]"), function(sv){
+      var q = function(sel){ return sv.querySelector(sel); };
+      var sun = q("[data-sun]"), h1 = q("[data-hill1]"), h2 = q("[data-hill2]");
+      if (sun){
+        sun.setAttribute("cx", k.sun[0]); sun.setAttribute("cy", k.sun[1]); sun.setAttribute("r", k.sun[2]);
+        sun.setAttribute("fill", k.sun[3]); sun.setAttribute("opacity", k.sun[4]);
+      }
+      if (h1) h1.setAttribute("fill", k.hills[0]);
+      if (h2) h2.setAttribute("fill", k.hills[1]);
+      var st = q("[data-stars]"); if (st) st.setAttribute("opacity", k.stars);
+      var mn = q("[data-moon]"); if (mn) mn.setAttribute("opacity", k.moon);
+      var bite = q("[data-moonbite]");
+      if (bite){ var st = k.sky.match(/#[0-9A-Fa-f]{6}/g); bite.setAttribute("fill", st ? st[1] : "#E2D2DF"); }
+      var cl = q("[data-clouds]");
+      if (cl){ cl.setAttribute("fill", k.clouds[0]); cl.setAttribute("opacity", k.clouds[1]); }
+      var bd = q("[data-birds]");
+      if (bd){ bd.setAttribute("opacity", k.birds); bd.setAttribute("stroke", isDusky ? "#8A6A7A" : "#8A6A52"); }
+    });
+    var range = document.getElementById("skyrange");
+    if (range){
+      var want = String(Math.round(f * 100));
+      if (range.value !== want) range.value = want;
+      range.setAttribute("aria-valuetext", k.word);
+    }
+    var word = document.querySelector("[data-skyword]");
+    if (word) word.textContent = k.word;
+    Array.prototype.forEach.call(document.querySelectorAll(".skyticks button"), function(b){
+      b.classList.toggle("on", Number(b.dataset.stop) === Math.round(f));
+    });
+    /* the greeting and the daily line only change when the stage does, so the rest of
+       the app is not re-rendered on every pixel of the drag */
+    if (todayReady && name !== lastStage) renderToday();
+    lastStage = name;
+  }
+  (function(){
+    var range = document.getElementById("skyrange");
+    if (range) range.addEventListener("input", function(){ paintSkyF(Number(range.value) / 100); });
+    Array.prototype.forEach.call(document.querySelectorAll(".skyticks button"), function(b){
+      b.addEventListener("click", function(){ paintSkyF(Number(b.dataset.stop)); });
+    });
+    var now = document.querySelector("#skypick [data-sky='now']");
+    if (now) now.addEventListener("click", function(){
+      paintSkyF(ORDER.indexOf(stageForHour(new Date().getHours())));
+    });
+  })();
+  (function(){
+    var d = new Date(), hh = d.getHours(), mm = d.getMinutes();
+    var ampm = hh >= 12 ? "pm" : "am", h12 = hh % 12 || 12;
+    document.querySelector(".statusbar span").textContent = h12 + ":" + (mm<10?"0":"") + mm + " " + ampm;
+  })();
+  paintSkyF(skyF);
+
+  /* ---------- greeting and the cheeky line ---------- */
+  var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  /* the sky stage is the single source of truth for time of day, so the preview
+     buttons move the greeting and the line along with the colours */
+  function partOfDay(stage){
+    if (stage === "dawn" || stage === "morning") return "morning";
+    if (stage === "midday") return "afternoon";
+    if (stage === "evening" || stage === "dusk") return "evening";
+    return "night";
+  }
+  var GREETING = {
+    morning:"Good morning!", afternoon:"Good afternoon!", evening:"Good evening!", night:"Still up?"
+  };
+  var LINES = {
+    morning:{
+      high:["You woke up ready.","A flying start.","Up sharp today."],
+      good:["A good start to the day.","Off to a fine start.","A promising morning."],
+      fine:["A steady start.","An ordinary good morning.","You, on form."],
+      low: ["A slow start. That is allowed.","Ease into it today.","Be gentle this morning."]
+    },
+    afternoon:{
+      high:["You are on fire today.","Peak you. Enjoy it.","Running at your best."],
+      good:["Today is going your way.","Steady and sharp.","You are in a good spot."],
+      fine:["Ticking along nicely.","An ordinary good day, and those count.","Right where you should be."],
+      low: ["Take the rest of the day gently.","Slow is fine today.","An easy afternoon suits this."]
+    },
+    evening:{
+      high:["A strong day behind you.","That was one of your good ones.","A day worth repeating."],
+      good:["A good day, all in.","That went well.","A solid one today."],
+      fine:["A steady one today.","An ordinary good day.","Nothing to fix here."],
+      low: ["A slow one. Rest up tonight.","Go easy this evening.","Be kind to yourself tonight."]
+    },
+    night:{
+      high:["You had a big day.","A strong one. Sleep on it.","That was a good day."],
+      good:["A good day. Time to wind down.","That went well. Rest now.","A fine day behind you."],
+      fine:["A steady day. Sleep well.","An ordinary good one.","Nothing to fix. Rest up."],
+      low: ["A heavy one. Be kind to yourself.","A slow day. Sleep it off.","Rest is the right call tonight."]
+    }
+  };
+  function cheekyLine(sc){
+    var band = sc >= 85 ? "high" : (sc >= 70 ? "good" : (sc >= 61 ? "fine" : "low"));
+    var set = LINES[partOfDay(skyStage)][band];
+    return set[new Date().getDate() % set.length];
+  }
+  var WEEKDAY = DAYS[new Date().getDay()];
+  (function(){
+    var d = new Date();
+    document.getElementById("todaySub").textContent = DAYS[d.getDay()] + ", " + d.getDate() + " " + MONTHS[d.getMonth()];
+  })();
+
+  /* ---------- today ---------- */
+  var PASSIVE = DATA.today.score;   /* her own score for 13 September */
+  var state = { done:false, simple:0, choice:0, sd:0, recall:0, band:"usual", bandWord:"", adj:0 };
+  function scoreNow(){ return Math.max(0, Math.min(100, PASSIVE + state.adj)); }
+
+  var scoreNum = document.getElementById("scoreNum"), scaleMark = document.getElementById("scaleMark");
+  scaleMark.style.left = "0%";
+
+  var ROWS = [
+    {g:"Sleep", v:"Good", cls:"up", z:"z-good", items:[
+      {k:"When you slept", v:DATA.now.onset, cls:"up", z:"z-good", seed:11,
+       note:"Asleep at "+DATA.now.onset+", awake at "+DATA.now.wake+". Your bedtime has moved by about "+Math.round(DATA.now.onsetSD)+" minutes across the past week."},
+      {k:"Enough sleep", v:DATA.now.asleep, cls:"up", z:"z-good", seed:17,
+       note:DATA.now.asleep+" asleep, "+DATA.now.inbed+" in bed. Deep "+DATA.now.deep+", dreaming "+DATA.now.rem+"."}
+    ]},
+    {g:"Your body", v:"Good", cls:"up", z:"z-good", items:[
+      {k:"Resting heart rate", v:DATA.now.restingHR+" bpm", cls:"up", z:"z-good", seed:29,
+       note:DATA.now.restingHR+" beats a minute, against a 90-day median of "+DATA.ninety.restingHR+". Lowest overnight was "+DATA.now.lowHR+"."},
+      {k:"Recovery", v:DATA.now.hrv+" ms", cls:"flat", z:"z-neutral", seed:91,
+       note:"Heart beat variation of "+DATA.now.hrv+" ms, breathing "+DATA.now.respRate+" a minute."},
+      {k:"Wrist temperature", v:DATA.now.wristTemp, cls:"flat", z:"z-neutral", seed:451,
+       note:"Your wrist ran "+DATA.now.wristTemp+" against your own overnight normal."}
+    ]},
+    {g:"Moving around", v:"Normal", cls:"flat", z:"z-neutral", items:[
+      {k:"Movement", v:DATA.now.steps, cls:"flat", z:"z-neutral", seed:47,
+       note:DATA.now.steps+" steps against a 90-day median of "+DATA.ninety.steps.toLocaleString()+". On your feet for "+DATA.now.stand+"."},
+      {k:"Walking", v:DATA.now.walkSpeed+" m/s", cls:"flat", z:"z-neutral", seed:53,
+       note:"Walking at "+DATA.now.walkSpeed+" metres a second, against "+DATA.ninety.walkSpeed+" across 90 days. Watched over months, not days."},
+      {k:"Evenness of your steps", v:DATA.now.asymmetry+"%", cls:"flat", z:"z-neutral", seed:457,
+       note:"Left and right steps differ by "+DATA.now.asymmetry+" per cent. Watched over months, not days."}
+    ]},
+    {g:"The shape of your day", v:"Good", cls:"up", z:"z-good", items:[
+      {k:"Daily routine", v:DATA.now.routine, cls:"up", z:"z-good", seed:73,
+       note:"Busiest around "+DATA.now.busyHour+", quietest around "+DATA.now.quietHour+". Your rest-activity rhythm scored "+DATA.now.ra+" yesterday."},
+      {k:"Time in daylight", v:DATA.now.daylight+" min", cls:"up", z:"z-good", seed:461,
+       note:DATA.now.daylight+" minutes outside. Daylight is what sets your body clock."}
+    ]}
+  ];
+
+  function checkRow(){
+    return {k:"Today's check", v: state.band==="quicker" ? "Quicker" : (state.band==="gentler" ? "Gentler" : "Normal"),
+      cls: state.band==="quicker" ? "up" : "flat",
+      z: state.band==="gentler" ? "z-neutral" : "z-good", seed:7,
+      note:"You tapped in "+state.simple+" milliseconds, "+state.bandWord+", with a "+state.sd+
+           " millisecond swing between taps. You picked the right side in "+state.choice+
+           " milliseconds, and remembered "+(state.recall===3?"all three things":state.recall+" of the three things")+"."};
+  }
+
+  var rowsEl = document.getElementById("rows");
+
+  function leafRow(r){
+    var rr = seeded(r.seed), pts = [];
+    for (var i=0;i<14;i++) pts.push(rr());
+    var d = pts.map(function(p,i){ return (i?"L":"M")+((i/13)*258+4).toFixed(1)+" "+(30-p*22).toFixed(1); }).join("");
+    var wrap = document.createElement("div");
+    wrap.className = "rowitem";
+    wrap.innerHTML =
+      '<button class="rowhead" type="button" aria-expanded="false">' +
+        '<span class="k"><span class="dotz '+r.z+'"></span>'+r.k+'</span>' +
+        '<span class="v"><span class="'+r.cls+'">'+r.v+'</span><span class="chev">&rsaquo;</span></span></button>' +
+      '<div class="rowbody"><div class="inner">' +
+        '<svg class="spark" viewBox="0 0 266 40" aria-hidden="true">' +
+        '<line x1="4" y1="20" x2="262" y2="20" stroke="#E7D9CB" stroke-width="1"></line>' +
+        '<path d="'+d+'" fill="none" stroke="'+(r.cls==="up"?"#0B7A5C":"#9C8877")+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>' +
+        '<p>'+r.note+'</p>' +
+      '</div></div>';
+    var btn = wrap.querySelector(".rowhead");
+    btn.addEventListener("click", function(){
+      var open = wrap.classList.toggle("open");
+      btn.setAttribute("aria-expanded", open?"true":"false");
+    });
+    return wrap;
+  }
+
+  function groupRow(g){
+    var wrap = document.createElement("div");
+    wrap.className = "rowitem group";
+    wrap.innerHTML =
+      '<button class="rowhead" type="button" aria-expanded="false">' +
+        '<span class="k"><span class="dotz '+g.z+'"></span>'+g.g+'</span>' +
+        '<span class="v"><span class="'+g.cls+'">'+g.v+'</span><span class="chev">&rsaquo;</span></span></button>' +
+      '<div class="rowbody"><div class="inner"><div class="rows sub"></div></div></div>';
+    var sub = wrap.querySelector(".rows.sub");
+    g.items.forEach(function(r){ sub.appendChild(leafRow(r)); });
+    var btn = wrap.querySelector(".rowhead");
+    btn.addEventListener("click", function(){
+      var open = wrap.classList.toggle("open");
+      btn.setAttribute("aria-expanded", open?"true":"false");
+    });
+    return wrap;
+  }
+
+  function renderRows(){
+    rowsEl.innerHTML = "";
+    var groups = ROWS.slice();
+    if (state.done){
+      groups = [{g:"Your check", v: state.band==="quicker" ? "Quicker" : (state.band==="gentler" ? "Gentler" : "Normal"),
+                 cls: state.band==="quicker" ? "up" : "flat",
+                 z: state.band==="gentler" ? "z-neutral" : "z-good",
+                 items:[checkRow()]}].concat(groups);
+    }
+    groups.forEach(function(g){ rowsEl.appendChild(groupRow(g)); });
+  }
+
+  /* the check card at the top of Today */
+  var checkCard = document.getElementById("checkCard");
+  function renderCheckCard(){
+    if (!state.done){
+      checkCard.innerHTML =
+        '<div class="ct">Today\u2019s check</div>' +
+        '<p>40 seconds, and your score gets sharper.</p>' +
+        '<button class="go" id="goCheck" type="button">Start today\u2019s check</button>';
+      document.getElementById("goCheck").addEventListener("click", function(){ show("check"); });
+    } else {
+      checkCard.innerHTML =
+        '<div class="ct">Today\u2019s check, done</div>' +
+        '<div class="res"><span class="n">'+state.simple+'</span><span class="u">ms</span>' +
+        '<span class="pz">'+(state.band==="quicker"?"Quicker than usual":(state.band==="gentler"?"A gentler morning":"Right around your usual"))+'</span></div>' +
+        '<p>That is counted in your score below.</p>' +
+        '<button class="again" id="goCheck" type="button">Do it again &rarr;</button>';
+      document.getElementById("goCheck").addEventListener("click", function(){
+        state.done = false; renderToday(); show("check");
+        var w = document.querySelector("#pane-check [data-ccheck]"); if (w && w.ccheckReset) w.ccheckReset();
+      });
+    }
+  }
+
+  function renderToday(){
+    var sc = scoreNow();
+    document.getElementById("greet").textContent = GREETING[partOfDay(skyStage)];
+    renderCheckCard();
+    renderRows();
+    document.getElementById("whyHead").textContent = "Today's score";
+    document.getElementById("scoreWord").textContent = cheekyLine(sc);
+    document.getElementById("usualLabel").textContent = "your usual " + DATA.usual[0] + " to " + DATA.usual[1];
+    var bandEl = document.querySelector(".scale-band");
+    bandEl.style.left = DATA.usual[0] + "%";
+    bandEl.style.width = (DATA.usual[1] - DATA.usual[0]) + "%";
+    document.getElementById("plainLine").textContent = state.done
+      ? (state.band === "quicker" ? "Sharper than most " + WEEKDAY + "s, and your check agrees."
+        : state.band === "gentler" ? "A slower start than most " + WEEKDAY + "s. The rest of your week looks steady."
+        : "A little better than most " + WEEKDAY + "s.")
+      : "A little better than most " + WEEKDAY + "s.";
+    setScore(sc);
+  }
+
+  /* week diagram */
+  var DL = ["S","M","T","W","T","F","S"];
+  var WEEK = DATA.week.map(function(w){
+    var dd = new Date(w.d + "T12:00:00");
+    return { d: DL[dd.getDay()], v: w.v, low: w.v < DATA.usual[0] };
+  });
+  var weekEl = document.getElementById("week");
+  WEEK.forEach(function(w, i){
+    var col = document.createElement("div");
+    col.className = "wday";
+    col.innerHTML = '<span class="wval">'+w.v+'</span>' +
+      '<span class="wbar'+(w.low?" low":"")+'" style="height:0"></span>' +
+      '<span class="wlab">'+w.d+'</span>';
+    weekEl.appendChild(col);
+    var bar = col.querySelector(".wbar");
+    var h = Math.round(((w.v-50)/40)*100);
+    setTimeout(function(){ bar.style.height = h + "%"; }, reduce ? 0 : 260 + i*70);
+  });
+
+  /* accordions on the age tab */
+  Array.prototype.forEach.call(document.querySelectorAll(".fold"), function(f){
+    var head = f.querySelector(".foldhead");
+    head.addEventListener("click", function(){
+      var open = f.classList.toggle("open");
+      head.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  });
+
+  var shown = 0;
+  function setScore(target){
+    if (reduce){ scaleMark.style.left = target+"%"; scoreNum.textContent = target; shown = target; return; }
+    requestAnimationFrame(function(){ scaleMark.style.left = target+"%"; });
+    var from = shown, t0 = null;
+    (function tick(ts){
+      if(!t0) t0=ts;
+      var p=Math.min(1,(ts-t0)/1100), e=1-Math.pow(1-p,3);
+      scoreNum.textContent = Math.round(from + (target-from)*e);
+      if(p<1) requestAnimationFrame(tick); else shown = target;
+    })(performance.now());
+  }
+
+  /* ---------- signs of strain ---------- */
+  var STRAIN = {
+    calm:{cls:"", title:"Nothing looks off",
+      sub:"Your body is working the way it normally does this week.",
+      chips:[["Temperature","normal","z-good"],["Breathing","normal","z-good"],["Heart rate","normal","z-good"]]},
+    alert:{cls:"alert", title:"Your body is working harder",
+      sub:"Rest, drink water, and take it easy today.",
+      chips:[["Temperature","a bit high","z-mid"],["Breathing","faster","z-mid"],["Heart rate","higher","z-mid"]]}
+  };
+  var strainEl = document.getElementById("strain"), strainState = "calm";
+  function paintStrain(){
+    var d = STRAIN[strainState];
+    strainEl.className = "strain " + d.cls;
+    document.getElementById("strainTitle").textContent = d.title;
+    document.getElementById("strainSub").textContent = d.sub;
+    document.getElementById("strainChips").innerHTML = d.chips.map(function(c){
+      return '<span class="chip"><span class="dotz '+c[2]+'"></span>'+c[0]+' '+c[1]+'</span>';
+    }).join("");
+  }
+  paintStrain();
+  function flipStrain(){ strainState = (strainState === "calm") ? "alert" : "calm"; paintStrain(); }
+  strainEl.addEventListener("click", flipStrain);
+  strainEl.addEventListener("keydown", function(e){
+    if (e.key === " " || e.key === "Enter"){ e.preventDefault(); flipStrain(); }
+  });
+
+  /* ---------- brain age ---------- */
+  var AGE_TARGET = 23, ageNum = document.getElementById("ageNum"), agePlayed = false;
+  function playAge(){
+    if (agePlayed) return; agePlayed = true;
+    if (reduce){ ageNum.textContent = AGE_TARGET; return; }
+    var t0=null;
+    (function tick(ts){
+      if(!t0) t0=ts;
+      var p=Math.min(1,(ts-t0)/1100), e=1-Math.pow(1-p,3);
+      ageNum.textContent = Math.round(e*AGE_TARGET);
+      if(p<1) requestAnimationFrame(tick);
+    })(performance.now());
+  }
+
+  /* ---------- vitals ---------- */
+  var NOW = DATA.now, MOD = DATA.modelled, PART = DATA.partial;
+  var NUMBERS = [
+    {g:"Your sleep", items:[
+      {k:"Time asleep", now:NOW.asleep, s:"asleepMin"},
+      {k:"Time in bed", now:NOW.inbed, s:"inBedMin"},
+      {k:"When you fell asleep", now:NOW.onset, s:"onsetMin"},
+      {k:"When you woke up", now:NOW.wake, s:"wakeMin"},
+      {k:"How long to fall asleep", now:NOW.latency, unit:"minutes", s:"latencyMin"},
+      {k:"Times you woke up", now:NOW.awakenings, s:"awakenings"},
+      {k:"Deep sleep", now:NOW.deep, s:"deepMin"},
+      {k:"Dreaming sleep", now:NOW.rem, s:"remMin"},
+      {k:"Bedtime changes", now:NOW.onsetSD, unit:"minutes", s:"onsetSD"},
+      {k:"How alike your nights are", now:DATA.sri, unit:"out of 100", s:"daySteady",
+       sci:"Sleep Regularity Index"},
+      {k:"Broken sleep", now:NOW.frag, unit:"per cent of the night", s:"fragPct",
+       sci:"Sleep fragmentation index"}
+    ]},
+    {g:"Your heart and breathing", items:[
+      {k:"Resting heart rate", now:NOW.restingHR, unit:"beats a minute", s:"restingHR"},
+      {k:"Lowest heart rate at night", now:NOW.lowHR, unit:"beats a minute", s:"lowHR"},
+      {k:"Heart beat variation", now:NOW.hrv, unit:"ms", s:"hrv"},
+      {k:"Breathing rate", now:NOW.respRate, unit:"breaths a minute", s:"respRate"},
+      {k:"Oxygen in your blood", now:NOW.spo2, unit:"per cent", s:"spo2"},
+      {k:"Skin temperature", now:NOW.skinTemp, unit:"from your normal", s:"skinTemp"},
+      {k:"Wrist temperature at night", now:NOW.wristTemp, unit:"from your normal", s:"wristTemp",
+       sci:"Nightly wrist temperature deviation"}
+    ]},
+    {g:"Moving around", items:[
+      {k:"Steps", now:NOW.steps, s:"steps"},
+      {k:"Time on your feet", now:NOW.stand, s:"standMin"},
+      {k:"Busy minutes", now:NOW.exercise, s:"exerciseMin"},
+      {k:"Longest time sitting still", now:NOW.sit, s:"sitMin"},
+      {k:"Walking speed", now:NOW.walkSpeed, unit:"metres a second", s:"walkSpeed"},
+      {k:"How steady you walk", now:NOW.steadiness, unit:"per cent", s:"steadiness"},
+      {k:"Evenness of your steps", now:NOW.asymmetry, unit:"per cent", s:"asymmetry",
+       sci:"Walking asymmetry"}
+    ]},
+    {g:"The shape of your day", items:[
+      {k:"Daily routine", now:NOW.routine, s:"routine"},
+      {k:"How steady your day was", now:NOW.daySteady, s:"daySteady"},
+      {k:"Your busiest hour", now:NOW.busyHour, s:"busyHour"},
+      {k:"Your quietest hour", now:NOW.quietHour, s:"quietHour"},
+      {k:"Busiest hours against quietest", now:NOW.ra, s:"ra",
+       sci:"Relative amplitude, rest-activity rhythm"},
+      {k:"Time in daylight", now:NOW.daylight, unit:"minutes", s:"daylight"}
+    ]},
+    {g:"From your daily check", check:true, items:[
+      {k:"How fast you tapped", unit:"ms", now:"259", key:"simple", base:262, spread:22, seed:411},
+      {k:"Choosing a side", unit:"ms", now:"318", key:"choice", base:322, spread:30, seed:413},
+      {k:"Things remembered", unit:"of three", now:"3", key:"mem", base:2.7, spread:.6, seed:417},
+      {k:"How steady your tapping was", unit:"ms swing", now:"18", key:"rtsd", base:19, spread:6,
+       seed:427, sci:"Reaction time variability, trial to trial"},
+      {k:"Checks done this month", unit:"out of 31", now:"26", base:24, spread:5, seed:423}
+    ]},
+    {g:"Coming soon", soon:true, items:[
+      {k:"Speech", why:"A few seconds of reading aloud, checked for pace and pauses."},
+      {k:"Typing", why:"How you type on your phone, measured quietly in the background."},
+      {k:"Phone use", why:"How you move around your phone from one day to the next."}
+    ]}
+  ];
+  var POINTS = { w:7, m:30, s:90 };
+  var vitalsEl = document.getElementById("vitals");
+  var currentTf = "w";
+  var TOTAL_NUMBERS = NUMBERS.reduce(function(a,g){ return a + (g.soon ? 0 : g.items.length); }, 0);
+  document.getElementById("numCount").textContent = "all " + TOTAL_NUMBERS + " of them";
+
+  function vitalSeries(v, n){
+    if (v.s && DATA.series[v.s]) return DATA.series[v.s].slice(-n).map(Number);
+    var r = seeded(v.seed + n), out = [];
+    for (var i=0;i<n;i++) out.push(v.base + (r()-0.5)*v.spread*2);
+    return out;
+  }
+  function tagFor(){ return ""; }
+  function liveValue(v){
+    if (!state.done || !v.key) return v.now;
+    if (v.key === "simple") return String(state.simple);
+    if (v.key === "choice") return String(state.choice);
+    if (v.key === "mem") return String(state.recall);
+    if (v.key === "rtsd") return String(state.sd);
+    return v.now;
+  }
+  function renderVitals(tf){
+    currentTf = tf;
+    var n = POINTS[tf];
+    vitalsEl.innerHTML = "";
+    NUMBERS.forEach(function(group){
+      var h = document.createElement("div");
+      h.className = "numgroup";
+      h.innerHTML = group.g + '<span class="numcount">' + group.items.length +
+        (group.soon ? ' on the way' : ' numbers') + '</span>';
+      vitalsEl.appendChild(h);
+      if (group.soon){
+        group.items.forEach(function(v){
+          var card = document.createElement("div");
+          card.className = "vital soon";
+          card.innerHTML =
+            '<div class="vh"><span class="n">'+v.k+'</span><span class="soonchip">soon</span></div>' +
+            '<p>'+v.why+'</p>';
+          vitalsEl.appendChild(card);
+        });
+        return;
+      }
+      group.items.forEach(function(v){
+        var s = vitalSeries(v, n);
+        var lo = Math.min.apply(null, s), hi = Math.max.apply(null, s), rng = (hi-lo)||1;
+        var W = 264, H = 46;
+        var d = s.map(function(val,i){
+          var x = 3 + (i/(s.length-1))*(W-6);
+          var y = H-6 - ((val-lo)/rng)*(H-14);
+          return (i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1);
+        }).join("");
+        var card = document.createElement("div");
+        card.className = "vital";
+        card.innerHTML =
+          '<div class="vh"><span class="n">'+v.k+tagFor(v, group)+'</span><span class="val">'+liveValue(v)+
+            (v.unit ? ' <span style="color:var(--muted);font-size:14px;font-weight:400">'+v.unit+'</span>' : '')+'</span></div>' +
+          '<div class="meta"><span class="dotz '+(v.zone||"z-good")+'" style="display:inline-block;margin-right:8px"></span>'+(v.meta||"Normal for you")+'</div>' +
+          '<svg viewBox="0 0 '+W+' '+H+'" aria-hidden="true">' +
+            '<rect x="3" y="'+(H*0.32)+'" width="'+(W-6)+'" height="'+(H*0.38)+'" fill="rgba(91,75,224,.07)" rx="3"></rect>' +
+            '<path d="'+d+'" fill="none" stroke="'+((v.zone||"z-good")==="z-good"?"#0B7A5C":"#9C8877")+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>' +
+          '</svg>' +
+          (v.sci ? '<div class="sci">'+v.sci+'</div>' : '');
+        vitalsEl.appendChild(card);
+      });
+    });
+  }
+  renderVitals("w");
+  document.getElementById("seg").addEventListener("click", function(e){
+    var b = e.target.closest("[data-tf]"); if (!b) return;
+    Array.prototype.forEach.call(this.querySelectorAll("button"), function(x){ x.classList.toggle("on", x===b); });
+    renderVitals(b.dataset.tf);
+  });
+
+  /* ---------- insights: weights, trajectory, ask ---------- */
+  var WEIGHTS = [
+    {k:"When you sleep", v:28, lit:false},{k:"Your daily check", v:22, lit:true},
+    {k:"Resting heart rate", v:20, lit:false},{k:"Daily routine", v:16, lit:false},
+    {k:"Moving around", v:9, lit:false},{k:"Recovery", v:5, lit:false}
+  ];
+  var wEl = document.getElementById("weightRows");
+  WEIGHTS.forEach(function(w){
+    var row = document.createElement("div"); row.className = "wrow";
+    row.innerHTML = '<div class="lab"><span>'+w.k+'</span><span>'+w.v+'%</span></div>' +
+      '<div class="track'+(w.lit?" lit":"")+'"><i data-w="'+w.v+'"></i></div>';
+    wEl.appendChild(row);
+  });
+  var weightsShown = false;
+  function showWeights(){
+    if (weightsShown) return; weightsShown = true;
+    Array.prototype.forEach.call(wEl.querySelectorAll("[data-w]"), function(bar,i){
+      setTimeout(function(){ bar.style.width = bar.dataset.w+"%"; }, reduce?0:80*i);
+    });
+  }
+
+  var ANSWERS = [
+    "Thursday was <b>61</b>, your lowest day. You went to sleep at 1:14am, about 90 minutes later than usual, and you marked a late dinner. <b>Sleep time matters most for you</b>, so a late night hits you harder than it hits most people.",
+    "Yes, on your own days. After you drink, your next morning is <b>9 points lower</b>. That is based on 14 days, which is a small number, so it may still change.",
+    "<b>Neither.</b> Nothing has moved in 90 days. Your speed is a little better than last month, but that is normal ups and downs, not a real change. We would need several more months to say."
+  ];
+  document.getElementById("asks").addEventListener("click", function(e){
+    var b = e.target.closest("[data-q]"); if (!b) return;
+    var wrap = document.getElementById("askwrap");
+    var me = document.createElement("div"); me.className = "bubble me"; me.textContent = b.textContent;
+    wrap.appendChild(me);
+    var ai = document.createElement("div"); ai.className = "bubble ai"; ai.innerHTML = "Thinking...";
+    wrap.appendChild(ai);
+    b.disabled = true; b.style.opacity = ".4";
+    setTimeout(function(){ ai.innerHTML = ANSWERS[+b.dataset.q]; }, 620);
+  });
+
+  /* ---------- sheets + tabs ---------- */
+  function openSheet(id){ var s=document.getElementById(id); s.classList.add("up"); s.setAttribute("aria-hidden","false"); }
+  document.getElementById("calBtn").addEventListener("click", function(){ openSheet("sheetCal"); });
+  document.getElementById("exportBtn").addEventListener("click", function(){ openSheet("sheetExport"); });
+  document.getElementById("reportBtn").addEventListener("click", function(){ openSheet("sheetReport"); });
+  function closeSheets(){
+    Array.prototype.forEach.call(document.querySelectorAll(".sheet.up"), function(sh){
+      sh.classList.remove("up"); sh.setAttribute("aria-hidden","true");
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-close]"), function(b){
+    b.addEventListener("click", closeSheets);
+  });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeSheets(); });
+
+  var order = ["today","age","check","vitals"], current = "today";
+  var panes = { today:document.getElementById("pane-today"), check:document.getElementById("pane-check"),
+                age:document.getElementById("pane-age"), vitals:document.getElementById("pane-vitals") };
+  function show(name){
+    if (name===current) return;
+    var from = panes[current], to = panes[name];
+    var fwd = order.indexOf(name) > order.indexOf(current);
+    to.hidden = false; to.classList.add(fwd?"off-right":"off-left");
+    void to.offsetWidth;
+    to.classList.remove("off-right","off-left");
+    from.classList.add(fwd?"off-left":"off-right");
+    setTimeout(function(){ from.hidden = true; from.classList.remove("off-left","off-right"); }, 360);
+    current = name;
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(t){ t.classList.toggle("on", t.dataset.pane===name); });
+    if (name==="check" && !state.done){ var w=document.querySelector("#pane-check [data-ccheck]"); if (w && w.ccheckReset) w.ccheckReset(); }
+    if (name==="age"){ playAge(); showWeights(); }
+  }
+  document.getElementById("tabs").addEventListener("click", function(e){
+    var b = e.target.closest(".tab"); if (b) show(b.dataset.pane);
+  });
+
+  (function(){
+    var w = document.querySelector("#pane-check [data-ccheck]");
+    if (!w) return;
+    w.ccheckSeeToday = function(){ show("today"); };
+    w.ccheckOnDone = function(r){
+      state.done = true; state.simple = r.simple; state.choice = r.choice; state.sd = r.sd;
+      state.recall = r.recall; state.band = r.band; state.bandWord = r.bandWord;
+      state.adj = Math.max(-5, Math.min(5, Math.round((268 - r.simple)/8)));
+      renderToday();
+      renderVitals(currentTf);
+    };
+  })();
+
+  todayReady = true;
+  renderToday();
+})();
+
+/* Keep the whole phone on screen. The frame is a real iPhone 16 at 413x872, which is
+   taller than most laptop windows, so on desktop it is zoomed down to fit rather than
+   stretched or cropped. Zoom, not transform, because zoom affects layout and leaves no
+   dead space underneath. On a phone the app is already full-screen, so nothing happens. */
+(function(){
+  var dev = document.querySelector(".device");
+  if (!dev) return;
+  var foot = document.querySelector(".stage-foot");
+  function fit(){
+    if (window.innerWidth <= 480){ dev.style.zoom = ""; return; }
+    dev.style.zoom = "";
+    var top = dev.getBoundingClientRect().top + window.scrollY;
+    var below = (foot ? foot.offsetHeight : 90) + 16;
+    var z = Math.min(1, (window.innerHeight - top - below) / 872);
+    dev.style.zoom = Math.max(0.8, z);   /* never so small the type stops being readable */
+  }
+  fit();
+  window.addEventListener("resize", fit);
+  window.addEventListener("orientationchange", fit);
+})();
+</script>
+
+</body>
+</html>

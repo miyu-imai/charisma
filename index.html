@@ -538,10 +538,104 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
 <div class="ccheck" data-ccheck data-streak="You have finished 26 checks.">
   <div class="cc-bar">
     <span class="cc-title">Daily check</span>
-    <span class="cc-clock" data-clock>3 games &middot; 40 seconds</span>
+    <span class="cc-clock" data-clock>5 games &middot; under a minute</span>
   </div>
   <div class="cc-prog" data-prog></div>
   <div class="cc-stage" data-stage></div>
+</div>
+<style>
+  .ccheck{--cc-ink:#241C18;--cc-dim:#5A4B42;--cc-muted:#7A6757;--cc-line:#E7D9CB;
+    --cc-surface:#FFFFFF;--cc-raised:#F6EDE4;--cc-green:#0B7A5C;--cc-indigo:#5B4BE0;--cc-amber:#A8650F;
+    --cc-dawn:var(--dawn,linear-gradient(158deg,#FFF3E6 0%,#FDEDF2 52%,#EFEBFF 100%));
+    font-family:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;color:var(--cc-ink);
+    display:flex;flex-direction:column;min-height:0}
+  .ccheck *{box-sizing:border-box}
+  .cc-bar{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;flex:none}
+  .cc-title{font-size:24px;font-weight:600;letter-spacing:-.01em}
+  .cc-clock{font-size:15px;color:var(--cc-muted)}
+  .cc-prog{display:flex;gap:4px;margin-bottom:13px;flex:none}
+  .cc-prog i{flex:1;height:3px;background:var(--cc-line);border-radius:2px;transition:background .3s}
+  .cc-prog i.done{background:var(--cc-green)}
+  .cc-prog i.now{background:var(--cc-indigo)}
+  .cc-stage{flex:1;display:grid;place-items:center;text-align:center;border:1px solid var(--cc-line);
+    border-radius:24px;background:var(--cc-surface);padding:22px 20px;min-height:320px;position:relative;overflow:hidden}
+  .cc-stage.intro{background:var(--cc-dawn)}
+  .cc-stage h3{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-weight:400;
+    font-size:34.5px;margin:0 0 8px;line-height:1.14}
+  .cc-stage p{margin:0;color:var(--cc-dim);font-size:17px;line-height:1.55;max-width:23rem}
+  .cc-games{display:flex;flex-direction:column;gap:9px;margin:20px auto 4px;width:100%;max-width:270px}
+  .cc-game{display:block;background:rgba(255,255,255,.72);
+    border:1px solid var(--cc-line);border-radius:14px;padding:12px 15px;text-align:left}
+  .cc-game .n{width:26px;height:26px;border-radius:50%;background:var(--cc-green);color:#FFF;flex:none;
+    display:grid;place-items:center;font-size:15px;font-weight:600}
+  .cc-game .t{font-size:17px;font-weight:500}
+  .cc-game .s{font-size:15px;color:var(--cc-muted)}
+  .cc-btn{background:var(--cc-green);color:#FFFFFF;border:0;border-radius:999px;font-size:18.5px;font-weight:600;
+    padding:14px 32px;cursor:pointer;margin-top:16px;font-family:inherit}
+  .cc-btn.ghost{background:transparent;color:var(--cc-dim);border:1px solid var(--cc-line)}
+  .cc-btn:focus-visible{outline:2px solid var(--cc-indigo);outline-offset:3px}
+  .cc-streak{margin-top:14px;font-size:15px;color:var(--cc-muted)}
+  .cc-puck{width:134px;height:134px;margin:0 auto;border-radius:50%;display:grid;place-items:center;background:var(--cc-raised);
+    border:1px solid var(--cc-line);font-size:17px;font-weight:600;color:var(--cc-muted);cursor:pointer;
+    user-select:none;transition:background .1s,border-color .1s,color .1s,transform .1s}
+  .cc-puck.go{background:var(--cc-green);border-color:var(--cc-green);color:#FFF;transform:scale(1.05)}
+  .cc-puck.early{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+  .cc-pair{display:flex;gap:14px;justify-content:center}
+  .cc-side{width:96px;height:112px;border-radius:18px;background:var(--cc-raised);border:1px solid var(--cc-line);
+    display:grid;place-items:center;font-size:30px;color:var(--cc-muted);cursor:pointer;user-select:none}
+  .cc-side.lit{background:var(--cc-green);border-color:var(--cc-green);color:#FFF}
+  .cc-side.wrong{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+  .cc-stage .cc-q{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-size:34.5px;
+    line-height:1.14;margin:0 0 6px;color:var(--cc-ink);max-width:none}
+  .cc-stage .cc-qsub{font-size:17px;color:var(--cc-muted);margin:0 0 18px;max-width:none}
+  .cc-stage.tags{align-items:center;padding-block:20px}
+  .cc-pairs{display:flex;flex-direction:column;gap:12px;margin:22px 0 4px;width:100%;max-width:290px}
+  .cc-count{width:100%;max-width:290px;height:9px;border-radius:999px;background:var(--cc-line);
+    overflow:hidden;margin:22px auto 0}
+  .cc-count i{display:block;height:100%;width:100%;background:var(--cc-green);border-radius:999px}
+  .cc-countt{font-size:15px;color:var(--cc-muted);margin:11px 0 0}
+  .cc-pair-row{background:rgba(255,255,255,.72);border:1px solid var(--cc-line);border-radius:14px;
+    padding:14px 16px;font-size:20px;font-weight:600;color:var(--cc-ink);text-align:center}
+  .cc-pair-row b{color:var(--cc-green);font-weight:600}
+  .cc-opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .cc-opt{border:2px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);border-radius:999px;
+    padding:12px 18px;font-size:19.5px;font-weight:500;cursor:pointer;font-family:inherit;line-height:1.1}
+  .cc-opt.right{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF}
+  .cc-opt.wrong{background:#FCEBE6;border-color:var(--cc-amber);color:var(--cc-amber)}
+  .cc-tags{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:2px 0 6px}
+  .cc-tag{border:2px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);border-radius:999px;
+    padding:12px 17px;font-size:19.5px;font-weight:500;cursor:pointer;font-family:inherit;line-height:1.1;
+    transition:background .15s,border-color .15s,color .15s,transform .12s}
+  .cc-tag.on{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF;transform:scale(1.03)}
+  .cc-tag:focus-visible{outline:2px solid var(--cc-indigo);outline-offset:3px}
+  .cc-stage .cc-priv{font-size:15.5px;color:var(--cc-muted);margin:34px 0 0;line-height:1.5;max-width:none}
+  .cc-qbtns{display:flex;gap:12px;justify-content:center}
+  .cc-qb{flex:1;max-width:120px;border-radius:16px;padding:16px 0;font-size:19.5px;font-weight:600;cursor:pointer;
+    border:1px solid var(--cc-line);background:var(--cc-surface);color:var(--cc-ink);font-family:inherit}
+  .cc-qb.yes{background:var(--cc-green);border-color:var(--cc-green);color:#FFFFFF}
+  .cc-big{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-size:69px;line-height:.9}
+  .cc-big .u{font-size:15px;color:var(--cc-muted);vertical-align:super}
+  .cc-rows{width:100%;margin-top:14px;border-top:1px solid var(--cc-line)}
+  .cc-row{display:flex;justify-content:space-between;padding-block:11px;border-bottom:1px solid var(--cc-line);font-size:17px}
+  .cc-row .k{color:var(--cc-ink)} .cc-row .v{color:var(--cc-dim)}
+  .cc-row .v.up{color:var(--cc-green)}
+  .cc-done{margin-top:14px;padding:13px 14px;border-radius:12px;background:rgba(11,122,92,.10);
+    border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-height:1.5;text-align:left}
+  .cc-done b{color:var(--cc-green);font-weight:600}
+  .cc-target{font-size:24px;font-weight:600;color:var(--cc-ink);margin:4px 0 16px;letter-spacing:.01em}
+  .cc-type{width:100%;max-width:300px;font-size:21px;padding:14px 16px;border-radius:14px;border:2px solid var(--cc-line);
+    font-family:inherit;color:var(--cc-ink);background:var(--cc-surface);outline:none;text-align:center}
+  .cc-type:focus{border-color:var(--cc-indigo)}
+  .cc-type.okay{border-color:var(--cc-green)}
+  .cc-mic{width:120px;height:120px;border-radius:50%;margin:8px auto 0;display:grid;place-items:center;background:var(--cc-raised);
+    border:1px solid var(--cc-line);font-size:17px;font-weight:600;color:var(--cc-muted);transition:transform .08s,background .2s}
+  .cc-mic.on{background:var(--cc-green);border-color:var(--cc-green);color:#FFF}
+  .cc-skip{background:none;border:0;color:var(--cc-muted);font-size:15px;margin-top:10px;cursor:pointer;font-family:inherit;text-decoration:underline}
+  .cc-stage.intro h3{margin-bottom:18px}
+  .cc-stage.intro .cc-btn{margin-top:44px}
+  .cc-stage.intro .cc-priv{margin-top:120px}
+  @media (prefers-reduced-motion:reduce){.ccheck *{transition:none!important;animation:none!important}}
+</style>
 </div>
                 </div>
                 <nav class="ptabs" aria-hidden="true">
@@ -677,19 +771,23 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
 
 <script>
 (function(){
-  var SIMPLE = 4, CHOICE = 3;
+  var SIMPLE = 3, CHOICE = 3;
   var TAGS = ["A drink","Late coffee","A late night","Felt unwell"];
   var THINGS = ["key","book","hat","cup","coin","glove","comb","apple"];
   var PLACES = ["kitchen","garden","car","hallway","bathroom","office","attic","porch"];
   var RECALL = 3;
-  var TOTAL = 1 + SIMPLE + CHOICE + RECALL + 1;
+  var SENTENCES = ["the cat sleeps in the sun","blue boats float on the lake","we walk home after lunch",
+                   "my tea is still warm","birds sing at first light","rain taps on the roof"];
+  var VOICE_SECS = 10;
+  var TYPE_STEP = 1 + SIMPLE + CHOICE, VOICE_STEP = TYPE_STEP + 1, RECALL_STEP = VOICE_STEP + 1;
+  var TOTAL = RECALL_STEP + RECALL + 1;
 
   Array.prototype.forEach.call(document.querySelectorAll("[data-ccheck]"), function(root){
     var stage = root.querySelector("[data-stage]"),
         prog  = root.querySelector("[data-prog]"),
         clock = root.querySelector("[data-clock]");
     var simpleTimes = [], choiceTimes = [], answers = [], step = 0, timer = null, goAt = 0, armed = false;
-    var pairs = [], recallScore = 0, countTimer = null;
+    var pairs = [], recallScore = 0, countTimer = null, typing = {}, voice = {};
     function drawProgress(){
       prog.innerHTML = "";
       for (var i=0;i<TOTAL;i++){
@@ -700,17 +798,12 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
     }
     function intro(){
       clearInterval(countTimer);
-      step = 0; simpleTimes = []; choiceTimes = []; answers = []; recallScore = 0; pairs = []; drawProgress();
-      clock.textContent = "3 games · 40 seconds";
+      step = 0; simpleTimes = []; choiceTimes = []; answers = []; recallScore = 0; pairs = []; typing = {}; voice = {}; drawProgress();
+      clock.textContent = "5 games · under a minute";
       stage.className = "cc-stage intro";
       stage.innerHTML =
         '<div><h3>Ready for today’s check?</h3>' +
-        '<p>Three short games. It takes about 40 seconds.</p>' +
-        '<div class="cc-games">' +
-          '<div class="cc-game"><span><span class="t">Tap fast</span><br><span class="s">Tap the moment it turns green</span></span></div>' +
-          '<div class="cc-game"><span><span class="t">Pick a side</span><br><span class="s">Left or right, whichever lights up</span></span></div>' +
-          '<div class="cc-game"><span><span class="t">Remember three</span><br><span class="s">Three things, asked at the end</span></span></div>' +
-        '</div>' +
+        '<p>Five short games. Under a minute.</p>' +
         '<button class="cc-btn" data-start type="button">Let’s go</button>' +
         '<p class="cc-priv">Data is private, nothing is ever shared.</p></div>';
       stage.querySelector("[data-start]").addEventListener("click", showPairs);
@@ -735,7 +828,7 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
         '<div class="cc-count"><i data-countbar></i></div>' +
         '<p class="cc-countt"><span data-countnum>7</span> seconds</p>' +
         '</div>';
-      var SECS = 7;
+      var SECS = 6;
       var bar = stage.querySelector("[data-countbar]"), num = stage.querySelector("[data-countnum]");
       requestAnimationFrame(function(){
         bar.style.transition = "width " + SECS + "s linear";
@@ -752,7 +845,7 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
 
     function recallRound(i){
       if (i >= RECALL) return quizRound(0, null);
-      step = 1 + SIMPLE + CHOICE + i; drawProgress();
+      step = RECALL_STEP + i; drawProgress();
       clock.textContent = "Remember three, " + (i+1) + " of " + RECALL;
       stage.className = "cc-stage";
       var p = pairs[i];
@@ -776,7 +869,7 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
             if (t) t.classList.add("right");
           }
           Array.prototype.forEach.call(stage.querySelectorAll("[data-opt]"), function(x){ x.disabled = true; });
-          setTimeout(function(){ recallRound(i+1); }, 700);
+          setTimeout(function(){ recallRound(i+1); }, 500);
         });
       });
     }
@@ -790,40 +883,150 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
       var puck = stage.querySelector("[data-puck]"); armed = false;
       timer = setTimeout(function(){
         puck.classList.add("go"); puck.textContent = "TAP"; goAt = performance.now(); armed = true;
-      }, 900 + Math.random()*1800);
+      }, 800 + Math.random()*1400);
       function hit(){
         if (!armed){ clearTimeout(timer); puck.classList.add("early"); puck.textContent = "too early";
           setTimeout(simpleRound, 850); return; }
         var ms = Math.round(performance.now()-goAt);
         simpleTimes.push(ms); step++;
         puck.classList.remove("go"); puck.textContent = ms + " ms"; armed = false;
-        setTimeout(simpleRound, 600);
+        setTimeout(simpleRound, 450);
       }
       puck.addEventListener("pointerdown", hit);
       puck.addEventListener("keydown", function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); hit(); } });
     }
     function choiceRound(){
       var done = step - 1 - SIMPLE;
-      if (done >= CHOICE) return recallRound(0);
+      if (done >= CHOICE) return typeRound();
       drawProgress(); clock.textContent = "Game 2, round " + (done+1) + " of " + CHOICE;
       stage.className = "cc-stage";
       stage.innerHTML = '<div><p style="margin-bottom:18px">Tap the side that turns green.</p>' +
         '<div class="cc-pair"><div class="cc-side" data-l>&larr;</div><div class="cc-side" data-r>&rarr;</div></div></div>';
       var L = stage.querySelector("[data-l]"), R = stage.querySelector("[data-r]");
       var target = Math.random()<0.5 ? L : R; armed = false;
-      timer = setTimeout(function(){ target.classList.add("lit"); goAt = performance.now(); armed = true; }, 800 + Math.random()*1600);
+      timer = setTimeout(function(){ target.classList.add("lit"); goAt = performance.now(); armed = true; }, 700 + Math.random()*1200);
       function pick(el){
         if (!armed){ clearTimeout(timer); el.classList.add("wrong"); setTimeout(choiceRound, 800); return; }
         if (el !== target){ el.classList.add("wrong"); armed = false; setTimeout(choiceRound, 800); return; }
         choiceTimes.push(Math.round(performance.now()-goAt)); step++; armed = false;
-        setTimeout(choiceRound, 520);
+        setTimeout(choiceRound, 400);
       }
       L.addEventListener("pointerdown", function(){ pick(L); });
       R.addEventListener("pointerdown", function(){ pick(R); });
     }
+    /* ---- Game 3: type a line. Keystroke timing only; the text itself is never kept. ---- */
+    function editDistance(a, b){
+      var d = []; for (var i=0;i<=a.length;i++){ d[i]=[i]; }
+      for (var j=1;j<=b.length;j++) d[0][j]=j;
+      for (i=1;i<=a.length;i++) for (j=1;j<=b.length;j++)
+        d[i][j] = Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+      return d[a.length][b.length];
+    }
+    function typeRound(){
+      step = TYPE_STEP; drawProgress(); clock.textContent = "Game 3, type a line";
+      var target = SENTENCES[Math.floor(Math.random()*SENTENCES.length)];
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-qsub" style="margin-bottom:6px">Tap the box and type this.</p>' +
+        '<p class="cc-target">'+target+'</p>' +
+        '<input class="cc-type" data-type type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="Type the sentence">' +
+        '<div><button class="cc-skip" data-typedone type="button">Done</button></div></div>';
+      var box = stage.querySelector("[data-type]"), times = [], backs = 0, first = 0, finished = false, limit = null;
+      box.addEventListener("input", function(e){
+        var now = performance.now();
+        if (!first){ first = now; limit = setTimeout(finish, 15000); }
+        if (e.inputType && e.inputType.indexOf("delete") === 0) backs++;
+        else if (!e.inputType || e.inputType === "insertText") times.push(now);
+        if (box.value.trim().toLowerCase() === target){ box.classList.add("okay"); setTimeout(finish, 250); }
+      });
+      box.addEventListener("keydown", function(e){ if (e.key === "Enter") finish(); });
+      stage.querySelector("[data-typedone]").addEventListener("click", finish);
+      function finish(){
+        if (finished) return; finished = true; clearTimeout(limit); box.blur();
+        var iki = []; for (var k=1;k<times.length;k++) iki.push(times[k]-times[k-1]);
+        typing = times.length >= 5 ? {
+          typeIki: med(iki.map(Math.round)),
+          typeSd: sd(iki),
+          typeSec: Math.round((times[times.length-1]-first)/100)/10,
+          typeErr: backs + editDistance(box.value.trim().toLowerCase(), target)
+        } : {};
+        setTimeout(voiceRound, 300);
+      }
+    }
+
+    /* ---- Game 4: name animals for 10 seconds. The sound is measured on the phone
+       (when you speak, when you pause) and thrown away. No audio or words are kept. ---- */
+    function voiceRound(){
+      step = VOICE_STEP; drawProgress(); clock.textContent = "Game 4, name animals";
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-q">Name as many animals as you can.</p>' +
+        '<p class="cc-qsub">Out loud, for 10 seconds.</p>' +
+        '<div class="cc-mic" data-mic role="button" tabindex="0">Start</div>' +
+        '<div class="cc-count" data-vbar hidden><i data-vfill></i></div>' +
+        '<div><button class="cc-skip" data-vskip type="button">Can’t talk right now</button></div></div>';
+      var mic = stage.querySelector("[data-mic]"), started = false, ended = false, stream = null, ctx = null, iv = null;
+      function end(res){
+        if (ended) return; ended = true; clearInterval(iv);
+        try { if (stream) stream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
+        try { if (ctx) ctx.close(); } catch(e){}
+        voice = res || {};
+        recallRound(0);
+      }
+      stage.querySelector("[data-vskip]").addEventListener("click", function(){ end({}); });
+      function begin(){
+        if (started) return; started = true;
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ mic.textContent = "No mic"; return setTimeout(function(){ end({}); }, 900); }
+        mic.textContent = "...";
+        navigator.mediaDevices.getUserMedia({ audio: { echoCancellation:false, noiseSuppression:false, autoGainControl:false } }).then(function(s){
+          stream = s;
+          var AC = window.AudioContext || window.webkitAudioContext; ctx = new AC();
+          var src = ctx.createMediaStreamSource(s), an = ctx.createAnalyser(); an.fftSize = 1024; src.connect(an);
+          var buf = new Float32Array(an.fftSize), frames = [], t0 = performance.now();
+          mic.classList.add("on"); mic.textContent = "Listening";
+          var bar = stage.querySelector("[data-vbar]"), fill = stage.querySelector("[data-vfill]"); bar.hidden = false;
+          requestAnimationFrame(function(){ fill.style.transition = "width "+VOICE_SECS+"s linear"; fill.style.width = "0%"; });
+          iv = setInterval(function(){
+            an.getFloatTimeDomainData(buf);
+            var e = 0; for (var i=0;i<buf.length;i++) e += buf[i]*buf[i];
+            var rms = Math.sqrt(e/buf.length); frames.push(rms);
+            mic.style.transform = "scale(" + (1 + Math.min(0.12, rms*3)) + ")";
+            if (performance.now() - t0 >= VOICE_SECS*1000) end(analyseVoice(frames, 50));
+          }, 50);
+        }).catch(function(){ mic.textContent = "Mic is off"; setTimeout(function(){ end({}); }, 1100); });
+      }
+      mic.addEventListener("click", begin);
+      mic.addEventListener("keydown", function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); begin(); } });
+    }
+    /* Turns loudness every 50 ms into speech features: how much of the time you were
+       speaking, how many separate bursts (roughly, animals named), pauses of half a
+       second or more, the longest pause, and how long before the first word. */
+    function analyseVoice(frames, ms){
+      if (frames.length < 20) return {};
+      var srt = frames.slice().sort(function(a,b){return a-b;});
+      var floor = srt[Math.floor(srt.length*0.15)], top = srt[Math.floor(srt.length*0.95)];
+      if (top < floor*2.5 || top < 0.004) return { voiceWords:0, voiceSpeech:0 };      // nothing said
+      var thr = floor + 0.25*(top-floor), runs = [], cur = null;
+      frames.forEach(function(v, i){
+        if (v > thr){ if (cur && i - cur[1] <= 3) cur[1] = i; else { cur = [i, i]; runs.push(cur); } }
+      });
+      runs = runs.filter(function(r){ return (r[1]-r[0]+1)*ms >= 100; });
+      if (!runs.length) return { voiceWords:0, voiceSpeech:0 };
+      var gaps = []; for (var k=1;k<runs.length;k++) gaps.push((runs[k][0]-runs[k-1][1])*ms);
+      var voiced = runs.reduce(function(s,r){ return s + (r[1]-r[0]+1); }, 0);
+      var span = frames.length - runs[0][0];
+      return {
+        voiceWords: runs.length,
+        voiceSpeech: Math.round(100*voiced/span)/100,
+        voicePauses: gaps.filter(function(g){ return g >= 500; }).length,
+        voiceLongest: Math.round((gaps.length ? Math.max.apply(null, gaps) : 0)/100)/10,
+        voiceStart: Math.round(runs[0][0]*ms/100)/10
+      };
+    }
+
     function quizRound(i, memOk){
       answers = [];
-      step = 1 + SIMPLE + CHOICE + RECALL; drawProgress();
+      step = RECALL_STEP + RECALL; drawProgress();
       clock.textContent = "Last part, yesterday";
       stage.className = "cc-stage tags";
       stage.innerHTML = '<div style="width:100%">' +
@@ -878,6 +1081,8 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
           '<div class="cc-row"><span class="k">Compared with your usual</span><span class="v '+(b==="quicker"?"up":"")+'">'+
             bandWord(b)+'</span></div>' +
           '<div class="cc-row"><span class="k">How steady your tapping was</span><span class="v">'+sdS+' ms swing</span></div>' +
+          (typing.typeIki ? '<div class="cc-row"><span class="k">Typing</span><span class="v">'+typing.typeSec+' s, '+typing.typeIki+' ms a key</span></div>' : '') +
+          (voice.voiceWords !== undefined ? '<div class="cc-row"><span class="k">Animals named</span><span class="v">'+(voice.voiceWords ? 'about '+voice.voiceWords : 'none heard')+'</span></div>' : '') +
           '<div class="cc-row"><span class="k">Things you remembered</span><span class="v '+(recallScore===3?"up":"")+'">'+
             recallScore+' of 3</span></div>' +
         '</div>' +
@@ -888,7 +1093,10 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
       stage.querySelector("[data-again]").addEventListener("click", intro);
       var see = stage.querySelector("[data-see]");
       if (onDone){
-        onDone({ simple:mS, choice:mC, sd:sdS, recall:recallScore, band:b, bandWord:bandWord(b), marked:marked });
+        onDone({ simple:mS, choice:mC, sd:sdS, recall:recallScore, band:b, bandWord:bandWord(b), marked:marked,
+                 typeIki:typing.typeIki, typeErr:typing.typeErr, typeSec:typing.typeSec,
+                 voiceWords:voice.voiceWords, voiceSpeech:voice.voiceSpeech, voicePauses:voice.voicePauses,
+                 voiceLongest:voice.voiceLongest, tags:answers });
         if (see) see.addEventListener("click", function(){ if (root.ccheckSeeToday) root.ccheckSeeToday(); });
       }
     }

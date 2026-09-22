@@ -535,7 +535,7 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
               <div class="fit" id="fit"><div class="fit-inner">
                 <div class="pbar" aria-hidden="true"><span>9:41</span><span>Charisma</span></div>
                 <div class="ppane">
-<div class="ccheck" data-ccheck data-streak="You have finished 26 checks.">
+<div class="ccheck" data-ccheck data-streak="You have finished 26 checks." data-last="Last time you were <b>quicker than usual</b> and remembered <b>3 of 3</b>.">
   <div class="cc-bar">
     <span class="cc-title">Daily check</span>
     <span class="cc-clock" data-clock>5 games &middot; under a minute</span>
@@ -543,6 +543,7 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
   <div class="cc-prog" data-prog></div>
   <div class="cc-stage" data-stage></div>
 </div>
+
 <style>
   .ccheck{--cc-ink:#241C18;--cc-dim:#5A4B42;--cc-muted:#7A6757;--cc-line:#E7D9CB;
     --cc-surface:#FFFFFF;--cc-raised:#F6EDE4;--cc-green:#0B7A5C;--cc-indigo:#5B4BE0;--cc-amber:#A8650F;
@@ -631,9 +632,37 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
     border:1px solid var(--cc-line);font-size:17px;font-weight:600;color:var(--cc-muted);transition:transform .08s,background .2s}
   .cc-mic.on{background:var(--cc-green);border-color:var(--cc-green);color:#FFF}
   .cc-skip{background:none;border:0;color:var(--cc-muted);font-size:15px;margin-top:10px;cursor:pointer;font-family:inherit;text-decoration:underline}
-  .cc-stage.intro h3{margin-bottom:18px}
-  .cc-stage.intro .cc-btn{margin-top:44px}
-  .cc-stage.intro .cc-priv{margin-top:120px}
+  /* one layout for every screen: what to do (top), the game (middle), the button (bottom) */
+  .cc-stage.lay{display:flex;flex-direction:column;align-items:stretch;justify-content:space-between;padding:26px 20px 20px}
+  .cc-top{flex:none}
+  .cc-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 0;min-height:0}
+  .cc-mid.start{justify-content:flex-start;padding-top:6px}
+  .cc-bot{flex:none;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px}
+  .cc-lbl{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--cc-green);margin:0 0 12px}
+  .cc-stage.lay .cc-q{margin:0 0 6px}
+  .cc-stage.lay .cc-qsub{margin:0}
+  .cc-stage.lay .cc-target{font-family:"Instrument Serif","Iowan Old Style",Georgia,serif;font-weight:400;font-size:34.5px;
+    line-height:1.14;margin:0;color:var(--cc-ink);letter-spacing:0}
+  .cc-go{font-size:21px;padding:18px 58px;margin:0;box-shadow:0 10px 26px rgba(11,122,92,.22)}
+  .cc-ghost{background:var(--cc-surface);color:var(--cc-dim);border:1px solid var(--cc-line);border-radius:999px;
+    padding:11px 24px;font-size:16px;font-family:inherit;cursor:pointer}
+  .cc-ghost:focus-visible{outline:2px solid var(--cc-indigo);outline-offset:3px}
+  .cc-dots{display:flex;gap:7px;justify-content:center}
+  .cc-dots i{width:8px;height:8px;border-radius:50%;background:var(--cc-line)}
+  .cc-dots i.d{background:var(--cc-green)}
+  .cc-last{width:100%;background:rgba(255,255,255,.72);border:1px solid var(--cc-line);border-radius:14px;
+    padding:13px 15px;font-size:16px;line-height:1.45;color:var(--cc-dim);text-align:left}
+  .cc-last b{color:var(--cc-green);font-weight:600}
+  .cc-stage.lay .cc-priv{margin:0;font-size:14.5px;display:flex;gap:7px;align-items:center;justify-content:center}
+  .cc-stage.lay .cc-priv svg{flex:none}
+  .cc-stage.lay .cc-type{max-width:none}
+  .cc-stage.lay .cc-count{margin-top:22px}
+  .cc-stage.lay .cc-pairs{margin:0 auto}
+  .cc-stage.lay.intro .cc-top{padding-top:30%}
+  .cc-prog.off{visibility:hidden}
+  .cc-prog i{position:relative;overflow:hidden;height:4px}
+  .cc-prog i b{position:absolute;left:0;top:0;bottom:0;background:var(--cc-green);border-radius:2px;transition:width .3s}
   @media (prefers-reduced-motion:reduce){.ccheck *{transition:none!important;animation:none!important}}
 </style>
 </div>
@@ -788,24 +817,67 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
         clock = root.querySelector("[data-clock]");
     var simpleTimes = [], choiceTimes = [], answers = [], step = 0, timer = null, goAt = 0, armed = false;
     var pairs = [], recallScore = 0, countTimer = null, typing = {}, voice = {};
+    /* Five bars, one per game, in the order they are played: remember, tap, pick, type, animals.
+       The recall questions and "anything yesterday" come after all five are full. */
+    var GAMES = 5;
+    function gameAt(st){
+      if (st === 0) return [0, 0.5];
+      if (st <= SIMPLE) return [1, (st-1)/SIMPLE];
+      if (st < TYPE_STEP) return [2, (st-1-SIMPLE)/CHOICE];
+      if (st === TYPE_STEP) return [3, 0.5];
+      if (st === VOICE_STEP) return [4, 0.5];
+      return [GAMES, 0];
+    }
     function drawProgress(){
+      var g = gameAt(step);
+      prog.classList.remove("off");
       prog.innerHTML = "";
-      for (var i=0;i<TOTAL;i++){
+      for (var i=0;i<GAMES;i++){
         var b = document.createElement("i");
-        if (i<step) b.className = "done"; else if (i===step) b.className = "now";
+        if (i < g[0]) b.className = "done";
+        else if (i === g[0]) b.innerHTML = '<b style="width:'+Math.max(12, Math.round(g[1]*100))+'%"></b>';
         prog.appendChild(b);
       }
+      if (g[0] < GAMES) clock.textContent = (g[0]+1) + " of " + GAMES;
+    }
+    function lay(label, head, mid, bot, midClass){
+      stage.className = "cc-stage lay";
+      stage.innerHTML = '<div class="cc-top">' + (label ? '<div class="cc-lbl">'+label+'</div>' : '') + head + '</div>' +
+        '<div class="cc-mid'+(midClass?' '+midClass:'')+'">' + mid + '</div>' +
+        '<div class="cc-bot">' + (bot || '') + '</div>';
+    }
+    function dots(n, done){
+      var h = '<div class="cc-dots" aria-hidden="true">';
+      for (var i=0;i<n;i++) h += '<i'+(i<done?' class="d"':'')+'></i>';
+      return h + '</div>';
+    }
+    var LOCK = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" stroke-width="1.5"/></svg>';
+    var PRIV = '<p class="cc-priv">'+LOCK+'Private. Nothing leaves your phone.</p>';
+    /* The line about the last check. Real history when there is any; the demo pages
+       (not the installed app) fall back to the sample sentence in data-last. */
+    function lastLine(){
+      var hist = null;
+      try { hist = JSON.parse(localStorage.getItem("charisma_check_history") || "null"); } catch(e){}
+      var keys = hist ? Object.keys(hist).sort() : [];
+      if (keys.length){
+        var r = hist[keys[keys.length-1]];
+        var bd = r.band || band(r.simple || 270);
+        return 'Last time you were <b>'+bandWord(bd)+'</b>' +
+          (typeof r.recall === "number" ? ' and remembered <b>'+r.recall+' of 3</b>.' : '.');
+      }
+      var isApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+      if (!isApp && root.getAttribute("data-last")) return root.getAttribute("data-last");
+      return 'Your first check. From tomorrow, this is where you will see how you did last time.';
     }
     function intro(){
       clearInterval(countTimer);
-      step = 0; simpleTimes = []; choiceTimes = []; answers = []; recallScore = 0; pairs = []; typing = {}; voice = {}; drawProgress();
-      clock.textContent = "5 games · under a minute";
-      stage.className = "cc-stage intro";
-      stage.innerHTML =
-        '<div><h3>Ready for today’s check?</h3>' +
-        '<p>Five short games. Under a minute.</p>' +
-        '<button class="cc-btn" data-start type="button">Let’s go</button>' +
-        '<p class="cc-priv">Data is private, nothing is ever shared.</p></div>';
+      step = 0; simpleTimes = []; choiceTimes = []; answers = []; recallScore = 0; pairs = []; typing = {}; voice = {};
+      prog.classList.add("off");
+      clock.textContent = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()];
+      lay("About 45 seconds", '<p class="cc-q">Ready for today’s check?</p>',
+          '<button class="cc-btn cc-go" data-start type="button">Let’s go</button>',
+          '<div class="cc-last">'+lastLine()+'</div>' + PRIV);
+      stage.className = "cc-stage lay intro";
       stage.querySelector("[data-start]").addEventListener("click", showPairs);
     }
     function shuffle(a){
@@ -817,18 +889,14 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
       pairs = [];
       var th = shuffle(THINGS).slice(0,3), pl = shuffle(PLACES);
       for (var i=0;i<3;i++) pairs.push({thing:th[i], place:pl[i]});
-      step = 0; drawProgress(); clock.textContent = "Remember these three";
-      stage.className = "cc-stage";
-      stage.innerHTML = '<div style="width:100%">' +
-        '<p class="cc-q">Remember these three.</p>' +
-        '<p class="cc-qsub">We will ask you at the end.</p>' +
-        '<div class="cc-pairs">' +
-          pairs.map(function(p){ return '<div class="cc-pair-row">The <b>'+p.thing+'</b> in the <b>'+p.place+'</b></div>'; }).join("") +
-        '</div>' +
-        '<div class="cc-count"><i data-countbar></i></div>' +
-        '<p class="cc-countt"><span data-countnum>7</span> seconds</p>' +
-        '</div>';
+      step = 0; drawProgress();
       var SECS = 6;
+      lay("Remember three", '<p class="cc-q">Remember these three.</p><p class="cc-qsub">We will ask you at the end.</p>',
+          '<div class="cc-pairs">' +
+            pairs.map(function(p){ return '<div class="cc-pair-row">The <b>'+p.thing+'</b> in the <b>'+p.place+'</b></div>'; }).join("") +
+          '</div>',
+          '<div class="cc-count" style="margin:0"><i data-countbar></i></div>' +
+          '<p class="cc-countt" style="margin:0"><span data-countnum>'+SECS+'</span> seconds</p>');
       var bar = stage.querySelector("[data-countbar]"), num = stage.querySelector("[data-countnum]");
       requestAnimationFrame(function(){
         bar.style.transition = "width " + SECS + "s linear";
@@ -846,19 +914,17 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
     function recallRound(i){
       if (i >= RECALL) return quizRound(0, null);
       step = RECALL_STEP + i; drawProgress();
-      clock.textContent = "Remember three, " + (i+1) + " of " + RECALL;
-      stage.className = "cc-stage";
+      clock.textContent = "Last part";
       var p = pairs[i];
       var wrong = PLACES.filter(function(x){
         return !pairs.some(function(q){ return q.place === x; });
       });
       var opts = shuffle([p.place].concat(shuffle(wrong).slice(0,3)));
-      stage.innerHTML = '<div style="width:100%">' +
-        '<p class="cc-q">Where was the ' + p.thing + '?</p>' +
-        '<p class="cc-qsub">Best guess is fine.</p>' +
-        '<div class="cc-opts">' +
-          opts.map(function(o){ return '<button class="cc-opt" type="button" data-opt="'+o+'">'+o+'</button>'; }).join("") +
-        '</div></div>';
+      lay("Remember three", '<p class="cc-q">Where was the ' + p.thing + '?</p><p class="cc-qsub">Best guess is fine.</p>',
+          '<div class="cc-opts">' +
+            opts.map(function(o){ return '<button class="cc-opt" type="button" data-opt="'+o+'">'+o+'</button>'; }).join("") +
+          '</div>',
+          dots(RECALL, i));
       Array.prototype.forEach.call(stage.querySelectorAll("[data-opt]"), function(bn){
         bn.addEventListener("click", function(){
           var right = bn.dataset.opt === p.place;
@@ -876,10 +942,9 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
 
     function simpleRound(){
       if (step - 1 >= SIMPLE) return choiceRound();
-      drawProgress(); clock.textContent = "Game 1, round " + (step) + " of " + SIMPLE;
-      stage.className = "cc-stage";
-      stage.innerHTML = '<div><div class="cc-puck" data-puck role="button" tabindex="0">wait</div>' +
-        '<p style="margin-top:18px">Tap when it turns green.</p></div>';
+      drawProgress();
+      lay("Tap fast", '<p class="cc-q">Tap the moment it turns green.</p>',
+          '<div class="cc-puck" data-puck role="button" tabindex="0">wait</div>', dots(SIMPLE, step-1));
       var puck = stage.querySelector("[data-puck]"); armed = false;
       timer = setTimeout(function(){
         puck.classList.add("go"); puck.textContent = "TAP"; goAt = performance.now(); armed = true;
@@ -898,10 +963,9 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
     function choiceRound(){
       var done = step - 1 - SIMPLE;
       if (done >= CHOICE) return typeRound();
-      drawProgress(); clock.textContent = "Game 2, round " + (done+1) + " of " + CHOICE;
-      stage.className = "cc-stage";
-      stage.innerHTML = '<div><p style="margin-bottom:18px">Tap the side that turns green.</p>' +
-        '<div class="cc-pair"><div class="cc-side" data-l>&larr;</div><div class="cc-side" data-r>&rarr;</div></div></div>';
+      drawProgress();
+      lay("Pick a side", '<p class="cc-q">Tap the side that turns green.</p>',
+          '<div class="cc-pair"><div class="cc-side" data-l>&larr;</div><div class="cc-side" data-r>&rarr;</div></div>', dots(CHOICE, done));
       var L = stage.querySelector("[data-l]"), R = stage.querySelector("[data-r]");
       var target = Math.random()<0.5 ? L : R; armed = false;
       timer = setTimeout(function(){ target.classList.add("lit"); goAt = performance.now(); armed = true; }, 700 + Math.random()*1200);
@@ -923,14 +987,11 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
       return d[a.length][b.length];
     }
     function typeRound(){
-      step = TYPE_STEP; drawProgress(); clock.textContent = "Game 3, type a line";
+      step = TYPE_STEP; drawProgress();
       var target = SENTENCES[Math.floor(Math.random()*SENTENCES.length)];
-      stage.className = "cc-stage";
-      stage.innerHTML = '<div style="width:100%">' +
-        '<p class="cc-qsub" style="margin-bottom:6px">Tap the box and type this.</p>' +
-        '<p class="cc-target">'+target+'</p>' +
-        '<input class="cc-type" data-type type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="Type the sentence">' +
-        '<div><button class="cc-skip" data-typedone type="button">Done</button></div></div>';
+      lay("Type a line", '<p class="cc-target">'+target+'</p>',
+          '<input class="cc-type" data-type type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Tap here and type" aria-label="Type the sentence">',
+          '<button class="cc-ghost" data-typedone type="button">Done</button>', "start");
       var box = stage.querySelector("[data-type]"), times = [], backs = 0, first = 0, finished = false, limit = null;
       box.addEventListener("input", function(e){
         var now = performance.now();
@@ -957,14 +1018,11 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
     /* ---- Game 4: name animals for 10 seconds. The sound is measured on the phone
        (when you speak, when you pause) and thrown away. No audio or words are kept. ---- */
     function voiceRound(){
-      step = VOICE_STEP; drawProgress(); clock.textContent = "Game 4, name animals";
-      stage.className = "cc-stage";
-      stage.innerHTML = '<div style="width:100%">' +
-        '<p class="cc-q">Name as many animals as you can.</p>' +
-        '<p class="cc-qsub">Out loud, for 10 seconds.</p>' +
-        '<div class="cc-mic" data-mic role="button" tabindex="0">Start</div>' +
-        '<div class="cc-count" data-vbar hidden><i data-vfill></i></div>' +
-        '<div><button class="cc-skip" data-vskip type="button">Can’t talk right now</button></div></div>';
+      step = VOICE_STEP; drawProgress();
+      lay("Name animals &middot; " + VOICE_SECS + " seconds", '<p class="cc-q">Say as many animals as you can.</p>',
+          '<div class="cc-mic" data-mic role="button" tabindex="0">Start</div>' +
+          '<div class="cc-count" data-vbar hidden style="width:100%"><i data-vfill></i></div>',
+          '<button class="cc-ghost" data-vskip type="button">Can’t talk right now</button>');
       var mic = stage.querySelector("[data-mic]"), started = false, ended = false, stream = null, ctx = null, iv = null;
       function end(res){
         if (ended) return; ended = true; clearInterval(iv);
@@ -1027,17 +1085,12 @@ border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-hei
     function quizRound(i, memOk){
       answers = [];
       step = RECALL_STEP + RECALL; drawProgress();
-      clock.textContent = "Last part, yesterday";
-      stage.className = "cc-stage tags";
-      stage.innerHTML = '<div style="width:100%">' +
-        '<p class="cc-q">Anything yesterday?</p>' +
-        '<p class="cc-qsub">Tap any that apply, or skip.</p>' +
-        '<div class="cc-tags">' +
-          TAGS.map(function(t){ return '<button class="cc-tag" type="button" data-tag>'+t+'</button>'; }).join("") +
-        '</div>' +
-        '<button class="cc-btn" data-donetags type="button">Done</button>' +
-        '<p class="cc-priv">Data is private, nothing is ever shared.</p>' +
-        '</div>';
+      clock.textContent = "Last part";
+      lay("Yesterday", '<p class="cc-q">Anything yesterday?</p><p class="cc-qsub">Tap any that apply, or skip.</p>',
+          '<div class="cc-tags">' +
+            TAGS.map(function(t){ return '<button class="cc-tag" type="button" data-tag>'+t+'</button>'; }).join("") +
+          '</div>',
+          '<button class="cc-btn" data-donetags type="button" style="margin:0">Done</button>' + PRIV);
       Array.prototype.forEach.call(stage.querySelectorAll("[data-tag]"), function(b){
         b.addEventListener("click", function(){ b.classList.toggle("on"); });
       });

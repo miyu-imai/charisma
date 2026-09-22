@@ -139,6 +139,8 @@
   .agehero .lbl{font-size:18.5px;color:var(--dim);margin-bottom:2px}
   .agehero .num{font-family:var(--display);font-size:106px;line-height:.92;font-variant-numeric:tabular-nums}
   .agehero .real{font-size:18.5px;color:var(--dim);margin-top:4px}
+  .agehero .agerange{margin-top:10px;font-size:15px;color:var(--muted)}
+  .disc .why{margin-top:8px;font-size:14px;color:var(--muted);line-height:1.45}
   .agehero .win{display:inline-block;margin-top:16px;padding:9px 16px;border-radius:999px;
     background:rgba(11,122,92,.12);color:var(--teal);font-size:18.5px;font-weight:600}
   .pacebox{border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:18px 16px;flex:none}
@@ -644,7 +646,7 @@
 <div class="ccheck" data-ccheck data-streak="You have finished 26 checks.">
   <div class="cc-bar">
     <span class="cc-title">Daily check</span>
-    <span class="cc-clock" data-clock>3 games &middot; 40 seconds</span>
+    <span class="cc-clock" data-clock>5 games &middot; under a minute</span>
   </div>
   <div class="cc-prog" data-prog></div>
   <div class="cc-stage" data-stage></div>
@@ -729,24 +731,40 @@
   .cc-done{margin-top:14px;padding:13px 14px;border-radius:12px;background:rgba(11,122,92,.10);
     border:1px solid rgba(11,122,92,.25);font-size:17px;color:var(--cc-dim);line-height:1.5;text-align:left}
   .cc-done b{color:var(--cc-green);font-weight:600}
+  .cc-target{font-size:24px;font-weight:600;color:var(--cc-ink);margin:4px 0 16px;letter-spacing:.01em}
+  .cc-type{width:100%;max-width:300px;font-size:21px;padding:14px 16px;border-radius:14px;border:2px solid var(--cc-line);
+    font-family:inherit;color:var(--cc-ink);background:var(--cc-surface);outline:none;text-align:center}
+  .cc-type:focus{border-color:var(--cc-indigo)}
+  .cc-type.okay{border-color:var(--cc-green)}
+  .cc-mic{width:120px;height:120px;border-radius:50%;margin:8px auto 0;display:grid;place-items:center;background:var(--cc-raised);
+    border:1px solid var(--cc-line);font-size:17px;font-weight:600;color:var(--cc-muted);transition:transform .08s,background .2s}
+  .cc-mic.on{background:var(--cc-green);border-color:var(--cc-green);color:#FFF}
+  .cc-skip{background:none;border:0;color:var(--cc-muted);font-size:15px;margin-top:10px;cursor:pointer;font-family:inherit;text-decoration:underline}
+  .cc-stage.intro h3{margin-bottom:18px}
+  .cc-stage.intro .cc-btn{margin-top:44px}
+  .cc-stage.intro .cc-priv{margin-top:120px}
   @media (prefers-reduced-motion:reduce){.ccheck *{transition:none!important;animation:none!important}}
 </style>
 
 <script>
 (function(){
-  var SIMPLE = 4, CHOICE = 3;
+  var SIMPLE = 3, CHOICE = 3;
   var TAGS = ["A drink","Late coffee","A late night","Felt unwell"];
   var THINGS = ["key","book","hat","cup","coin","glove","comb","apple"];
   var PLACES = ["kitchen","garden","car","hallway","bathroom","office","attic","porch"];
   var RECALL = 3;
-  var TOTAL = 1 + SIMPLE + CHOICE + RECALL + 1;
+  var SENTENCES = ["the cat sleeps in the sun","blue boats float on the lake","we walk home after lunch",
+                   "my tea is still warm","birds sing at first light","rain taps on the roof"];
+  var VOICE_SECS = 10;
+  var TYPE_STEP = 1 + SIMPLE + CHOICE, VOICE_STEP = TYPE_STEP + 1, RECALL_STEP = VOICE_STEP + 1;
+  var TOTAL = RECALL_STEP + RECALL + 1;
 
   Array.prototype.forEach.call(document.querySelectorAll("[data-ccheck]"), function(root){
     var stage = root.querySelector("[data-stage]"),
         prog  = root.querySelector("[data-prog]"),
         clock = root.querySelector("[data-clock]");
     var simpleTimes = [], choiceTimes = [], answers = [], step = 0, timer = null, goAt = 0, armed = false;
-    var pairs = [], recallScore = 0, countTimer = null;
+    var pairs = [], recallScore = 0, countTimer = null, typing = {}, voice = {};
     function drawProgress(){
       prog.innerHTML = "";
       for (var i=0;i<TOTAL;i++){
@@ -757,17 +775,12 @@
     }
     function intro(){
       clearInterval(countTimer);
-      step = 0; simpleTimes = []; choiceTimes = []; answers = []; recallScore = 0; pairs = []; drawProgress();
-      clock.textContent = "3 games · 40 seconds";
+      step = 0; simpleTimes = []; choiceTimes = []; answers = []; recallScore = 0; pairs = []; typing = {}; voice = {}; drawProgress();
+      clock.textContent = "5 games · under a minute";
       stage.className = "cc-stage intro";
       stage.innerHTML =
         '<div><h3>Ready for today’s check?</h3>' +
-        '<p>Three short games. It takes about 40 seconds.</p>' +
-        '<div class="cc-games">' +
-          '<div class="cc-game"><span><span class="t">Tap fast</span><br><span class="s">Tap the moment it turns green</span></span></div>' +
-          '<div class="cc-game"><span><span class="t">Pick a side</span><br><span class="s">Left or right, whichever lights up</span></span></div>' +
-          '<div class="cc-game"><span><span class="t">Remember three</span><br><span class="s">Three things, asked at the end</span></span></div>' +
-        '</div>' +
+        '<p>Five short games. Under a minute.</p>' +
         '<button class="cc-btn" data-start type="button">Let’s go</button>' +
         '<p class="cc-priv">Data is private, nothing is ever shared.</p></div>';
       stage.querySelector("[data-start]").addEventListener("click", showPairs);
@@ -792,7 +805,7 @@
         '<div class="cc-count"><i data-countbar></i></div>' +
         '<p class="cc-countt"><span data-countnum>7</span> seconds</p>' +
         '</div>';
-      var SECS = 7;
+      var SECS = 6;
       var bar = stage.querySelector("[data-countbar]"), num = stage.querySelector("[data-countnum]");
       requestAnimationFrame(function(){
         bar.style.transition = "width " + SECS + "s linear";
@@ -809,7 +822,7 @@
 
     function recallRound(i){
       if (i >= RECALL) return quizRound(0, null);
-      step = 1 + SIMPLE + CHOICE + i; drawProgress();
+      step = RECALL_STEP + i; drawProgress();
       clock.textContent = "Remember three, " + (i+1) + " of " + RECALL;
       stage.className = "cc-stage";
       var p = pairs[i];
@@ -833,7 +846,7 @@
             if (t) t.classList.add("right");
           }
           Array.prototype.forEach.call(stage.querySelectorAll("[data-opt]"), function(x){ x.disabled = true; });
-          setTimeout(function(){ recallRound(i+1); }, 700);
+          setTimeout(function(){ recallRound(i+1); }, 500);
         });
       });
     }
@@ -847,40 +860,150 @@
       var puck = stage.querySelector("[data-puck]"); armed = false;
       timer = setTimeout(function(){
         puck.classList.add("go"); puck.textContent = "TAP"; goAt = performance.now(); armed = true;
-      }, 900 + Math.random()*1800);
+      }, 800 + Math.random()*1400);
       function hit(){
         if (!armed){ clearTimeout(timer); puck.classList.add("early"); puck.textContent = "too early";
           setTimeout(simpleRound, 850); return; }
         var ms = Math.round(performance.now()-goAt);
         simpleTimes.push(ms); step++;
         puck.classList.remove("go"); puck.textContent = ms + " ms"; armed = false;
-        setTimeout(simpleRound, 600);
+        setTimeout(simpleRound, 450);
       }
       puck.addEventListener("pointerdown", hit);
       puck.addEventListener("keydown", function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); hit(); } });
     }
     function choiceRound(){
       var done = step - 1 - SIMPLE;
-      if (done >= CHOICE) return recallRound(0);
+      if (done >= CHOICE) return typeRound();
       drawProgress(); clock.textContent = "Game 2, round " + (done+1) + " of " + CHOICE;
       stage.className = "cc-stage";
       stage.innerHTML = '<div><p style="margin-bottom:18px">Tap the side that turns green.</p>' +
         '<div class="cc-pair"><div class="cc-side" data-l>&larr;</div><div class="cc-side" data-r>&rarr;</div></div></div>';
       var L = stage.querySelector("[data-l]"), R = stage.querySelector("[data-r]");
       var target = Math.random()<0.5 ? L : R; armed = false;
-      timer = setTimeout(function(){ target.classList.add("lit"); goAt = performance.now(); armed = true; }, 800 + Math.random()*1600);
+      timer = setTimeout(function(){ target.classList.add("lit"); goAt = performance.now(); armed = true; }, 700 + Math.random()*1200);
       function pick(el){
         if (!armed){ clearTimeout(timer); el.classList.add("wrong"); setTimeout(choiceRound, 800); return; }
         if (el !== target){ el.classList.add("wrong"); armed = false; setTimeout(choiceRound, 800); return; }
         choiceTimes.push(Math.round(performance.now()-goAt)); step++; armed = false;
-        setTimeout(choiceRound, 520);
+        setTimeout(choiceRound, 400);
       }
       L.addEventListener("pointerdown", function(){ pick(L); });
       R.addEventListener("pointerdown", function(){ pick(R); });
     }
+    /* ---- Game 3: type a line. Keystroke timing only; the text itself is never kept. ---- */
+    function editDistance(a, b){
+      var d = []; for (var i=0;i<=a.length;i++){ d[i]=[i]; }
+      for (var j=1;j<=b.length;j++) d[0][j]=j;
+      for (i=1;i<=a.length;i++) for (j=1;j<=b.length;j++)
+        d[i][j] = Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+      return d[a.length][b.length];
+    }
+    function typeRound(){
+      step = TYPE_STEP; drawProgress(); clock.textContent = "Game 3, type a line";
+      var target = SENTENCES[Math.floor(Math.random()*SENTENCES.length)];
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-qsub" style="margin-bottom:6px">Tap the box and type this.</p>' +
+        '<p class="cc-target">'+target+'</p>' +
+        '<input class="cc-type" data-type type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="Type the sentence">' +
+        '<div><button class="cc-skip" data-typedone type="button">Done</button></div></div>';
+      var box = stage.querySelector("[data-type]"), times = [], backs = 0, first = 0, finished = false, limit = null;
+      box.addEventListener("input", function(e){
+        var now = performance.now();
+        if (!first){ first = now; limit = setTimeout(finish, 15000); }
+        if (e.inputType && e.inputType.indexOf("delete") === 0) backs++;
+        else if (!e.inputType || e.inputType === "insertText") times.push(now);
+        if (box.value.trim().toLowerCase() === target){ box.classList.add("okay"); setTimeout(finish, 250); }
+      });
+      box.addEventListener("keydown", function(e){ if (e.key === "Enter") finish(); });
+      stage.querySelector("[data-typedone]").addEventListener("click", finish);
+      function finish(){
+        if (finished) return; finished = true; clearTimeout(limit); box.blur();
+        var iki = []; for (var k=1;k<times.length;k++) iki.push(times[k]-times[k-1]);
+        typing = times.length >= 5 ? {
+          typeIki: med(iki.map(Math.round)),
+          typeSd: sd(iki),
+          typeSec: Math.round((times[times.length-1]-first)/100)/10,
+          typeErr: backs + editDistance(box.value.trim().toLowerCase(), target)
+        } : {};
+        setTimeout(voiceRound, 300);
+      }
+    }
+
+    /* ---- Game 4: name animals for 10 seconds. The sound is measured on the phone
+       (when you speak, when you pause) and thrown away. No audio or words are kept. ---- */
+    function voiceRound(){
+      step = VOICE_STEP; drawProgress(); clock.textContent = "Game 4, name animals";
+      stage.className = "cc-stage";
+      stage.innerHTML = '<div style="width:100%">' +
+        '<p class="cc-q">Name as many animals as you can.</p>' +
+        '<p class="cc-qsub">Out loud, for 10 seconds.</p>' +
+        '<div class="cc-mic" data-mic role="button" tabindex="0">Start</div>' +
+        '<div class="cc-count" data-vbar hidden><i data-vfill></i></div>' +
+        '<div><button class="cc-skip" data-vskip type="button">Can’t talk right now</button></div></div>';
+      var mic = stage.querySelector("[data-mic]"), started = false, ended = false, stream = null, ctx = null, iv = null;
+      function end(res){
+        if (ended) return; ended = true; clearInterval(iv);
+        try { if (stream) stream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
+        try { if (ctx) ctx.close(); } catch(e){}
+        voice = res || {};
+        recallRound(0);
+      }
+      stage.querySelector("[data-vskip]").addEventListener("click", function(){ end({}); });
+      function begin(){
+        if (started) return; started = true;
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ mic.textContent = "No mic"; return setTimeout(function(){ end({}); }, 900); }
+        mic.textContent = "...";
+        navigator.mediaDevices.getUserMedia({ audio: { echoCancellation:false, noiseSuppression:false, autoGainControl:false } }).then(function(s){
+          stream = s;
+          var AC = window.AudioContext || window.webkitAudioContext; ctx = new AC();
+          var src = ctx.createMediaStreamSource(s), an = ctx.createAnalyser(); an.fftSize = 1024; src.connect(an);
+          var buf = new Float32Array(an.fftSize), frames = [], t0 = performance.now();
+          mic.classList.add("on"); mic.textContent = "Listening";
+          var bar = stage.querySelector("[data-vbar]"), fill = stage.querySelector("[data-vfill]"); bar.hidden = false;
+          requestAnimationFrame(function(){ fill.style.transition = "width "+VOICE_SECS+"s linear"; fill.style.width = "0%"; });
+          iv = setInterval(function(){
+            an.getFloatTimeDomainData(buf);
+            var e = 0; for (var i=0;i<buf.length;i++) e += buf[i]*buf[i];
+            var rms = Math.sqrt(e/buf.length); frames.push(rms);
+            mic.style.transform = "scale(" + (1 + Math.min(0.12, rms*3)) + ")";
+            if (performance.now() - t0 >= VOICE_SECS*1000) end(analyseVoice(frames, 50));
+          }, 50);
+        }).catch(function(){ mic.textContent = "Mic is off"; setTimeout(function(){ end({}); }, 1100); });
+      }
+      mic.addEventListener("click", begin);
+      mic.addEventListener("keydown", function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); begin(); } });
+    }
+    /* Turns loudness every 50 ms into speech features: how much of the time you were
+       speaking, how many separate bursts (roughly, animals named), pauses of half a
+       second or more, the longest pause, and how long before the first word. */
+    function analyseVoice(frames, ms){
+      if (frames.length < 20) return {};
+      var srt = frames.slice().sort(function(a,b){return a-b;});
+      var floor = srt[Math.floor(srt.length*0.15)], top = srt[Math.floor(srt.length*0.95)];
+      if (top < floor*2.5 || top < 0.004) return { voiceWords:0, voiceSpeech:0 };      // nothing said
+      var thr = floor + 0.25*(top-floor), runs = [], cur = null;
+      frames.forEach(function(v, i){
+        if (v > thr){ if (cur && i - cur[1] <= 3) cur[1] = i; else { cur = [i, i]; runs.push(cur); } }
+      });
+      runs = runs.filter(function(r){ return (r[1]-r[0]+1)*ms >= 100; });
+      if (!runs.length) return { voiceWords:0, voiceSpeech:0 };
+      var gaps = []; for (var k=1;k<runs.length;k++) gaps.push((runs[k][0]-runs[k-1][1])*ms);
+      var voiced = runs.reduce(function(s,r){ return s + (r[1]-r[0]+1); }, 0);
+      var span = frames.length - runs[0][0];
+      return {
+        voiceWords: runs.length,
+        voiceSpeech: Math.round(100*voiced/span)/100,
+        voicePauses: gaps.filter(function(g){ return g >= 500; }).length,
+        voiceLongest: Math.round((gaps.length ? Math.max.apply(null, gaps) : 0)/100)/10,
+        voiceStart: Math.round(runs[0][0]*ms/100)/10
+      };
+    }
+
     function quizRound(i, memOk){
       answers = [];
-      step = 1 + SIMPLE + CHOICE + RECALL; drawProgress();
+      step = RECALL_STEP + RECALL; drawProgress();
       clock.textContent = "Last part, yesterday";
       stage.className = "cc-stage tags";
       stage.innerHTML = '<div style="width:100%">' +
@@ -935,6 +1058,8 @@
           '<div class="cc-row"><span class="k">Compared with your usual</span><span class="v '+(b==="quicker"?"up":"")+'">'+
             bandWord(b)+'</span></div>' +
           '<div class="cc-row"><span class="k">How steady your tapping was</span><span class="v">'+sdS+' ms swing</span></div>' +
+          (typing.typeIki ? '<div class="cc-row"><span class="k">Typing</span><span class="v">'+typing.typeSec+' s, '+typing.typeIki+' ms a key</span></div>' : '') +
+          (voice.voiceWords !== undefined ? '<div class="cc-row"><span class="k">Animals named</span><span class="v">'+(voice.voiceWords ? 'about '+voice.voiceWords : 'none heard')+'</span></div>' : '') +
           '<div class="cc-row"><span class="k">Things you remembered</span><span class="v '+(recallScore===3?"up":"")+'">'+
             recallScore+' of 3</span></div>' +
         '</div>' +
@@ -945,7 +1070,10 @@
       stage.querySelector("[data-again]").addEventListener("click", intro);
       var see = stage.querySelector("[data-see]");
       if (onDone){
-        onDone({ simple:mS, choice:mC, sd:sdS, recall:recallScore, band:b, bandWord:bandWord(b), marked:marked });
+        onDone({ simple:mS, choice:mC, sd:sdS, recall:recallScore, band:b, bandWord:bandWord(b), marked:marked,
+                 typeIki:typing.typeIki, typeErr:typing.typeErr, typeSec:typing.typeSec,
+                 voiceWords:voice.voiceWords, voiceSpeech:voice.voiceSpeech, voicePauses:voice.voicePauses,
+                 voiceLongest:voice.voiceLongest, tags:answers });
         if (see) see.addEventListener("click", function(){ if (root.ccheckSeeToday) root.ccheckSeeToday(); });
       }
     }
@@ -1000,8 +1128,9 @@
           </svg>
           <div class="lbl">Your brain measures</div>
           <div class="num"><span id="ageNum">0</span></div>
-          <div class="real">You are 26 years old.</div>
-          <div class="win">3 years younger than your age</div>
+          <div class="real" id="ageReal">You are 26 years old.</div>
+          <div class="win" id="ageWin">3 years younger than your age</div>
+          <div class="agerange" id="ageRange" hidden></div>
         </div>
 
         <div class="bigsec">
@@ -1009,6 +1138,9 @@
           <div class="kicker">Habits</div>
           <h3>What moves your number.</h3>
         </div>
+
+        <div id="ageLive" hidden></div>
+        <div id="ageDemo">
 
         <div class="disc">
           <span class="badge good"><span class="ar">&uarr;</span>Helps you</span>
@@ -1032,6 +1164,7 @@
           <div class="metric wait">4 of 12 days</div>
           <p>Twelve days and we can tell you what it does to you. Eight to go.</p>
           <div class="n-count">Mark the days you have late coffee.</div>
+        </div>
         </div>
 
 
@@ -1218,8 +1351,9 @@
   Charisma reflects general wellness trends only. It is not intended to diagnose, treat, cure, or prevent any disease.
 </p>
 
-<script>
-var DATA = {"window":["2026-06-17","2026-09-14"],"sri":77.2,"usual":[64,79],"today":{"date":"2026-09-13","score":72},"week":[{"d":"2026-09-07","v":75},{"d":"2026-09-08","v":71},{"d":"2026-09-09","v":69},{"d":"2026-09-10","v":74},{"d":"2026-09-11","v":74},{"d":"2026-09-12","v":65},{"d":"2026-09-13","v":72}],"series":{"asleepMin":[325,337,393,351,441,364,529,462,419,374,240,301,429,240,240,288,350,428,256,345,324,405,369,306,380,369,485,374,240,439,387,455,389,240,478,242,413,479,347,403,538,342,379,389,240,465,240,317,333,538,240,453,546,500,442,282,471,400,437,271,285,354,456,520,463,340,240,327,248,287,431,377,240,284,240,325,342,437,423,519,423,480,352,424,364,352,471,335,413],"inBedMin":[334,339,413,372,446,389,545,477,421,395,242,310,431,248,242,294,358,441,258,373,339,407,378,320,407,383,510,376,242,441,395,478,391,267,480,251,424,481,349,409,540,360,390,391,242,468,266,326,340,549,253,465,560,525,444,308,475,426,447,273,301,361,463,532,465,364,242,340,250,289,455,381,246,309,242,336,381,450,433,526,436,482,364,437,376,387,496,343,435],"onsetMin":[1292,1301,1298,1326,1374,1283,1311,1274,1277,1306,1385,1352,1203,1471,1275,1291,1310,1264,1326,1284,1275,1327,1267,1285,1358,1303,1262,1299,1296,1257,1484,1310,1318,1277,1259,1289,1300,1301,1261,1388,1196,1229,1294,1460,1328,1311,1374,1208,1277,1303,1306,1281,1353,1348,1277,1282,1291,1257,1304,1300,1331,1292,1244,1286,1270,1504,1366,1345,1307,1286,1294,1259,1205,1318,1347,1318,1293,1292,1291,1298,1325,1304,1285,1244,1262,1320,1263,1468,1307],"wakeMin":[186,200,271,258,380,232,416,311,258,261,187,222,194,279,77,145,228,265,144,217,174,294,205,165,325,246,332,235,98,258,439,348,269,104,299,100,284,342,170,357,296,149,244,411,130,339,200,94,177,412,119,306,473,433,281,150,326,243,311,133,192,213,267,378,295,428,168,245,117,135,309,200,11,187,149,214,234,302,284,384,321,346,209,241,198,267,319,371,302],"latencyMin":[2,2,9,7,5,2,2,2,2,9,2,2,2,2,2,6,8,2,2,2,4,2,2,2,10,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,2,5,2,2,2,3,4,2,7,5,2,2,4,2,2,2,4,5,2,2,5,2,2,2,2,2,2,2,2,2,2,4,6,2,2,3,2,9,2,2,5,2,2,2,2,2,2,2,2],"awakenings":[1,0,1,2,0,2,2,2,0,2,0,1,0,1,0,0,0,2,0,2,1,0,1,1,2,2,2,0,0,0,1,2,0,2,0,1,2,0,0,1,0,2,1,0,0,0,3,1,0,1,1,1,1,2,0,2,0,2,1,0,1,1,1,1,0,2,0,2,0,0,2,0,0,2,0,1,3,1,1,1,1,0,1,1,1,3,2,1,2],"deepMin":[61,47,66,66,58,49,72,88,60,49,33,51,78,37,38,43,60,82,41,64,53,78,74,59,65,68,99,69,42,71,73,88,74,47,96,37,84,78,69,66,71,51,53,72,32,88,46,56,55,87,32,62,100,66,86,57,71,69,64,48,41,51,64,68,71,50,39,68,52,47,75,73,42,47,36,63,63,66,79,96,58,84,68,56,71,64,98,65,54],"remMin":[67,62,84,91,87,74,123,122,107,74,60,81,114,56,48,55,94,91,58,69,87,84,74,82,85,91,109,74,47,87,89,110,73,47,117,58,76,97,81,108,144,64,86,101,60,114,58,73,77,125,59,82,113,132,102,53,107,98,110,67,70,72,84,95,118,67,47,64,54,57,96,99,63,53,57,69,73,99,95,118,87,129,64,110,79,64,115,78,78],"onsetSD":[4.5,4.5,3.7,13.0,30.2,30.5,28.3,30.7,32.7,32.6,42.5,38.7,54.4,80.9,80.8,79.8,79.6,78.2,76.7,65.7,20.2,23.0,25.2,24.4,31.4,30.0,32.5,31.3,29.3,30.9,72.6,71.2,71.0,69.5,72.6,72.9,69.6,18.7,20.3,40.5,53.8,56.8,57.0,85.1,85.4,83.3,81.6,79.3,73.4,73.0,46.9,45.9,50.3,45.4,30.0,29.3,29.9,34.3,33.6,26.4,21.6,20.8,27.2,27.2,25.4,79.8,81.0,81.2,80.4,75.0,74.3,75.8,49.5,41.9,42.3,43.2,43.1,43.1,41.2,19.2,19.9,12.5,12.2,22.7,24.9,27.5,29.0,70.2,70.2],"fragPct":[2.1,0.0,2.7,3.8,0.0,5.9,2.6,2.7,0.0,3.1,0.0,2.3,0.0,2.4,0.0,0.0,0.0,2.5,0.0,7.0,3.3,0.0,1.9,3.8,4.3,3.1,4.5,0.0,0.0,0.0,1.5,3.8,0.0,9.4,0.0,2.8,2.1,0.0,0.0,1.0,0.0,3.7,2.3,0.0,0.0,0.0,8.4,2.2,0.0,1.1,4.4,2.2,1.8,4.4,0.0,7.8,0.0,5.0,1.8,0.0,3.7,1.4,1.1,1.9,0.0,6.1,0.0,3.3,0.0,0.0,4.9,0.0,0.0,7.5,0.0,2.4,9.8,0.9,1.9,1.0,1.9,0.0,2.8,2.5,2.7,8.6,4.7,1.8,4.6],"restingHR":[85,87,76,75,78,83,83,80,84,82,74,78.0,87.0,82,66.0,68.0,84.0,80.0,77.0,79,71.0,90.0,85.0,76.0,77,76,69,75,87.0,85,81,82,79,81,78,75,71,77,85.0,59.0,59,74.0,77,71.0,78,76,84,88,49.0,50,61,76,91.0,76,79,86.0,74.0,73,77,83,89,88,89,89,92,94,102.0,93,90,86,89,86,82,82,80,68,77,65,85.0,74.0,76.0,73,89.0,80.0,87.0,78.0,77.0,80.0,84],"lowHR":[81,84,71,72,74,79,80,76,81,78,71,75,83,77,63,65,79,74,72,75,65,87,79,72,74,73,65,70,84,80,76,78,75,78,75,72,66,73,81,54,55,70,72,66,75,71,80,82,44,46,55,73,87,71,76,82,71,68,72,78,83,84,84,84,87,90,97,87,86,81,86,81,77,76,75,65,73,60,82,70,73,70,86,75,84,75,73,74,81],"hrv":[37.1,30.6,19.3,15.9,17.2,17.0,22.9,29.2,29.0,31.2,31.8,42.11,34.26,34.3,33.5,33.81,33.83,21.6,25.97,35.66,33.87,23.14,22.35,23.96,28.28,33.6,31.1,25.7,31.4,32.4,31.1,21.7,17.3,30.2,32.4,28.6,28.2,31.4,32.65,35.22,35.5,32.08,16.77,43.76,30.5,29.4,21.3,23.1,26.81,28.6,48.54,42.9,20.2,23.96,24.5,22.69,32.38,28.1,34.7,38.0,37.9,32.8,30.2,36.7,35.9,33.4,17.54,24.0,25.4,23.6,23.4,28.4,40.0,38.3,27.3,27.6,23.6,18.7,34.75,43.91,44.36,37.6,37.48,22.6,21.91,27.89,28.54,17.5,16.1],"respRate":[18.3,16.8,16.0,18.2,18.4,19.9,19.3,18.7,21,21,16.4,17.7,18.4,19.4,19.3,21,21,20.8,21,21.0,19.7,17.0,16.6,16.8,19.3,16.2,17.4,19.4,15.0,15.8,18.9,19.1,19.4,18.8,19.0,18.7,18.0,17.6,17.8,15.4,18.0,16.5,18.3,18.8,15.9,16.8,17.9,17.4,19.7,20.2,21,21,18.4,20.5,19.9,19.9,18.0,15.2,15.2,17.0,20.1,19.0,17.2,20.7,19.0,21,20.8,20.0,17.6,19.9,17.0,18.1,17.8,17.1,19.5,20.2,20.8,21,19.4,18.3,19.6,17.6,17.8,15.5,15.3,15.3,18.7,17.9,19.0],"spo2":[94.3,94.8,95.5,96.7,97.1,96.1,97.1,97.5,96.7,94.9,94.0,93.5,93.8,95.1,95.8,96.3,97.4,97.7,98.1,96.5,95.6,95.1,95.0,94.8,94.7,92.0,92,92,93.4,94.6,95.3,95.1,96.7,95.8,95.6,96.7,96.1,94.7,96.0,93.4,95.2,96.1,97.4,97.4,97.3,97.1,95.6,95.3,95.5,96.8,96.9,95.4,97.2,96.5,97.6,98.0,97.9,95.2,94.3,95.0,96.1,95.4,94.8,95.0,95.6,94.0,94.5,95.6,95.7,95.4,94.8,94.3,94.7,94.8,94.5,93.1,93.6,95.7,93.1,95.2,96.6,96.0,93.3,93.5,95.8,96.2,96.3,95.9,96.9],"skinTemp":[0.1,0.11,-0.1,0.11,0.5,0.07,0.27,0.04,0.39,0.24,-0.18,-0.04,-0.22,-0.12,0.16,-0.3,-0.06,0.15,-0.43,-0.43,-0.17,0.07,0.23,0.22,-0.1,-0.06,-0.34,-0.01,0.46,-0.05,0.06,-0.08,0.17,0.26,0.07,0.15,0.13,0.34,-0.01,-0.41,0.35,0.36,-0.14,0.01,-0.06,0.17,-0.05,-0.09,0.24,-0.32,-0.11,-0.34,-0.04,0.49,-0.08,0.47,-0.01,-0.02,0.19,-0.17,0.12,0.27,0.06,-0.16,-0.23,-0.09,0.54,0.27,0.27,-0.14,-0.21,0.36,0.28,-0.39,0.18,-0.2,0.09,-0.52,-0.02,0.01,-0.28,0.25,-0.06,-0.18,0.03,-0.14,-0.06,-0.24,-0.15],"wristTemp":[0.2,0.08,-0.21,0.21,0.46,0.12,0.33,-0.0,0.24,0.37,-0.21,-0.08,-0.23,-0.18,0.27,-0.31,-0.06,0.14,-0.36,-0.47,0.01,0.15,0.27,0.31,-0.01,0.02,-0.5,-0.07,0.43,0.11,0.04,-0.0,0.2,0.24,0.09,0.17,0.08,0.32,-0.05,-0.47,0.35,0.36,-0.16,-0.02,-0.05,0.16,-0.13,-0.01,0.2,-0.37,-0.07,-0.4,-0.15,0.38,-0.17,0.47,0.02,-0.02,0.13,-0.21,0.13,0.12,0.05,-0.17,-0.32,-0.06,0.48,0.19,0.17,-0.16,-0.37,0.38,0.3,-0.33,0.21,-0.24,0.08,-0.42,-0.03,0.08,-0.3,0.11,-0.22,-0.17,-0.02,-0.0,-0.06,-0.18,-0.08],"steps":[5099,14645,11689,7080,7665,9949,11432,13224,11314,2827,9398,18171,15818,13199,17967,16139,22417,25688,11820,13752,17959,25946,22685,22219,6466,12981,14115,12952,10964,9030,12608,5596,69,152,115,179,10296,10224,15989,8444,345,10972,13497,11613,8935,6370,8825,12398,32778,114,14730,5549,14872,16057,353,17044,13603,7518,5317,2117,3604,5603,4831,3518,4140,1874,19564,11362,2799,4714,5953,11763,7731,10970,15383,4895,6922,8309,9482,14398,16580,9756,16735,12931,8597,7390,11302,15882,7683],"standMin":[0,0,0,0,0,0,0,0,0,0,0,68,87,0,73,113,152,179,98,67,94,147,145,174,14,0,0,0,20,0,0,0,0,0,0,0,0,0,88,29,0,63,67,74,10,0,0,33,203,0,102,0,83,87,0,105,87,0,0,0,0,0,0,0,0,0,135,37,0,0,0,0,0,0,55,0,0,0,60,95,92,0,66,108,79,58,66,146,13],"exerciseMin":[0,0,0,0,0,0,0,0,0,0,0,46,61,0,39,46,75,83,37,27,26,88,68,56,2,0,0,0,10,0,0,0,0,0,0,0,0,0,27,9,0,24,39,6,0,0,0,27,83,0,10,0,38,19,0,54,27,0,0,0,0,0,0,0,0,0,59,10,0,0,0,0,0,0,58,0,0,0,41,41,33,0,25,37,28,30,33,35,7],"sitMin":[73,73,98,96,139,166,115,164,169,166,106,92,93,90,90,132,160,154,118,135,150,78,136,161,148,145,118,88,149,103,150,167,110,110,165,142,87,83,85,160,151,85,153,168,136,105,125,83,71,167,135,123,163,113,157,153,91,95,99,94,129,96,112,83,161,105,116,128,160,112,162,120,123,122,72,114,88,70,150,87,117,143,126,103,122,126,148,81,126],"walkSpeed":[1.341,1.229,1.131,1.22,1.158,1.135,1.229,1.243,1.261,1.261,1.319,1.31,1.301,1.292,1.229,1.332,1.252,1.252,1.185,1.252,1.131,1.256,1.359,1.211,1.238,1.22,1.359,1.256,1.238,1.368,1.439,1.386,1.386,1.386,1.386,1.386,1.292,1.27,1.171,1.091,1.229,1.14,1.341,1.189,1.14,1.189,1.18,1.386,1.337,1.337,1.256,1.252,1.35,1.238,1.238,1.265,1.194,1.216,1.234,1.39,1.14,1.158,1.211,1.185,1.109,1.1,1.109,1.158,1.22,1.261,1.261,1.279,1.22,1.35,1.185,1.292,1.1,1.238,1.252,1.261,1.234,1.122,1.189,1.346,1.252,1.27,1.158,1.127,1.167],"steadiness":[98.5,96.4,98.1,95.0,96.7,96.4,95.5,93.9,96.1,97.9,91.0,95.4,96.3,97.8,95.6,96.7,98.9,95.0,96.3,95.4,96.4,96.7,96.2,95.6,99.0,99.0,98.4,98.5,97.0,98.2,99.6,100.0,98.1,96.7,97.6,97.8,100,98.0,97.0,97.1,99.3,99.7,100,100,99.8,96.0,97.4,96.3,96.4,97.2,97.7,95.9,97.0,100,100,99.2,99.6,100,96.7,92.0,94.0,97.5,96.9,97.1,97.1,100,97.0,95.2,95.6,96.7,96.9,96.7,98.9,94.0,95.3,96.1,95.9,98.5,98.2,98.5,92.0,95.7,94.2,96.1,94.3,95.0,93.4,93.7,93.8],"asymmetry":[0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,4.0,0.0],"doubleSupport":[26.0,26.0,28.0,27.0,27.0,27.0,27.0,26.0,27.0,27.0,25.0,26.0,27.0,26.0,26.0,26.0,26.0,27.0,27.0,27.0,27.0,27.0,26.0,27.0,26.0,27.0,26.0,27.0,26.0,24.0,23.0,23.0,23.0,23.0,23.0,23.0,26.0,26.0,28.0,25.0,27.0,27.0,26.0,26.0,27.0,27.0,27.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,27.0,26.0,26.0,25.0,27.0,27.0,27.0,27.0,27.0,30.0,28.0,27.0,27.0,26.0,26.0,27.0,27.0,24.0,24.0,26.0,28.0,27.0,27.0,27.0,25.0,26.0,26.0,25.0,26.0,27.0,28.0,27.0,27.0],"routine":[0.619,0.704,0.739,0.739,0.74,0.739,0.74,0.771,0.773,0.76,0.761,0.779,0.794,0.798,0.799,0.807,0.832,0.851,0.843,0.851,0.863,0.869,0.872,0.863,0.833,0.827,0.819,0.805,0.801,0.81,0.83,0.869,0.859,0.823,0.819,0.771,0.772,0.77,0.774,0.81,0.828,0.851,0.916,0.914,0.903,0.899,0.883,0.912,0.923,0.891,0.89,0.899,0.904,0.923,0.895,0.891,0.925,0.926,0.924,0.901,0.891,0.922,0.918,0.904,0.901,0.894,0.911,0.918,0.899,0.892,0.902,0.907,0.901,0.907,0.905,0.922,0.931,0.933,0.932,0.951,0.953,0.956,0.963,0.966,0.966,0.965,0.966,0.966,0.964],"ra":[0.619,0.789,0.809,0.737,0.747,0.735,0.747,0.836,0.802,0.713,0.749,0.871,0.837,0.778,0.841,0.858,0.893,0.882,0.813,0.892,0.861,0.882,0.884,0.828,0.668,0.771,0.84,0.762,0.853,0.947,0.967,0.942,0.702,0.589,0.736,0.511,0.954,0.958,0.968,0.956,0.715,0.897,0.963,0.942,0.878,0.939,0.847,0.916,0.979,0.733,0.941,0.941,0.974,0.975,0.721,0.954,0.967,0.949,0.927,0.811,0.905,0.939,0.931,0.869,0.928,0.877,0.928,0.952,0.806,0.886,0.937,0.965,0.835,0.965,0.942,0.927,0.943,0.957,0.958,0.964,0.978,0.963,0.977,0.968,0.956,0.951,0.968,0.976,0.952],"daySteady":[0.99,0.992,0.995,0.985,0.962,0.964,0.966,0.962,0.958,0.956,0.942,0.947,0.928,0.89,0.89,0.894,0.893,0.905,0.911,0.931,0.966,0.965,0.959,0.959,0.953,0.958,0.953,0.958,0.965,0.962,0.921,0.933,0.929,0.933,0.924,0.922,0.931,0.975,0.969,0.952,0.933,0.926,0.927,0.889,0.882,0.888,0.891,0.894,0.906,0.905,0.942,0.945,0.935,0.941,0.958,0.959,0.959,0.951,0.953,0.966,0.97,0.974,0.965,0.963,0.966,0.919,0.903,0.9,0.899,0.909,0.911,0.908,0.935,0.947,0.946,0.944,0.945,0.945,0.952,0.975,0.973,0.983,0.985,0.973,0.966,0.962,0.954,0.92,0.919],"busyHour":[0,18,23,21,19,6,0,1,3,7,17,23,4,7,23,0,21,23,3,2,16,7,6,2,16,4,5,19,16,13,14,11,11,13,13,20,17,20,10,13,22,14,13,6,18,10,20,18,11,23,19,12,17,15,17,13,15,17,11,19,12,20,19,10,13,13,18,12,17,18,12,16,19,15,11,12,14,12,13,20,12,16,10,16,19,15,13,17,19],"quietHour":[10,9,9,9,9,9,9,9,9,10,9,9,9,10,9,10,10,9,9,9,9,9,9,9,10,9,9,9,14,12,10,13,9,14,10,9,11,13,15,9,10,9,9,9,14,21,10,9,21,9,9,13,9,10,10,11,9,11,9,9,9,9,9,9,9,9,9,10,11,13,11,9,22,9,9,16,9,11,9,22,10,9,11,9,9,9,9,9,9],"daylight":[55,70,56,53,63,41,45,78,84,66,59,71,40,59,56,50,10,72,38,21,80,17,90,206,2,9,22,32,20,41,14,3,20,24,54,63,5,25,87,38,21,39,45,9,9,25,47,85,101,73,27,28,70,86,74,59,183,137,84,135,86,88,95,85,80,53,89,55,103,114,90,87,104,104,55,56,122,91,59,29,34,92,69,17,20,48,14,25,52],"score":[67,70,73,68,62,67,68,72,69,67,65,73,63,60,78,79,75,73,71,75,77,70,72,75,64,74,75,73,71,70,65,72,65,65,66,68,79,77,73,74,65,71,77,69,72,75,63,63,84,74,84,76,67,74,66,73,79,74,76,70,68,72,66,69,68,56,63,67,66,69,71,71,64,75,72,77,75,80,74,81,79,79,75,71,69,74,74,65,72]},"modelled":["asleepMin","awakenings","daySteady","deepMin","fragPct","inBedMin","latencyMin","lowHR","onsetMin","onsetSD","ra","remMin","respRate","routine","sitMin","skinTemp","spo2","sri","wakeMin","wristTemp"],"partial":["daylight","hrv","restingHR","steadiness"],"now":{"asleep":"6h 53m","inbed":"7h 15m","onset":"9:47pm","wake":"5:02am","latency":2,"awakenings":2,"deep":"0h 54m","rem":"1h 18m","onsetSD":70.2,"frag":4.6,"restingHR":84,"lowHR":81,"hrv":16.1,"respRate":19.0,"spo2":96.9,"skinTemp":"-0.15\u00b0","wristTemp":"-0.08\u00b0","steps":"7,683","stand":"0h 13m","exercise":7,"sit":"2h 06m","walkSpeed":1.167,"steadiness":93.8,"asymmetry":0.0,"doubleSupport":27.0,"routine":0.964,"ra":0.952,"daySteady":0.919,"busyHour":"7pm","quietHour":"9am","daylight":52},"month":{"mean":71,"prevMean":72,"inRange":25,"days":31,"onsetSD":54,"prevOnsetSD":57,"steps":6370},"ninety":{"scoreMed":72,"scoreLo":56,"scoreHi":84,"restingHR":80,"onsetSD":41.9,"walkSpeed":1.24,"routine":0.89,"steps":10964}};
+<script type="text/plain" id="appsrc">
+var DEMO_DATA = {"window":["2026-06-17","2026-09-14"],"sri":77.2,"usual":[64,79],"today":{"date":"2026-09-13","score":72},"week":[{"d":"2026-09-07","v":75},{"d":"2026-09-08","v":71},{"d":"2026-09-09","v":69},{"d":"2026-09-10","v":74},{"d":"2026-09-11","v":74},{"d":"2026-09-12","v":65},{"d":"2026-09-13","v":72}],"series":{"asleepMin":[325,337,393,351,441,364,529,462,419,374,240,301,429,240,240,288,350,428,256,345,324,405,369,306,380,369,485,374,240,439,387,455,389,240,478,242,413,479,347,403,538,342,379,389,240,465,240,317,333,538,240,453,546,500,442,282,471,400,437,271,285,354,456,520,463,340,240,327,248,287,431,377,240,284,240,325,342,437,423,519,423,480,352,424,364,352,471,335,413],"inBedMin":[334,339,413,372,446,389,545,477,421,395,242,310,431,248,242,294,358,441,258,373,339,407,378,320,407,383,510,376,242,441,395,478,391,267,480,251,424,481,349,409,540,360,390,391,242,468,266,326,340,549,253,465,560,525,444,308,475,426,447,273,301,361,463,532,465,364,242,340,250,289,455,381,246,309,242,336,381,450,433,526,436,482,364,437,376,387,496,343,435],"onsetMin":[1292,1301,1298,1326,1374,1283,1311,1274,1277,1306,1385,1352,1203,1471,1275,1291,1310,1264,1326,1284,1275,1327,1267,1285,1358,1303,1262,1299,1296,1257,1484,1310,1318,1277,1259,1289,1300,1301,1261,1388,1196,1229,1294,1460,1328,1311,1374,1208,1277,1303,1306,1281,1353,1348,1277,1282,1291,1257,1304,1300,1331,1292,1244,1286,1270,1504,1366,1345,1307,1286,1294,1259,1205,1318,1347,1318,1293,1292,1291,1298,1325,1304,1285,1244,1262,1320,1263,1468,1307],"wakeMin":[186,200,271,258,380,232,416,311,258,261,187,222,194,279,77,145,228,265,144,217,174,294,205,165,325,246,332,235,98,258,439,348,269,104,299,100,284,342,170,357,296,149,244,411,130,339,200,94,177,412,119,306,473,433,281,150,326,243,311,133,192,213,267,378,295,428,168,245,117,135,309,200,11,187,149,214,234,302,284,384,321,346,209,241,198,267,319,371,302],"latencyMin":[2,2,9,7,5,2,2,2,2,9,2,2,2,2,2,6,8,2,2,2,4,2,2,2,10,2,2,2,2,2,2,5,2,2,2,2,2,2,2,2,2,5,2,2,2,3,4,2,7,5,2,2,4,2,2,2,4,5,2,2,5,2,2,2,2,2,2,2,2,2,2,4,6,2,2,3,2,9,2,2,5,2,2,2,2,2,2,2,2],"awakenings":[1,0,1,2,0,2,2,2,0,2,0,1,0,1,0,0,0,2,0,2,1,0,1,1,2,2,2,0,0,0,1,2,0,2,0,1,2,0,0,1,0,2,1,0,0,0,3,1,0,1,1,1,1,2,0,2,0,2,1,0,1,1,1,1,0,2,0,2,0,0,2,0,0,2,0,1,3,1,1,1,1,0,1,1,1,3,2,1,2],"deepMin":[61,47,66,66,58,49,72,88,60,49,33,51,78,37,38,43,60,82,41,64,53,78,74,59,65,68,99,69,42,71,73,88,74,47,96,37,84,78,69,66,71,51,53,72,32,88,46,56,55,87,32,62,100,66,86,57,71,69,64,48,41,51,64,68,71,50,39,68,52,47,75,73,42,47,36,63,63,66,79,96,58,84,68,56,71,64,98,65,54],"remMin":[67,62,84,91,87,74,123,122,107,74,60,81,114,56,48,55,94,91,58,69,87,84,74,82,85,91,109,74,47,87,89,110,73,47,117,58,76,97,81,108,144,64,86,101,60,114,58,73,77,125,59,82,113,132,102,53,107,98,110,67,70,72,84,95,118,67,47,64,54,57,96,99,63,53,57,69,73,99,95,118,87,129,64,110,79,64,115,78,78],"onsetSD":[4.5,4.5,3.7,13.0,30.2,30.5,28.3,30.7,32.7,32.6,42.5,38.7,54.4,80.9,80.8,79.8,79.6,78.2,76.7,65.7,20.2,23.0,25.2,24.4,31.4,30.0,32.5,31.3,29.3,30.9,72.6,71.2,71.0,69.5,72.6,72.9,69.6,18.7,20.3,40.5,53.8,56.8,57.0,85.1,85.4,83.3,81.6,79.3,73.4,73.0,46.9,45.9,50.3,45.4,30.0,29.3,29.9,34.3,33.6,26.4,21.6,20.8,27.2,27.2,25.4,79.8,81.0,81.2,80.4,75.0,74.3,75.8,49.5,41.9,42.3,43.2,43.1,43.1,41.2,19.2,19.9,12.5,12.2,22.7,24.9,27.5,29.0,70.2,70.2],"fragPct":[2.1,0.0,2.7,3.8,0.0,5.9,2.6,2.7,0.0,3.1,0.0,2.3,0.0,2.4,0.0,0.0,0.0,2.5,0.0,7.0,3.3,0.0,1.9,3.8,4.3,3.1,4.5,0.0,0.0,0.0,1.5,3.8,0.0,9.4,0.0,2.8,2.1,0.0,0.0,1.0,0.0,3.7,2.3,0.0,0.0,0.0,8.4,2.2,0.0,1.1,4.4,2.2,1.8,4.4,0.0,7.8,0.0,5.0,1.8,0.0,3.7,1.4,1.1,1.9,0.0,6.1,0.0,3.3,0.0,0.0,4.9,0.0,0.0,7.5,0.0,2.4,9.8,0.9,1.9,1.0,1.9,0.0,2.8,2.5,2.7,8.6,4.7,1.8,4.6],"restingHR":[85,87,76,75,78,83,83,80,84,82,74,78.0,87.0,82,66.0,68.0,84.0,80.0,77.0,79,71.0,90.0,85.0,76.0,77,76,69,75,87.0,85,81,82,79,81,78,75,71,77,85.0,59.0,59,74.0,77,71.0,78,76,84,88,49.0,50,61,76,91.0,76,79,86.0,74.0,73,77,83,89,88,89,89,92,94,102.0,93,90,86,89,86,82,82,80,68,77,65,85.0,74.0,76.0,73,89.0,80.0,87.0,78.0,77.0,80.0,84],"lowHR":[81,84,71,72,74,79,80,76,81,78,71,75,83,77,63,65,79,74,72,75,65,87,79,72,74,73,65,70,84,80,76,78,75,78,75,72,66,73,81,54,55,70,72,66,75,71,80,82,44,46,55,73,87,71,76,82,71,68,72,78,83,84,84,84,87,90,97,87,86,81,86,81,77,76,75,65,73,60,82,70,73,70,86,75,84,75,73,74,81],"hrv":[37.1,30.6,19.3,15.9,17.2,17.0,22.9,29.2,29.0,31.2,31.8,42.11,34.26,34.3,33.5,33.81,33.83,21.6,25.97,35.66,33.87,23.14,22.35,23.96,28.28,33.6,31.1,25.7,31.4,32.4,31.1,21.7,17.3,30.2,32.4,28.6,28.2,31.4,32.65,35.22,35.5,32.08,16.77,43.76,30.5,29.4,21.3,23.1,26.81,28.6,48.54,42.9,20.2,23.96,24.5,22.69,32.38,28.1,34.7,38.0,37.9,32.8,30.2,36.7,35.9,33.4,17.54,24.0,25.4,23.6,23.4,28.4,40.0,38.3,27.3,27.6,23.6,18.7,34.75,43.91,44.36,37.6,37.48,22.6,21.91,27.89,28.54,17.5,16.1],"respRate":[18.3,16.8,16.0,18.2,18.4,19.9,19.3,18.7,21,21,16.4,17.7,18.4,19.4,19.3,21,21,20.8,21,21.0,19.7,17.0,16.6,16.8,19.3,16.2,17.4,19.4,15.0,15.8,18.9,19.1,19.4,18.8,19.0,18.7,18.0,17.6,17.8,15.4,18.0,16.5,18.3,18.8,15.9,16.8,17.9,17.4,19.7,20.2,21,21,18.4,20.5,19.9,19.9,18.0,15.2,15.2,17.0,20.1,19.0,17.2,20.7,19.0,21,20.8,20.0,17.6,19.9,17.0,18.1,17.8,17.1,19.5,20.2,20.8,21,19.4,18.3,19.6,17.6,17.8,15.5,15.3,15.3,18.7,17.9,19.0],"spo2":[94.3,94.8,95.5,96.7,97.1,96.1,97.1,97.5,96.7,94.9,94.0,93.5,93.8,95.1,95.8,96.3,97.4,97.7,98.1,96.5,95.6,95.1,95.0,94.8,94.7,92.0,92,92,93.4,94.6,95.3,95.1,96.7,95.8,95.6,96.7,96.1,94.7,96.0,93.4,95.2,96.1,97.4,97.4,97.3,97.1,95.6,95.3,95.5,96.8,96.9,95.4,97.2,96.5,97.6,98.0,97.9,95.2,94.3,95.0,96.1,95.4,94.8,95.0,95.6,94.0,94.5,95.6,95.7,95.4,94.8,94.3,94.7,94.8,94.5,93.1,93.6,95.7,93.1,95.2,96.6,96.0,93.3,93.5,95.8,96.2,96.3,95.9,96.9],"skinTemp":[0.1,0.11,-0.1,0.11,0.5,0.07,0.27,0.04,0.39,0.24,-0.18,-0.04,-0.22,-0.12,0.16,-0.3,-0.06,0.15,-0.43,-0.43,-0.17,0.07,0.23,0.22,-0.1,-0.06,-0.34,-0.01,0.46,-0.05,0.06,-0.08,0.17,0.26,0.07,0.15,0.13,0.34,-0.01,-0.41,0.35,0.36,-0.14,0.01,-0.06,0.17,-0.05,-0.09,0.24,-0.32,-0.11,-0.34,-0.04,0.49,-0.08,0.47,-0.01,-0.02,0.19,-0.17,0.12,0.27,0.06,-0.16,-0.23,-0.09,0.54,0.27,0.27,-0.14,-0.21,0.36,0.28,-0.39,0.18,-0.2,0.09,-0.52,-0.02,0.01,-0.28,0.25,-0.06,-0.18,0.03,-0.14,-0.06,-0.24,-0.15],"wristTemp":[0.2,0.08,-0.21,0.21,0.46,0.12,0.33,-0.0,0.24,0.37,-0.21,-0.08,-0.23,-0.18,0.27,-0.31,-0.06,0.14,-0.36,-0.47,0.01,0.15,0.27,0.31,-0.01,0.02,-0.5,-0.07,0.43,0.11,0.04,-0.0,0.2,0.24,0.09,0.17,0.08,0.32,-0.05,-0.47,0.35,0.36,-0.16,-0.02,-0.05,0.16,-0.13,-0.01,0.2,-0.37,-0.07,-0.4,-0.15,0.38,-0.17,0.47,0.02,-0.02,0.13,-0.21,0.13,0.12,0.05,-0.17,-0.32,-0.06,0.48,0.19,0.17,-0.16,-0.37,0.38,0.3,-0.33,0.21,-0.24,0.08,-0.42,-0.03,0.08,-0.3,0.11,-0.22,-0.17,-0.02,-0.0,-0.06,-0.18,-0.08],"steps":[5099,14645,11689,7080,7665,9949,11432,13224,11314,2827,9398,18171,15818,13199,17967,16139,22417,25688,11820,13752,17959,25946,22685,22219,6466,12981,14115,12952,10964,9030,12608,5596,69,152,115,179,10296,10224,15989,8444,345,10972,13497,11613,8935,6370,8825,12398,32778,114,14730,5549,14872,16057,353,17044,13603,7518,5317,2117,3604,5603,4831,3518,4140,1874,19564,11362,2799,4714,5953,11763,7731,10970,15383,4895,6922,8309,9482,14398,16580,9756,16735,12931,8597,7390,11302,15882,7683],"standMin":[0,0,0,0,0,0,0,0,0,0,0,68,87,0,73,113,152,179,98,67,94,147,145,174,14,0,0,0,20,0,0,0,0,0,0,0,0,0,88,29,0,63,67,74,10,0,0,33,203,0,102,0,83,87,0,105,87,0,0,0,0,0,0,0,0,0,135,37,0,0,0,0,0,0,55,0,0,0,60,95,92,0,66,108,79,58,66,146,13],"exerciseMin":[0,0,0,0,0,0,0,0,0,0,0,46,61,0,39,46,75,83,37,27,26,88,68,56,2,0,0,0,10,0,0,0,0,0,0,0,0,0,27,9,0,24,39,6,0,0,0,27,83,0,10,0,38,19,0,54,27,0,0,0,0,0,0,0,0,0,59,10,0,0,0,0,0,0,58,0,0,0,41,41,33,0,25,37,28,30,33,35,7],"sitMin":[73,73,98,96,139,166,115,164,169,166,106,92,93,90,90,132,160,154,118,135,150,78,136,161,148,145,118,88,149,103,150,167,110,110,165,142,87,83,85,160,151,85,153,168,136,105,125,83,71,167,135,123,163,113,157,153,91,95,99,94,129,96,112,83,161,105,116,128,160,112,162,120,123,122,72,114,88,70,150,87,117,143,126,103,122,126,148,81,126],"walkSpeed":[1.341,1.229,1.131,1.22,1.158,1.135,1.229,1.243,1.261,1.261,1.319,1.31,1.301,1.292,1.229,1.332,1.252,1.252,1.185,1.252,1.131,1.256,1.359,1.211,1.238,1.22,1.359,1.256,1.238,1.368,1.439,1.386,1.386,1.386,1.386,1.386,1.292,1.27,1.171,1.091,1.229,1.14,1.341,1.189,1.14,1.189,1.18,1.386,1.337,1.337,1.256,1.252,1.35,1.238,1.238,1.265,1.194,1.216,1.234,1.39,1.14,1.158,1.211,1.185,1.109,1.1,1.109,1.158,1.22,1.261,1.261,1.279,1.22,1.35,1.185,1.292,1.1,1.238,1.252,1.261,1.234,1.122,1.189,1.346,1.252,1.27,1.158,1.127,1.167],"steadiness":[98.5,96.4,98.1,95.0,96.7,96.4,95.5,93.9,96.1,97.9,91.0,95.4,96.3,97.8,95.6,96.7,98.9,95.0,96.3,95.4,96.4,96.7,96.2,95.6,99.0,99.0,98.4,98.5,97.0,98.2,99.6,100.0,98.1,96.7,97.6,97.8,100,98.0,97.0,97.1,99.3,99.7,100,100,99.8,96.0,97.4,96.3,96.4,97.2,97.7,95.9,97.0,100,100,99.2,99.6,100,96.7,92.0,94.0,97.5,96.9,97.1,97.1,100,97.0,95.2,95.6,96.7,96.9,96.7,98.9,94.0,95.3,96.1,95.9,98.5,98.2,98.5,92.0,95.7,94.2,96.1,94.3,95.0,93.4,93.7,93.8],"asymmetry":[0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,4.0,0.0],"doubleSupport":[26.0,26.0,28.0,27.0,27.0,27.0,27.0,26.0,27.0,27.0,25.0,26.0,27.0,26.0,26.0,26.0,26.0,27.0,27.0,27.0,27.0,27.0,26.0,27.0,26.0,27.0,26.0,27.0,26.0,24.0,23.0,23.0,23.0,23.0,23.0,23.0,26.0,26.0,28.0,25.0,27.0,27.0,26.0,26.0,27.0,27.0,27.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,26.0,27.0,26.0,26.0,25.0,27.0,27.0,27.0,27.0,27.0,30.0,28.0,27.0,27.0,26.0,26.0,27.0,27.0,24.0,24.0,26.0,28.0,27.0,27.0,27.0,25.0,26.0,26.0,25.0,26.0,27.0,28.0,27.0,27.0],"routine":[0.619,0.704,0.739,0.739,0.74,0.739,0.74,0.771,0.773,0.76,0.761,0.779,0.794,0.798,0.799,0.807,0.832,0.851,0.843,0.851,0.863,0.869,0.872,0.863,0.833,0.827,0.819,0.805,0.801,0.81,0.83,0.869,0.859,0.823,0.819,0.771,0.772,0.77,0.774,0.81,0.828,0.851,0.916,0.914,0.903,0.899,0.883,0.912,0.923,0.891,0.89,0.899,0.904,0.923,0.895,0.891,0.925,0.926,0.924,0.901,0.891,0.922,0.918,0.904,0.901,0.894,0.911,0.918,0.899,0.892,0.902,0.907,0.901,0.907,0.905,0.922,0.931,0.933,0.932,0.951,0.953,0.956,0.963,0.966,0.966,0.965,0.966,0.966,0.964],"ra":[0.619,0.789,0.809,0.737,0.747,0.735,0.747,0.836,0.802,0.713,0.749,0.871,0.837,0.778,0.841,0.858,0.893,0.882,0.813,0.892,0.861,0.882,0.884,0.828,0.668,0.771,0.84,0.762,0.853,0.947,0.967,0.942,0.702,0.589,0.736,0.511,0.954,0.958,0.968,0.956,0.715,0.897,0.963,0.942,0.878,0.939,0.847,0.916,0.979,0.733,0.941,0.941,0.974,0.975,0.721,0.954,0.967,0.949,0.927,0.811,0.905,0.939,0.931,0.869,0.928,0.877,0.928,0.952,0.806,0.886,0.937,0.965,0.835,0.965,0.942,0.927,0.943,0.957,0.958,0.964,0.978,0.963,0.977,0.968,0.956,0.951,0.968,0.976,0.952],"daySteady":[0.99,0.992,0.995,0.985,0.962,0.964,0.966,0.962,0.958,0.956,0.942,0.947,0.928,0.89,0.89,0.894,0.893,0.905,0.911,0.931,0.966,0.965,0.959,0.959,0.953,0.958,0.953,0.958,0.965,0.962,0.921,0.933,0.929,0.933,0.924,0.922,0.931,0.975,0.969,0.952,0.933,0.926,0.927,0.889,0.882,0.888,0.891,0.894,0.906,0.905,0.942,0.945,0.935,0.941,0.958,0.959,0.959,0.951,0.953,0.966,0.97,0.974,0.965,0.963,0.966,0.919,0.903,0.9,0.899,0.909,0.911,0.908,0.935,0.947,0.946,0.944,0.945,0.945,0.952,0.975,0.973,0.983,0.985,0.973,0.966,0.962,0.954,0.92,0.919],"busyHour":[0,18,23,21,19,6,0,1,3,7,17,23,4,7,23,0,21,23,3,2,16,7,6,2,16,4,5,19,16,13,14,11,11,13,13,20,17,20,10,13,22,14,13,6,18,10,20,18,11,23,19,12,17,15,17,13,15,17,11,19,12,20,19,10,13,13,18,12,17,18,12,16,19,15,11,12,14,12,13,20,12,16,10,16,19,15,13,17,19],"quietHour":[10,9,9,9,9,9,9,9,9,10,9,9,9,10,9,10,10,9,9,9,9,9,9,9,10,9,9,9,14,12,10,13,9,14,10,9,11,13,15,9,10,9,9,9,14,21,10,9,21,9,9,13,9,10,10,11,9,11,9,9,9,9,9,9,9,9,9,10,11,13,11,9,22,9,9,16,9,11,9,22,10,9,11,9,9,9,9,9,9],"daylight":[55,70,56,53,63,41,45,78,84,66,59,71,40,59,56,50,10,72,38,21,80,17,90,206,2,9,22,32,20,41,14,3,20,24,54,63,5,25,87,38,21,39,45,9,9,25,47,85,101,73,27,28,70,86,74,59,183,137,84,135,86,88,95,85,80,53,89,55,103,114,90,87,104,104,55,56,122,91,59,29,34,92,69,17,20,48,14,25,52],"score":[67,70,73,68,62,67,68,72,69,67,65,73,63,60,78,79,75,73,71,75,77,70,72,75,64,74,75,73,71,70,65,72,65,65,66,68,79,77,73,74,65,71,77,69,72,75,63,63,84,74,84,76,67,74,66,73,79,74,76,70,68,72,66,69,68,56,63,67,66,69,71,71,64,75,72,77,75,80,74,81,79,79,75,71,69,74,74,65,72]},"modelled":["asleepMin","awakenings","daySteady","deepMin","fragPct","inBedMin","latencyMin","lowHR","onsetMin","onsetSD","ra","remMin","respRate","routine","sitMin","skinTemp","spo2","sri","wakeMin","wristTemp"],"partial":["daylight","hrv","restingHR","steadiness"],"now":{"asleep":"6h 53m","inbed":"7h 15m","onset":"9:47pm","wake":"5:02am","latency":2,"awakenings":2,"deep":"0h 54m","rem":"1h 18m","onsetSD":70.2,"frag":4.6,"restingHR":84,"lowHR":81,"hrv":16.1,"respRate":19.0,"spo2":96.9,"skinTemp":"-0.15\u00b0","wristTemp":"-0.08\u00b0","steps":"7,683","stand":"0h 13m","exercise":7,"sit":"2h 06m","walkSpeed":1.167,"steadiness":93.8,"asymmetry":0.0,"doubleSupport":27.0,"routine":0.964,"ra":0.952,"daySteady":0.919,"busyHour":"7pm","quietHour":"9am","daylight":52},"month":{"mean":71,"prevMean":72,"inRange":25,"days":31,"onsetSD":54,"prevOnsetSD":57,"steps":6370},"ninety":{"scoreMed":72,"scoreLo":56,"scoreHi":84,"restingHR":80,"onsetSD":41.9,"walkSpeed":1.24,"routine":0.89,"steps":10964}};
+var DATA = window.__LIVE_DATA__ || DEMO_DATA;
 (function(){
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function seeded(s){ return function(){ s=(s*1103515245+12345)%2147483648; return s/2147483648; }; }
@@ -1542,7 +1676,7 @@ var DATA = {"window":["2026-06-17","2026-09-14"],"sri":77.2,"usual":[64,79],"tod
     if (!state.done){
       checkCard.innerHTML =
         '<div class="ct">Today\u2019s check</div>' +
-        '<p>40 seconds, and your score gets sharper.</p>' +
+        '<p>Under a minute, and your score gets sharper.</p>' +
         '<button class="go" id="goCheck" type="button">Start today\u2019s check</button>';
       document.getElementById("goCheck").addEventListener("click", function(){ show("check"); });
     } else {
@@ -1646,7 +1780,42 @@ var DATA = {"window":["2026-06-17","2026-09-14"],"sri":77.2,"usual":[64,79],"tod
   });
 
   /* ---------- brain age ---------- */
-  var AGE_TARGET = 23, ageNum = document.getElementById("ageNum"), agePlayed = false;
+  var BA = DATA.brainAge || null;
+  var AGE_TARGET = BA ? Math.round(BA.value) : 23, ageNum = document.getElementById("ageNum"), agePlayed = false;
+  function yrs(x){ var a = Math.abs(x); if (a < 1) return Math.max(1, Math.round(a*12)) + (Math.round(a*12) === 1 ? " month" : " months");
+    a = Math.round(a*10)/10; return a + (a === 1 ? " year" : " years"); }
+  if (BA && DATA.realAge){
+    document.getElementById("ageReal").textContent = "You are " + DATA.realAge + " years old.";
+    var g = BA.gap;
+    document.getElementById("ageWin").textContent = Math.abs(g) < 0.5 ? "Right around your age" :
+      (g < 0 ? yrs(g) + " younger than your age" : yrs(g) + " above your age");
+    var rg = document.getElementById("ageRange");
+    rg.hidden = false;
+    rg.textContent = "Likely between " + BA.low + " and " + BA.high +
+      (BA.weekChange === null ? "" : (Math.abs(BA.weekChange) < 0.05 ? ". Steady this week." :
+        ". " + (BA.weekChange < 0 ? "Down " : "Up ") + yrs(BA.weekChange) + " this week" +
+        (BA.weekMover ? ", mostly " + BA.weekMover.label.toLowerCase() + "." : ".")));
+    var live = document.getElementById("ageLive"), demo = document.getElementById("ageDemo");
+    function card(d, good){
+      return '<div class="disc"><span class="badge '+(good?"good":"wait")+'"><span class="ar">'+(good?"&uarr;":"&middot;")+'</span>'+
+        (good?"Helps you":"Room to grow")+'</span>' +
+        '<div class="title">'+d.label+': '+d.value+'</div>' +
+        '<div class="metric '+(good?"good":"wait")+'">'+yrs(d.years)+(good?" younger":" older")+'</div>' +
+        '<p class="why">'+d.source+(d.evidence==="guess"?" &middot; early estimate":"")+'</p></div>';
+    }
+    var html = "";
+    BA.helps.slice(0,3).forEach(function(d){ html += card(d, true); });
+    BA.costs.slice(0,3).forEach(function(d){ html += card(d, false); });
+    if (BA.levers.length){
+      html += '<div class="disc"><span class="badge good"><span class="ar">&rarr;</span>Try this month</span>' +
+        BA.levers.map(function(l){ return '<div class="title">'+l.text+'</div><div class="metric good">up to '+yrs(l.years)+' younger</div>'; }).join("") +
+        '<p class="why">Estimates from published studies, updated every week from your own data.</p></div>';
+    }
+    if (BA.missingDomains){
+      html += '<div class="disc"><p>'+BA.missingDomains+' area'+(BA.missingDomains>1?"s have":" has")+' no data yet, so the range is wider. Wearing your watch to bed helps most.</p></div>';
+    }
+    if (html){ live.innerHTML = html; live.hidden = false; demo.hidden = true; }
+  }
   function playAge(){
     if (agePlayed) return; agePlayed = true;
     if (reduce){ ageNum.textContent = AGE_TARGET; return; }
@@ -1794,10 +1963,10 @@ var DATA = {"window":["2026-06-17","2026-09-14"],"sri":77.2,"usual":[64,79],"tod
   });
 
   /* ---------- insights: weights, trajectory, ask ---------- */
-  var WEIGHTS = [
-    {k:"When you sleep", v:28, lit:false},{k:"Your daily check", v:22, lit:true},
-    {k:"Resting heart rate", v:20, lit:false},{k:"Daily routine", v:16, lit:false},
-    {k:"Moving around", v:9, lit:false},{k:"Recovery", v:5, lit:false}
+  var WEIGHTS = DATA.weights || [
+    {k:"How long you slept", v:21, lit:false},{k:"Your daily check", v:30, lit:true},
+    {k:"When you slept", v:18, lit:false},{k:"Heart recovery", v:14, lit:false},
+    {k:"Yesterday's movement", v:10, lit:false},{k:"Daylight", v:7, lit:false}
   ];
   var wEl = document.getElementById("weightRows");
   WEIGHTS.forEach(function(w){
@@ -1873,7 +2042,16 @@ var DATA = {"window":["2026-06-17","2026-09-14"],"sri":77.2,"usual":[64,79],"tod
     w.ccheckOnDone = function(r){
       state.done = true; state.simple = r.simple; state.choice = r.choice; state.sd = r.sd;
       state.recall = r.recall; state.band = r.band; state.bandWord = r.bandWord;
-      state.adj = Math.max(-5, Math.min(5, Math.round((268 - r.simple)/8)));
+      /* Store the check and score it against this person's own earlier checks. */
+      if (window.ChariHealth && window.ChariHealth.saveCheck){
+        var saved = window.ChariHealth.saveCheck({ simple:r.simple, choice:r.choice, sd:r.sd, recall:r.recall,
+          typeIki:r.typeIki, typeErr:r.typeErr, typeSec:r.typeSec,
+          voiceWords:r.voiceWords, voiceSpeech:r.voiceSpeech, voicePauses:r.voicePauses, voiceLongest:r.voiceLongest,
+          tags:r.tags, at:Date.now() });
+        state.adj = saved.adj;
+      } else {
+        state.adj = Math.max(-5, Math.min(5, Math.round((268 - r.simple)/8)));
+      }
       renderToday();
       renderVitals(currentTf);
     };
@@ -1902,6 +2080,681 @@ var DATA = {"window":["2026-06-17","2026-09-14"],"sri":77.2,"usual":[64,79],"tod
   fit();
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", fit);
+})();
+
+</script>
+<script>
+/* Charisma health-engine.js  (v2, 22 Sep 2026)
+ *
+ * Turns raw Apple Health reads (from HealthKitPlugin.swift) into the DATA object
+ * app.js draws, and computes three things:
+ *
+ *   1. Daily Cognitive Readiness, 0 to 100. Personal only: every input is compared
+ *      with the person's OWN previous 14 to 90 days (median and MAD), never with
+ *      other people.
+ *   2. Brain Age. The one place population numbers are used, because an "age" is a
+ *      comparison with other people by definition. Built like WHOOP Age, but anchored
+ *      to dementia risk instead of death risk:
+ *        dementia incidence doubles about every 5.9 years of age (Jorm & Jolley 1998),
+ *        so one year of age ~ risk ratio 1.125, and years = 8.5 x ln(risk ratio).
+ *      Every effect is then halved (SHRINK) for confounding and overlap, capped per
+ *      domain, and shown with a range. Effects marked "guess" are educated guesses.
+ *   3. Weekly change in Brain Age, and the levers that would move it.
+ *
+ * What is still a guess is labelled in BRAIN_RULES below, and in the output
+ * (each driver carries an `evidence` field: "strong", "moderate" or "guess").
+ */
+(function () {
+  "use strict";
+
+  var DAYS = 90;
+  var YEARS_PER_LN_RISK = 1 / Math.log(Math.pow(2, 1 / 5.9));   // ~8.5
+  var SHRINK = 0.5;
+
+  /* ---------------- small helpers ---------------- */
+  function ok(x) { return x !== null && x !== undefined && !isNaN(x); }
+  function vals(a) { return (a || []).filter(ok); }
+  function median(a) {
+    var v = vals(a).slice().sort(function (x, y) { return x - y; });
+    if (!v.length) return null;
+    var m = Math.floor(v.length / 2);
+    return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+  }
+  function quantile(a, q) {
+    var v = vals(a).slice().sort(function (x, y) { return x - y; });
+    if (!v.length) return null;
+    var pos = (v.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+    return v[lo] + (v[hi] - v[lo]) * (pos - lo);
+  }
+  function mean(a) { var v = vals(a); return v.length ? v.reduce(function (s, x) { return s + x; }, 0) / v.length : null; }
+  function sd(a) {
+    var v = vals(a); if (v.length < 2) return null;
+    var m = mean(v);
+    return Math.sqrt(v.reduce(function (s, x) { return s + (x - m) * (x - m); }, 0) / (v.length - 1));
+  }
+  /* Robust spread: MAD scaled to match a standard deviation. Falls back to SD, then to a floor. */
+  function robustScale(a, floor) {
+    var m = median(a); if (m === null) return null;
+    var mad = median(vals(a).map(function (x) { return Math.abs(x - m); })) * 1.4826;
+    if (!mad) mad = sd(a) || 0;
+    return Math.max(mad, floor || 1e-6);
+  }
+  /* Robust z of v against a personal baseline, capped at +/-2 so one odd day cannot dominate. */
+  function rz(baseline, v, floor) {
+    if (!ok(v) || vals(baseline).length < 5) return null;
+    var z = (v - median(baseline)) / robustScale(baseline, floor);
+    return clamp(z, -2, 2);
+  }
+  function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+  function round(x, d) { var p = Math.pow(10, d || 0); return Math.round(x * p) / p; }
+  function last(a) { for (var i = a.length - 1; i >= 0; i--) if (ok(a[i])) return a[i]; return null; }
+  function lastIdx(a) { for (var i = a.length - 1; i >= 0; i--) if (ok(a[i])) return i; return -1; }
+  function windowOf(a, endIdx, n) { return (a || []).slice(Math.max(0, endIdx - n + 1), endIdx + 1); }
+  function forwardFill(arr) {            // display only; never used for scoring
+    var out = (arr || []).slice(), prev = null;
+    for (var i = 0; i < out.length; i++) { if (ok(out[i])) prev = out[i]; else out[i] = prev; }
+    var first = out.find(ok); if (first === undefined) first = 0;
+    for (i = 0; i < out.length; i++) if (!ok(out[i])) out[i] = first;
+    return out;
+  }
+  function dateKey(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function hm(mins) {
+    if (!ok(mins)) return "--";
+    mins = Math.round(mins);
+    return Math.floor(mins / 60) + "h " + String(mins % 60).padStart(2, "0") + "m";
+  }
+  function clock(mm) {
+    if (!ok(mm)) return "--";
+    mm = ((Math.round(mm) % 1440) + 1440) % 1440;
+    var h = Math.floor(mm / 60), ap = h < 12 ? "am" : "pm", h12 = h % 12 || 12;
+    return h12 + ":" + String(mm % 60).padStart(2, "0") + ap;
+  }
+  /* Minutes-of-day measured from noon, so 11pm and 1am average to midnight, not noon. */
+  function fromNoon(m) { return ((m - 720) % 1440 + 1440) % 1440; }
+  function toClock(n) { return (n + 720) % 1440; }
+  function circDiff(a, b) { var d = Math.abs(a - b) % 1440; return d > 720 ? 1440 - d : d; }
+
+  /* ---------------- sleep ---------------- */
+  // HealthKit sleepAnalysis values
+  var INBED = 0, ASLEEP_OLD = 1, AWAKE = 2, CORE = 3, DEEP = 4, REM = 5;
+
+  /* Union of intervals (minutes), so overlapping iPhone + Watch records are not double counted. */
+  function mergeIntervals(iv) {
+    iv = iv.slice().sort(function (a, b) { return a[0] - b[0]; });
+    var out = [];
+    iv.forEach(function (x) {
+      if (out.length && x[0] <= out[out.length - 1][1]) out[out.length - 1][1] = Math.max(out[out.length - 1][1], x[1]);
+      else out.push([x[0], x[1]]);
+    });
+    return out;
+  }
+  function totalLen(iv) { return iv.reduce(function (s, x) { return s + (x[1] - x[0]); }, 0); }
+
+  /* A sleep record belongs to the night of the date it STARTS on, shifted by 12 hours:
+     anything starting between noon yesterday and noon today counts as last night. */
+  function buildNights(samples, days) {
+    var byKey = {};
+    (samples || []).forEach(function (s) {
+      var start = s.start * 1000, end = s.end * 1000;
+      if (!(end > start)) return;
+      var key = dateKey(new Date(start + 12 * 3600 * 1000));
+      (byKey[key] = byKey[key] || []).push({ start: start / 60000, end: end / 60000, value: s.value });
+    });
+    return days.map(function (d) {
+      var key = dateKey(d), ss = byKey[key] || [];
+      var noonBefore = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1, 12).getTime() / 60000;
+      var asleepIv = mergeIntervals(ss.filter(function (s) { return [ASLEEP_OLD, CORE, DEEP, REM].indexOf(s.value) >= 0; })
+        .map(function (s) { return [s.start, s.end]; }));
+      var bedIv = mergeIntervals(ss.filter(function (s) { return s.value !== AWAKE; }).map(function (s) { return [s.start, s.end]; }));
+      var hasStages = ss.some(function (s) { return s.value === DEEP || s.value === REM || s.value === CORE; });
+      var sleepIv = asleepIv.length ? asleepIv : bedIv;        // older data: only "in bed"
+      if (!sleepIv.length) return { key: key, has: false };
+      var asleep = totalLen(sleepIv), inBed = totalLen(bedIv);
+      var onsetAbs = sleepIv[0][0], wakeAbs = sleepIv[sleepIv.length - 1][1];
+      var gaps = 0;
+      for (var i = 1; i < sleepIv.length; i++) if (sleepIv[i][0] - sleepIv[i - 1][1] >= 5) gaps++;
+      var awakeSamples = ss.filter(function (s) { return s.value === AWAKE && (s.end - s.start) >= 2; }).length;
+      var latency = (asleepIv.length && bedIv.length) ? Math.max(0, asleepIv[0][0] - bedIv[0][0]) : null;
+      function stage(v) { return totalLen(mergeIntervals(ss.filter(function (s) { return s.value === v; }).map(function (s) { return [s.start, s.end]; }))); }
+      var onsetClock = Math.round(onsetAbs - noonBefore + 720) % 1440;
+      var span = wakeAbs - onsetAbs;
+      return {
+        key: key, has: true, hasStages: hasStages,
+        asleepMin: asleep, inBedMin: inBed || asleep,
+        onsetMin: onsetClock, wakeMin: Math.round(onsetClock + span) % 1440,
+        midNoon: fromNoon(onsetClock) + span / 2,                // midpoint, minutes after noon
+        latencyMin: latency, awakenings: Math.max(gaps, awakeSamples),
+        deepMin: hasStages ? stage(DEEP) : null, remMin: hasStages ? stage(REM) : null,
+        fragPct: span > 0 ? round(100 * Math.max(0, span - asleep) / span, 1) : null,
+        // 1440 minutes from noon the day before to noon this day, 1 = asleep. For the SRI.
+        map: (function () {
+          var m = new Uint8Array(1440);
+          sleepIv.forEach(function (iv) {
+            for (var t = Math.max(0, Math.floor(iv[0] - noonBefore)); t < Math.min(1440, Math.ceil(iv[1] - noonBefore)); t++) m[t] = 1;
+          });
+          return m;
+        })()
+      };
+    });
+  }
+
+  /* Sleep Regularity Index (Phillips 2017): chance of being in the same state
+     (asleep/awake) 24 hours apart, scaled -100 to 100. Only pairs of consecutive nights
+     that both have data are used. */
+  function sri(nights, endIdx, n) {
+    var same = 0, total = 0;
+    for (var i = Math.max(1, endIdx - n + 1); i <= endIdx; i++) {
+      var a = nights[i - 1], b = nights[i];
+      if (!a || !b || !a.has || !b.has) continue;
+      for (var t = 0; t < 1440; t++) { if (a.map[t] === b.map[t]) same++; total++; }
+    }
+    if (total < 1440 * 7) return null;                           // at least 7 night pairs
+    return round(200 * same / total - 100, 1);
+  }
+
+  /* ---------------- daily rhythm ---------------- */
+  /* Average 24-hour activity profile over a window of days. Prefers active energy, which
+     is almost never exactly zero overnight. Step counts ARE zero overnight, which makes
+     relative amplitude saturate at 1.0 (see health-data-findings.md), so with steps only
+     we still compute the peak time but not the amplitude. */
+  function profile24(hourly, endIdx, n) {
+    var src = null;
+    ["activeEnergy", "steps"].some(function (k) {
+      var h = hourly && hourly[k];
+      if (h && vals(h).length > 24 * 7) { src = k; return true; }
+      return false;
+    });
+    if (!src) return null;
+    var h = hourly[src], sum = new Array(24).fill(0), cnt = new Array(24).fill(0), usedDays = 0;
+    for (var d = Math.max(0, endIdx - n + 1); d <= endIdx; d++) {
+      var day = h.slice(d * 24, d * 24 + 24);
+      if (vals(day).length < 16) continue;                      // need most of the day
+      usedDays++;
+      day.forEach(function (v, i) { if (ok(v)) { sum[i] += v; cnt[i]++; } });
+    }
+    if (usedDays < 7) return null;
+    return { src: src, days: usedDays, p: sum.map(function (s, i) { return cnt[i] ? s / cnt[i] : 0; }) };
+  }
+  function relativeAmplitude(prof) {
+    if (!prof || prof.src !== "activeEnergy") return null;
+    var c = prof.p.concat(prof.p), m10 = -Infinity, l5 = Infinity;
+    for (var i = 0; i < 24; i++) {
+      var s10 = 0, s5 = 0;
+      for (var j = 0; j < 10; j++) s10 += c[i + j];
+      for (j = 0; j < 5; j++) s5 += c[i + j];
+      m10 = Math.max(m10, s10 / 10); l5 = Math.min(l5, s5 / 5);
+    }
+    if (m10 + l5 <= 0) return null;
+    return round((m10 - l5) / (m10 + l5), 3);
+  }
+  /* Cosinor peak: the clock hour where a 24-hour wave fitted to the profile is highest. */
+  function activityPeakHour(prof) {
+    if (!prof) return null;
+    var a = 0, b = 0;
+    prof.p.forEach(function (v, h) { var w = 2 * Math.PI * (h + 0.5) / 24; a += v * Math.cos(w); b += v * Math.sin(w); });
+    if (!a && !b) return null;
+    var ang = Math.atan2(b, a); if (ang < 0) ang += 2 * Math.PI;
+    return round(ang * 24 / (2 * Math.PI), 2);
+  }
+
+  /* ---------------- reference values (population, for Brain Age only) ---------------- */
+  // FRIEND registry treadmill VO2max, 50th percentile by decade (Kaminsky 2015). ml/kg/min.
+  var VO2_P50 = { male: [48.0, 42.4, 37.8, 32.6, 28.2, 24.4], female: [37.6, 30.9, 27.9, 24.2, 20.7, 18.3] };
+  // Comfortable gait speed by decade (Bohannon & Andrews 2011), m/s. Guess: compared with
+  // the 90th percentile of Apple's everyday walking speed, which runs below lab speed.
+  var GAIT_NORM = { male: [1.36, 1.43, 1.43, 1.43, 1.34, 1.26, 0.97], female: [1.34, 1.34, 1.39, 1.40, 1.24, 1.13, 0.94] };
+  function decadeIdx(age, max) { return clamp(Math.floor((age - 20) / 10), 0, max); }
+  function norm(table, sex, age) {
+    var t = table[sex] || table.female.map(function (v, i) { return (v + table.male[i]) / 2; });
+    return t[decadeIdx(age, t.length - 1)];
+  }
+
+  /* ---------------- Brain Age ---------------- */
+  function yearsFromRisk(riskRatio) { return SHRINK * YEARS_PER_LN_RISK * Math.log(riskRatio); }
+
+  var DOMAIN_CAP = { sleep: 3, movement: 3, gait: 2, heart: 2, check: 1 };
+  var DOMAIN_NAME = { sleep: "Sleep and daily rhythm", movement: "Movement and fitness", gait: "Walking", heart: "Heart and health", check: "Daily check" };
+
+  /* Inputs are summaries over a 30-day window (or 90 for slow measures). Each rule returns
+     years (+ = older) or null when the data is not there. */
+  function brainDrivers(x, age, sex) {
+    var out = [];
+    function add(domain, key, label, value, years, evidence, source, lever) {
+      if (years === null || years === undefined || isNaN(years)) return;
+      out.push({ domain: domain, key: key, label: label, value: value, years: round(years, 2),
+                 evidence: evidence, source: source, lever: lever || null });
+    }
+    // --- Sleep and rhythm ---
+    if (ok(x.sri)) {
+      // UK Biobank, n=88,094: SRI 41 vs 60 -> HR 1.53. No extra benefit above 60 (Cai 2023, Neurology).
+      var s = x.sri < 60 ? yearsFromRisk(Math.pow(1.53, (60 - x.sri) / 19)) : 0;
+      add("sleep", "sri", "How regular your sleep is", round(x.sri) + " out of 100", Math.min(s, 2.5), "strong",
+          "Cai 2023, Neurology", x.sri < 60 ? { text: "Keep bed and wake times within an hour", years: -s } : null);
+    }
+    if (ok(x.sleepH)) {
+      // Whitehall II: 6h or less in midlife -> ~1.30 (Sabia 2021). Long sleep > 9h: guess, reduced for reverse causation.
+      var r = 1;
+      if (x.sleepH < 7) r = Math.pow(1.30, Math.min(2, 7 - x.sleepH));
+      else if (x.sleepH > 9) r = 1.30;
+      var y = yearsFromRisk(r);
+      add("sleep", "sleepH", "How long you sleep", round(x.sleepH, 1) + " hours a night", y, x.sleepH > 9 ? "guess" : "strong",
+          "Sabia 2021, Nature Communications", x.sleepH < 7 ? { text: "Average 7 hours asleep", years: -y } : null);
+    }
+    if (ok(x.ra)) {
+      // ARIC 2025: each 1 SD weaker rhythm -> HR 1.54. Reference mean/SD for Apple active energy is a guess
+      // until calibrated on our own users.
+      var z = clamp((x.ra - 0.85) / 0.07, -2, 2);
+      add("sleep", "ra", "Strength of your daily rhythm", round(x.ra, 2), yearsFromRisk(Math.pow(1.54, -z)), "moderate",
+          "ARIC 2025, Neurology (reference values are our guess)", z < 0 ? { text: "Be active in daytime, still at night", years: -yearsFromRisk(Math.pow(1.54, -z)) } : null);
+    }
+    if (ok(x.peakHour)) {
+      // ARIC 2025: activity peak at 2:15pm or later -> HR 1.45. Halved again: older cohort, different device.
+      var late = x.peakHour >= 14.25 ? 0.5 * yearsFromRisk(1.45) : 0;
+      add("sleep", "peakHour", "When your day peaks", clock(x.peakHour * 60), late, "moderate", "ARIC 2025, Neurology",
+          late ? { text: "Move more in the morning", years: -late } : null);
+    }
+    if (ok(x.breathing) || ok(x.spo2)) {
+      // Sleep-disordered breathing and dementia: guess of HR ~1.2. Threshold for "elevated" is a guess
+      // until matched to Apple's own classification.
+      var flagged = (ok(x.breathing) && x.breathing >= 10) || (ok(x.spo2) && x.spo2 < 94);
+      add("sleep", "breathing", "Breathing at night", flagged ? "Often disturbed" : "Normal",
+          flagged ? yearsFromRisk(1.2) : 0, "guess", "Sleep apnea and dementia literature", null);
+    }
+    // --- Movement and fitness ---
+    if (ok(x.steps)) {
+      // del Pozo Cruz 2022, JAMA Neurology, n=78,430: 3,826 steps -> 0.75, 9,826 -> 0.49.
+      // That is ~0.93 per 1,000 steps -> -0.30 years per 1,000 after halving. Flat beyond 10,000.
+      var st = clamp(x.steps, 3000, 10000), per1k = yearsFromRisk(0.931);
+      var ys = per1k * (st - 7000) / 1000;
+      add("movement", "steps", "Daily steps", Math.round(x.steps).toLocaleString(), ys, "strong", "del Pozo Cruz 2022, JAMA Neurology",
+          x.steps < 10000 ? { text: "Walk " + (Math.min(10000, Math.round(x.steps / 1000) * 1000 + 2000)).toLocaleString() + " steps a day",
+                              years: per1k * (Math.min(10000, x.steps + 2000) - Math.max(3000, x.steps)) / 1000 } : null);
+    }
+    if (ok(x.cadence)) {
+      // Same study: best-30-minute pace of 112 steps/min -> 0.38. Halved twice (overlaps with steps).
+      var full = 0.25 * yearsFromRisk(0.38);                    // about -1.0
+      var yc = full * clamp((x.cadence - 90) / 22, -1, 1);
+      add("movement", "cadence", "Your brisk walking", Math.round(x.cadence) + " steps a minute", yc, "strong", "del Pozo Cruz 2022, JAMA Neurology",
+          x.cadence < 112 ? { text: "Walk briskly for 30 minutes", years: full * (clamp((112 - 90) / 22, -1, 1) - clamp((x.cadence - 90) / 22, -1, 1)) } : null);
+    }
+    if (ok(x.vo2) && age) {
+      // UK Biobank (BJSM 2024): high vs low fitness -> 0.60. Guess: ~0.6 years per MET, capped at 2.
+      var mets = (x.vo2 - norm(VO2_P50, sex, age)) / 3.5;
+      add("movement", "vo2", "Cardio fitness", round(x.vo2, 1) + " VO2max", clamp(-0.6 * mets, -2, 2), "strong", "UK Biobank, BJSM 2024", null);
+    }
+    if (ok(x.strengthPerWeek)) {
+      add("movement", "strength", "Strength training", round(x.strengthPerWeek, 1) + " a week",
+          x.strengthPerWeek >= 2 ? -0.3 : 0, "guess", "Grip strength and dementia literature",
+          x.strengthPerWeek < 2 ? { text: "Two strength sessions a week", years: -0.3 } : null);
+    }
+    // --- Walking (iPhone) ---
+    if (ok(x.walkSpeed) && age) {
+      // Watch Walk, UK Biobank n=47,371: faster everyday top walking speed -> 0.68 per SD. Guess: 0.8 years per 0.1 m/s.
+      var dv = (x.walkSpeed - norm(GAIT_NORM, sex, age)) / 0.1;
+      add("gait", "walkSpeed", "How fast you walk", round(x.walkSpeed, 2) + " m/s", clamp(-0.8 * dv, -2, 2), "moderate", "Watch Walk, UK Biobank 2024", null);
+    }
+    if (ok(x.steadiness)) {
+      var ysd = x.steadiness < 20 ? 1.0 : (x.steadiness < 40 ? 0.5 : 0);
+      add("gait", "steadiness", "Walking steadiness", Math.round(x.steadiness) + "%", ysd, "guess", "Apple walking steadiness (validated for falls)", null);
+    }
+    // --- Heart and health ---
+    if (ok(x.rhr)) {
+      // UK Biobank: resting HR >= 80 -> 1.18. About 1.09 per 10 bpm, centred on 65.
+      add("heart", "rhr", "Resting heart rate", Math.round(x.rhr) + " bpm", clamp(yearsFromRisk(Math.pow(1.09, (x.rhr - 65) / 10)), -1, 1),
+          "moderate", "UK Biobank, Alzheimer's Research & Therapy 2022", null);
+    }
+    if (ok(x.systolic)) add("heart", "bp", "Blood pressure", Math.round(x.systolic) + " systolic", x.systolic >= 130 ? yearsFromRisk(1.2) : 0, "strong", "Lancet Commission 2024", null);
+    if (ok(x.bmi)) add("heart", "bmi", "Body mass index", round(x.bmi, 1), x.bmi >= 30 ? yearsFromRisk(1.3) : 0, "strong", "Lancet Commission 2024", null);
+    if (ok(x.drinksPerWeek)) add("heart", "alcohol", "Alcohol", round(x.drinksPerWeek, 1) + " drinks a week", x.drinksPerWeek > 14 ? yearsFromRisk(1.2) : 0, "strong", "Lancet Commission 2024", null);
+    if (ok(x.headphoneDb)) add("heart", "hearing", "Headphone volume", Math.round(x.headphoneDb) + " dB", x.headphoneDb > 80 ? 0.3 : 0, "guess",
+                               "Lancet Commission 2024 (hearing loss)", x.headphoneDb > 80 ? { text: "Keep headphones under 80 dB", years: -0.3 } : null);
+    // --- Daily check (needs 10 checks) ---
+    if (ok(x.checkRT) && age && x.checkN >= 10) {
+      // Guess: touchscreen simple reaction time ~255 ms at 25, slowing ~1 ms a year. Replace with our own norms.
+      var expect = 255 + Math.max(0, age - 25) * 1.0;
+      add("check", "checkRT", "Reaction time in your check", Math.round(x.checkRT) + " ms", clamp((x.checkRT - expect) / 20, -1, 1), "guess", "Reaction time norms (our guess)", null);
+    }
+    return out;
+  }
+
+  function brainAge(drivers, age) {
+    if (!age) return null;
+    var byDomain = {};
+    drivers.forEach(function (d) { (byDomain[d.domain] = byDomain[d.domain] || []).push(d); });
+    var gap = 0, domains = [];
+    Object.keys(DOMAIN_CAP).forEach(function (k) {
+      var list = byDomain[k] || [];
+      var raw = list.reduce(function (s, d) { return s + d.years; }, 0);
+      var capped = clamp(raw, -DOMAIN_CAP[k], DOMAIN_CAP[k]);
+      gap += capped;
+      domains.push({ key: k, name: DOMAIN_NAME[k], years: round(capped, 2), inputs: list.length });
+    });
+    var cap = age < 40 ? 5 : 8;
+    gap = clamp(gap, -cap, cap);
+    var missing = domains.filter(function (d) { return d.inputs === 0 && d.key !== "check"; }).length;
+    var band = 1.5 + 0.5 * missing;
+    return { value: round(age + gap, 1), gap: round(gap, 1), low: round(age + gap - band, 0), high: round(age + gap + band, 0),
+             domains: domains, missingDomains: missing };
+  }
+
+  /* Summaries of one window ending at day index e. n = 30 for most, 90 for slow measures. */
+  function summarise(S, nights, raw, e, n) {
+    var nightsW = nights.slice(Math.max(0, e - n + 1), e + 1).filter(function (x) { return x.has; });
+    var enoughNights = nightsW.length >= 14;
+    var prof = profile24(raw.hourly, e, n);
+    var cadW = S._cadence ? windowOf(S._cadence, e, n) : [];
+    var bmi = null, h = median(S.height), m = median(windowOf(S.bodyMass, e, 90));
+    if (ok(h) && ok(m) && h > 0.5) bmi = m / (h * h);
+    var strength = windowOf(S.strength, e, 28);
+    function need(a, k) { return vals(a).length >= (k || 10) ? a : []; }
+    return {
+      sri: enoughNights ? sri(nights, e, n) : null,
+      sleepH: enoughNights ? median(nightsW.map(function (x) { return x.asleepMin; })) / 60 : null,
+      ra: relativeAmplitude(prof),
+      peakHour: activityPeakHour(prof),
+      breathing: median(need(windowOf(S.breathingDisturbances, e, n), 10)),
+      spo2: median(need(windowOf(S.spo2, e, n), 10)),
+      steps: median(need(windowOf(S.steps, e, n), 14)),
+      cadence: median(need(cadW, 10)),
+      vo2: median(need(windowOf(S.vo2max, e, 90), 1)),
+      strengthPerWeek: vals(S.exerciseMin).length ? strength.reduce(function (s, x) { return s + (x || 0); }, 0) / 4 : null,
+      walkSpeed: quantile(need(windowOf(S.walkSpeed, e, n), 10), 0.9),
+      steadiness: median(need(windowOf(S.steadiness, e, 90), 1)),
+      rhr: median(need(windowOf(S.restingHR, e, n), 10)),
+      systolic: median(need(windowOf(S.systolic, e, 90), 3)),
+      bmi: bmi,
+      drinksPerWeek: vals(windowOf(S.alcohol, e, 28)).length ? windowOf(S.alcohol, e, 28).reduce(function (s, x) { return s + (x || 0); }, 0) / 4 : null,
+      headphoneDb: mean(need(windowOf(S.headphoneDb, e, n), 7))
+    };
+  }
+
+  /* ---------------- Daily Cognitive Readiness ---------------- */
+  var W = { sleepAmount: 0.30, sleepTiming: 0.25, recovery: 0.20, movement: 0.15, daylight: 0.10 };
+  var W_CHECK = 0.30;                                           // when a check is done, others scale to 70%
+
+  function dailyScores(S, nights, checkByDay) {
+    var n = S.steps.length, scores = [], parts = [];
+    for (var i = 0; i < n; i++) {
+      var lo = Math.max(0, i - 90), base = function (a) { return (a || []).slice(lo, i); };
+      var night = nights[i], c = {};
+      if (night && night.has) {
+        c.sleepAmount = rz(base(S._asleepRaw), night.asleepMin, 20);
+        var mids = base(S._midRaw);
+        if (vals(mids).length >= 5) c.sleepTiming = clamp(-(circDiff(night.midNoon, median(mids)) - 30) / 45, -2, 2);
+      }
+      var zr = rz(base(S.restingHR), S.restingHR[i], 2), zh = rz(base(S.hrv), S.hrv[i], 3);
+      if (zr !== null || zh !== null) c.recovery = ((zr !== null ? -zr : 0) + (zh !== null ? zh : 0)) / ((zr !== null) + (zh !== null));
+      if (i > 0) {
+        var zs = rz(base(S.steps).slice(0, -1), S.steps[i - 1], 500), ze = rz(base(S.exerciseMin).slice(0, -1), S.exerciseMin[i - 1], 5);
+        if (zs !== null || ze !== null) c.movement = zs !== null && ze !== null ? 0.7 * zs + 0.3 * ze : (zs !== null ? zs : ze);
+        var zd = rz(base(S.daylight).slice(0, -1), S.daylight[i - 1], 5);
+        if (zd !== null) c.daylight = zd;
+      }
+      var wsum = 0, total = 0;
+      Object.keys(W).forEach(function (k) { if (ok(c[k])) { wsum += W[k]; total += W[k] * c[k]; } });
+      var comp = wsum ? total / wsum : 0;
+      var chk = checkByDay[i];
+      if (ok(chk)) comp = (1 - W_CHECK) * comp + W_CHECK * chk;
+      var score = clamp(Math.round(72 + 14 * comp), 20, 99), flags = [];
+      if (night && night.has && night.asleepMin < 300) { score = Math.min(score, 55); flags.push("shortSleep"); }
+      var rr = base(S.respRate), wt = base(S.wristTemp);
+      if ((ok(S.respRate[i]) && vals(rr).length >= 7 && S.respRate[i] > median(rr) + 2 * robustScale(rr, 0.5)) ||
+          (ok(S.wristTemp[i]) && vals(wt).length >= 7 && S.wristTemp[i] - median(wt) > 0.5)) {
+        score = Math.min(score, 60); flags.push("unwell");
+      }
+      scores.push(wsum || ok(chk) ? score : null);
+      parts.push({ c: c, flags: flags, coverage: wsum });
+    }
+    return { scores: scores, parts: parts };
+  }
+
+  /* ---------------- the daily check ---------------- */
+  /* Personal reading of one check: compares each measure with the person's own earlier
+     checks (after 5 of them), or with rough starting values before that. Returns -2 to +2,
+     higher = sharper than usual. Priors are guesses. */
+  var CHECK_PRIOR = {
+    simple: [268, 25, -1], choice: [330, 35, -1], sd: [30, 12, -1], recall: [2.5, 0.6, 1],
+    typeIki: [230, 60, -1], typeErr: [0.5, 0.8, -1], voiceWords: [4, 1.5, 1], voiceSpeech: [0.55, 0.15, 1]
+  };
+  function checkComponent(r, history) {
+    var zs = [];
+    Object.keys(CHECK_PRIOR).forEach(function (k) {
+      if (!ok(r[k])) return;
+      var pr = CHECK_PRIOR[k], past = vals((history || []).map(function (h) { return h[k]; }));
+      var z = past.length >= 5 ? (r[k] - median(past)) / robustScale(past, pr[1] / 3) : (r[k] - pr[0]) / pr[1];
+      zs.push(clamp(z * pr[2], -2, 2));
+    });
+    return zs.length ? round(mean(zs), 2) : null;
+  }
+  function loadChecks() {
+    try { return JSON.parse(localStorage.getItem("charisma_check_history") || "{}") || {}; } catch (e) { return {}; }
+  }
+  function saveCheck(r) {
+    var all = loadChecks(), key = dateKey(new Date());
+    var hist = Object.keys(all).filter(function (k) { return k !== key; }).sort().map(function (k) { return all[k]; });
+    r.c = checkComponent(r, hist);
+    r.adj = ok(r.c) ? Math.round(14 * W_CHECK * r.c) : 0;
+    all[key] = r;
+    try { localStorage.setItem("charisma_check_history", JSON.stringify(all)); } catch (e) {}
+    return r;
+  }
+
+  /* ---------------- ages ---------------- */
+  function ageFrom(profile) {
+    if (profile && profile.dob) {
+      var p = profile.dob.split("-").map(Number), now = new Date();
+      var a = now.getFullYear() - p[0] - ((now.getMonth() + 1 < p[1] || (now.getMonth() + 1 === p[1] && now.getDate() < p[2])) ? 1 : 0);
+      if (a > 0 && a < 120) return a;
+    }
+    try { var s = parseFloat(localStorage.getItem("charisma_real_age") || ""); if (s > 0 && s < 120) return s; } catch (e) {}
+    return null;
+  }
+
+  /* ---------------- build ---------------- */
+  function buildData(raw) {
+    var start = new Date(raw.startDate * 1000), days = [];
+    for (var i = 0; i < DAYS; i++) days.push(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+    var series = raw.series || {}, S = {};
+    ["steps", "restingHR", "hrv", "respRate", "spo2", "walkSpeed", "stepLength", "steadiness", "asymmetry", "doubleSupport",
+     "daylight", "standMin", "exerciseMin", "activeEnergy", "vo2max", "headphoneDb", "alcohol", "systolic", "bodyMass", "height",
+     "wristTemp", "breathingDisturbances"].forEach(function (k) {
+      var a = (series[k] || []).slice(0, DAYS);
+      while (a.length < DAYS) a.push(null);
+      S[k] = a.map(function (v) { return ok(v) ? v : null; });
+    });
+    // Apple can report fractions where a percent is expected (see health-data-findings.md).
+    ["spo2", "steadiness", "asymmetry", "doubleSupport"].forEach(function (k) {
+      var mx = vals(S[k]).length ? Math.max.apply(null, vals(S[k])) : null;
+      if (mx !== null && mx > 0 && mx <= 1.0001) S[k] = S[k].map(function (v) { return ok(v) ? v * 100 : v; });
+    });
+    S.strength = (raw.strength || []).slice(0, DAYS);
+    var cad = raw.peakCadence || [];
+    S._cadence = new Array(DAYS - cad.length).fill(null).concat(cad).slice(-DAYS);
+
+    var profile = raw.profile || {}, age = ageFrom(profile), sex = profile.sex || null;
+    var nights = buildNights(raw.sleepSamples, days);
+    S._asleepRaw = nights.map(function (n) { return n.has ? n.asleepMin : null; });
+    S._midRaw = nights.map(function (n) { return n.has ? n.midNoon : null; });
+
+    // Checks already done, placed on their days
+    var checks = loadChecks();
+    var checkByDay = days.map(function (d) { var c = checks[dateKey(d)]; return c && ok(c.c) ? c.c : null; });
+    var checkList = Object.keys(checks).sort().map(function (k) { return checks[k]; });
+
+    var daily = dailyScores(S, nights, checkByDay);
+    var e = DAYS - 1;
+
+    // Brain Age now, a week ago, and on the last 30 days vs the last 90
+    function ageAt(endIdx, n) {
+      var x = summarise(S, nights, raw, endIdx, n || 30);
+      var recent = checkList.slice(-30);
+      x.checkRT = median(recent.map(function (c) { return c.simple; }));
+      x.checkN = checkList.length;
+      var dr = brainDrivers(x, age, sex);
+      return { summary: x, drivers: dr, result: brainAge(dr, age) };
+    }
+    var nowBA = ageAt(e), weekAgo = ageAt(e - 7), ninety = ageAt(e, 90);
+    var ba = nowBA.result;
+    if (ba) {
+      ba.weekChange = weekAgo.result ? round(ba.value - weekAgo.result.value, 1) : null;
+      ba.vs90 = ninety.result ? round(ba.value - ninety.result.value, 1) : null;
+      // biggest mover since last week
+      var prev = {}; (weekAgo.drivers || []).forEach(function (d) { prev[d.key] = d.years; });
+      var mover = null;
+      nowBA.drivers.forEach(function (d) {
+        var ch = d.years - (prev[d.key] || 0);
+        if (!mover || Math.abs(ch) > Math.abs(mover.change)) mover = { label: d.label, change: round(ch, 2) };
+      });
+      ba.weekMover = mover && Math.abs(mover.change) >= 0.05 ? mover : null;
+      ba.drivers = nowBA.drivers.slice().sort(function (a, b) { return Math.abs(b.years) - Math.abs(a.years); });
+      ba.helps = ba.drivers.filter(function (d) { return d.years <= -0.1; });
+      ba.costs = ba.drivers.filter(function (d) { return d.years >= 0.1; });
+      ba.levers = ba.drivers.filter(function (d) { return d.lever && d.lever.years < -0.05; })
+        .map(function (d) { return { label: d.label, text: d.lever.text, years: round(d.lever.years, 1) }; })
+        .sort(function (a, b) { return a.years - b.years; }).slice(0, 3);
+    }
+
+    // ---- DATA object for app.js (display series are gap-filled; scoring above was not) ----
+    var scores = daily.scores, sc = vals(scores);
+    var fillScores = forwardFill(scores.map(function (v) { return ok(v) ? v : null; }));
+    var sorted = sc.slice().sort(function (a, b) { return a - b; });
+    var usual = sorted.length ? [sorted[Math.floor(sorted.length / 10)], sorted[sorted.length - 1 - Math.floor(sorted.length / 10)]] : [64, 80];
+
+    var D = {};
+    ["steps", "restingHR", "hrv", "respRate", "spo2", "walkSpeed", "stepLength", "steadiness", "asymmetry", "doubleSupport",
+     "daylight", "standMin", "exerciseMin", "wristTemp", "vo2max"].forEach(function (k) { D[k] = forwardFill(S[k]); });
+    D.asleepMin = forwardFill(S._asleepRaw);
+    D.inBedMin = forwardFill(nights.map(function (n) { return n.has ? n.inBedMin : null; }));
+    D.onsetMin = forwardFill(nights.map(function (n) { return n.has ? n.onsetMin : null; }));
+    D.wakeMin = forwardFill(nights.map(function (n) { return n.has ? n.wakeMin : null; }));
+    D.deepMin = forwardFill(nights.map(function (n) { return n.has ? n.deepMin : null; }));
+    D.remMin = forwardFill(nights.map(function (n) { return n.has ? n.remMin : null; }));
+    D.awakenings = forwardFill(nights.map(function (n) { return n.has ? n.awakenings : null; }));
+    D.latencyMin = forwardFill(nights.map(function (n) { return n.has ? n.latencyMin : null; }));
+    D.fragPct = forwardFill(nights.map(function (n) { return n.has ? n.fragPct : null; }));
+    D.onsetSD = forwardFill(nights.map(function (_, i) {
+      var w = windowOf(S._midRaw, i, 14); return vals(w).length >= 5 ? round(sd(w), 1) : null;
+    }));
+    D.daySteady = forwardFill(days.map(function (_, i) { var v = sri(nights, i, 14); return ok(v) ? round(v / 100, 3) : null; }));
+    D.ra = days.map(function (_, i) { return relativeAmplitude(profile24(raw.hourly, i, 14)); });
+    D.ra = forwardFill(D.ra); D.routine = D.ra;
+    D.score = fillScores;
+
+    var li = DAYS - 1, L = function (a) { return a[li]; };
+    var monthIdx = []; for (i = Math.max(0, DAYS - 30); i < DAYS; i++) monthIdx.push(i);
+    var monthScores = vals(monthIdx.map(function (i) { return scores[i]; }));
+    var sriNow = nowBA.summary.sri;
+
+    var W_SHOW = [
+      { k: "How long you slept", v: Math.round(W.sleepAmount * 70) }, { k: "Your daily check", v: Math.round(W_CHECK * 100), lit: true },
+      { k: "When you slept", v: Math.round(W.sleepTiming * 70) }, { k: "Heart recovery", v: Math.round(W.recovery * 70) },
+      { k: "Yesterday's movement", v: Math.floor(W.movement * 70) }, { k: "Daylight", v: Math.round(W.daylight * 70) }
+    ];
+
+    return {
+      live: true,
+      window: [dateKey(days[0]), dateKey(days[li])],
+      sri: ok(sriNow) ? sriNow : "--",
+      usual: usual,
+      today: { date: dateKey(days[li]), score: ok(scores[li]) ? scores[li] : Math.round(median(sc) || 72), flags: daily.parts[li].flags,
+               parts: daily.parts[li].c },
+      week: days.slice(-7).map(function (d, j) { return { d: dateKey(d), v: fillScores[DAYS - 7 + j] }; }),
+      series: D,
+      modelled: (nowBA.summary.ra === null ? ["ra", "routine"] : []),
+      partial: ["restingHR", "hrv", "steadiness", "daylight"].filter(function (k) { return vals(S[k]).length < DAYS * 0.8; }),
+      coverage: (function () { var c = {}; Object.keys(S).forEach(function (k) { if (k[0] !== "_" && Array.isArray(S[k])) c[k] = vals(S[k]).length; });
+                               c.nights = nights.filter(function (n) { return n.has; }).length; return c; })(),
+      now: {
+        asleep: hm(L(D.asleepMin)), inbed: hm(L(D.inBedMin)), onset: clock(L(D.onsetMin)), wake: clock(L(D.wakeMin)),
+        latency: ok(L(D.latencyMin)) ? Math.round(L(D.latencyMin)) : "--", awakenings: L(D.awakenings),
+        deep: nights[li].has && nights[li].hasStages ? hm(nights[li].deepMin) : "--", rem: nights[li].has && nights[li].hasStages ? hm(nights[li].remMin) : "--", onsetSD: L(D.onsetSD), frag: L(D.fragPct),
+        restingHR: ok(last(S.restingHR)) ? Math.round(last(S.restingHR)) : "--", lowHR: "--",
+        hrv: ok(last(S.hrv)) ? round(last(S.hrv), 1) : "--", respRate: ok(last(S.respRate)) ? round(last(S.respRate), 1) : "--",
+        spo2: ok(last(S.spo2)) ? round(last(S.spo2), 1) : "--", skinTemp: "--",
+        wristTemp: ok(last(S.wristTemp)) ? round(last(S.wristTemp) - (median(S.wristTemp) || 0), 2) + "°" : "--",
+        steps: Math.round(L(D.steps) || 0).toLocaleString(), stand: hm(L(D.standMin)), exercise: Math.round(L(D.exerciseMin) || 0), sit: "--",
+        walkSpeed: ok(last(S.walkSpeed)) ? round(last(S.walkSpeed), 2) : "--", steadiness: ok(last(S.steadiness)) ? round(last(S.steadiness), 1) : "--",
+        asymmetry: ok(last(S.asymmetry)) ? round(last(S.asymmetry), 1) : "--", doubleSupport: ok(last(S.doubleSupport)) ? round(last(S.doubleSupport), 1) : "--",
+        routine: ok(nowBA.summary.ra) ? L(D.ra) : "--", ra: ok(nowBA.summary.ra) ? L(D.ra) : "--", daySteady: L(D.daySteady),
+        busyHour: ok(nowBA.summary.peakHour) ? clock(nowBA.summary.peakHour * 60) : "--", quietHour: "--",
+        daylight: Math.round(L(D.daylight) || 0)
+      },
+      month: {
+        mean: monthScores.length ? Math.round(mean(monthScores)) : null, prevMean: null, days: monthScores.length,
+        inRange: monthScores.filter(function (s) { return s >= usual[0] && s <= usual[1]; }).length,
+        onsetSD: median(windowOf(D.onsetSD, li, 30)), prevOnsetSD: null,
+        steps: Math.round(median(windowOf(S.steps, li, 30)) || 0)
+      },
+      ninety: {
+        scoreMed: Math.round(median(sc) || 0), scoreLo: sc.length ? Math.min.apply(null, sc) : 0, scoreHi: sc.length ? Math.max.apply(null, sc) : 0,
+        restingHR: round(median(S.restingHR) || 0, 1), onsetSD: median(D.onsetSD), walkSpeed: round(median(S.walkSpeed) || 0, 2),
+        routine: round(median(D.ra) || 0, 2), steps: Math.round(median(S.steps) || 0)
+      },
+      weights: W_SHOW,
+      brainAge: ba,
+      realAge: age,
+      sex: sex
+    };
+  }
+
+  window.ChariHealth = {
+    load: function () {
+      return HealthKit.isAvailable().then(function (r) {
+        if (!r.available) throw new Error("HealthKit not available on this device");
+        return HealthKit.requestAuthorization();
+      }).then(function () {
+        return HealthKit.fetchDailySeries({ days: DAYS });
+      }).then(function (raw) { window.ChariHealth._lastRaw = raw; return buildData(raw); });
+    },
+    saveCheck: saveCheck,
+    checkComponent: checkComponent,
+    weights: { passive: W, check: W_CHECK },
+    _buildData: buildData,
+    _internals: { brainDrivers: brainDrivers, brainAge: brainAge, sri: sri, buildNights: buildNights, yearsFromRisk: yearsFromRisk }
+  };
+})();
+
+</script>
+<script>
+(function(){
+  function loadApp(){
+    var s = document.createElement("script");
+    s.text = document.getElementById("appsrc").textContent;
+    document.body.appendChild(s);
+  }
+  function ensureAge(){
+    // Fallback only: brain age needs a real age, normally read from the birthday in Apple Health.
+    // A proper birthdate picker screen replaces this prompt before this ships past
+    // friends-testing; tracked as an open item.
+    try {
+      var existing = localStorage.getItem("charisma_real_age");
+      if (existing && !isNaN(parseFloat(existing))) return;
+      var input = window.prompt("Quick setup: what's your age? (used only to estimate your brain age)");
+      var age = parseFloat(input);
+      if (!isNaN(age) && age > 0 && age < 120) {
+        localStorage.setItem("charisma_real_age", String(age));
+      }
+    } catch (e) { /* localStorage unavailable; brain age card will just stay hidden */ }
+  }
+  var isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if (isNative && window.ChariHealth) {
+    window.ChariHealth.load().then(function(liveData){
+      // Age comes from the birthday in Apple Health. Only ask if Health does not have it.
+      if (!liveData.realAge){
+        ensureAge();
+        liveData = window.ChariHealth._buildData(window.ChariHealth._lastRaw);
+      }
+      window.__LIVE_DATA__ = liveData;
+      loadApp();
+    }).catch(function(err){
+      console.error("Charisma: health data load failed, falling back to demo data", err);
+      loadApp();
+    });
+  } else {
+    loadApp();
+  }
 })();
 </script>
 
